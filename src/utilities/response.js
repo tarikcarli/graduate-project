@@ -1,0 +1,60 @@
+const { sequelize } = require("../connection/db");
+const env = require("../config/env");
+
+/**
+ * Log http request into the database.
+ *
+ * @param {{message:string,status:number}} options options object
+ * @param {import("express").Request} req Request object with header
+ */
+async function log(options, req) {
+  // @ts-ignore
+  const { reqUserId } = req;
+  await sequelize.models.Log.create({
+    ip: req.connection.remoteAddress,
+    userId: reqUserId,
+    method: req.method,
+    body: JSON.stringify(req.body),
+    headers: JSON.stringify(req.headers),
+    url: req.originalUrl,
+    message: options.message,
+    status: options.status,
+  });
+}
+
+/**
+ * Send http response to request that coming by parameter.
+ *
+ * @param {Object} options Request object with header,
+ * @param {import("express").Request} req Request object with header
+ * @param {import("express").Response} res Response object with header
+ * @param {import("express").NextFunction} next EXpress next function with header
+ * @return {undefined}
+ */
+function response(options, req, res, next) {
+  if (!options) {
+    next(Error(`Options parameter required.`));
+    return;
+  }
+  if (!options.status) {
+    next(Error(`Options.status parameter required.`));
+    return;
+  }
+  if (
+    (options.message && options.data) ||
+    (!options.message && !options.data)
+  ) {
+    next(Error(`Options.data or options.message parameter required.`));
+    return;
+  }
+
+  const response = {
+    data: options.data,
+    message: options.message,
+  };
+  if (env.LOGGING || options.status >= 400) log(options, req);
+
+  res.status(options.status).json(response);
+}
+
+module.exports = response;
