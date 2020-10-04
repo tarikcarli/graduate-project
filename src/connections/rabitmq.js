@@ -1,7 +1,8 @@
+const amqp = require("amqplib/callback_api");
 const { clients } = require("./ws");
 const redis = require("./redis");
 const { env } = require("../config/env");
-const amqp = require("amqplib/callback_api");
+
 const rabbitmq = {};
 const exchange = "NOTIFICATION7";
 
@@ -31,13 +32,14 @@ amqp.connect(env.rabbitmqUrl, (err, conn) => {
             ` [x] ${msg.fields.routingKey}: ${msg.content.toString()}`
           );
           ch.ack(msg);
-          redis.del(`not${msg.fields.routingKey}`);
+          clients.send(msg.content.toString());
+          await redis.del(`not${msg.fields.routingKey}`);
         },
         { noAck: false }
       );
 
       rabbitmq.bind = ((ch, q, exchange) => (userId) => {
-        ch.bindQueue(q.queue, exchange, userId, null, async (err, result) => {
+        ch.bindQueue(q.queue, exchange, userId, null, async (err, _result) => {
           if (err) {
             console.log(`ch.bindQueue Error ${err}`);
             return;
@@ -48,12 +50,17 @@ amqp.connect(env.rabbitmqUrl, (err, conn) => {
       })(ch, q, exchange);
 
       rabbitmq.unbind = ((ch, q, exchange) => (userId) => {
-        ch.unbindQueue(q.queue, exchange, userId, null, async (err, result) => {
-          if (err) {
-            console.log(`ch.unbindQueue Error ${err}`);
-            return;
+        ch.unbindQueue(
+          q.queue,
+          exchange,
+          userId,
+          null,
+          async (err, _result) => {
+            if (err) {
+              console.log(`ch.unbindQueue Error ${err}`);
+            }
           }
-        });
+        );
       })(ch, q, exchange);
       // rabbitmq.bind("1");
       // rabbitmq.bind("2");

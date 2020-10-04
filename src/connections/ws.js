@@ -1,9 +1,11 @@
-const redis = require("./redis");
 const jwt = require("jsonwebtoken");
+const WebSocket = require("ws");
+const redis = require("./redis");
 const { env } = require("../config/env");
+const { INTRODUCTION } = require("../config/ws_types");
 
 const clients = {};
-const WebSocket = require("ws");
+
 /**
  *
  *
@@ -17,8 +19,8 @@ const init = (server) => {
     ws.on("message", (data) => {
       try {
         const message = JSON.parse(data.toString());
-        if (message.type == "INTRODUCTION") {
-          const token = message.data.token;
+        if (message.type === INTRODUCTION) {
+          const { token } = message.data;
           jwt.verify(token, env.secret, async (err, decoded) => {
             if (err) {
               ws.close();

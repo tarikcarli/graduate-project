@@ -8,7 +8,7 @@ const { env } = require("../config/env");
  * @param {import("express").Request} req Request object with header
  */
 async function log(options, req) {
-  const { reqUserId } = req;
+  let { reqUserId } = req;
   if (reqUserId) reqUserId = 0;
   await sequelize.models.Log.create({
     ip: req.connection.remoteAddress,
@@ -33,28 +33,28 @@ async function log(options, req) {
  */
 function response(options, req, res, next) {
   if (!options) {
-    next(Error(`Options parameter required.`));
+    next(Error("Options parameter required."));
     return;
   }
   if (!options.status) {
-    next(Error(`Options.status parameter required.`));
+    next(Error("Options.status parameter required."));
     return;
   }
   if (
     (options.message && options.data) ||
     (!options.message && !options.data)
   ) {
-    next(Error(`Either options.data or options.message parameter required.`));
+    next(Error("Either options.data or options.message parameter required."));
     return;
   }
 
-  const response = {
+  const responseData = {
     data: options.data,
     message: options.message,
   };
   if (env.logging || options.status >= 400) log(options, req);
 
-  res.status(options.status).json(response);
+  res.status(options.status).json(responseData);
 }
 
 module.exports = response;

@@ -1,5 +1,6 @@
 const { Sequelize } = require("sequelize");
 const { env } = require("../config/env");
+
 const sequelize = new Sequelize(env.dbUrl);
 exports.sequelize = sequelize;
 

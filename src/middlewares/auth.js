@@ -1,5 +1,5 @@
-const redis = require("../connections/redis");
 const jwt = require("jsonwebtoken");
+const redis = require("../connections/redis");
 const { env } = require("../config/env");
 const response = require("../utilities/response");
 
@@ -11,7 +11,7 @@ const response = require("../utilities/response");
  * @returns {undefined}
  */
 function auth(req, res, next) {
-  const token = req.headers["authorization"];
+  const token = req.headers.authorization;
   if (!token) {
     const options = {
       message: "Token is required.",
@@ -20,7 +20,7 @@ function auth(req, res, next) {
     return response(options, req, res, next);
   }
 
-  jwt.verify(token, env.secret, async (err, decoded) => {
+  return jwt.verify(token, env.secret, async (err, decoded) => {
     if (err) {
       console.log(`Auth.jwt.verify Error ${err}`);
       const options = {
@@ -29,21 +29,17 @@ function auth(req, res, next) {
       };
       return response(options, req, res, next);
     }
-    // @ts-ignore
     req.reqUserId = Number(decoded.id);
-    // @ts-ignore
     req.reqUserRole = Number(decoded.role);
-    // @ts-ignore
     const reply = await redis.get(`token${req.reqUserId.toString()}`);
     if (reply && reply === token) {
       return next();
-    } else {
-      const options = {
-        message: "Token is invalid.",
-        status: 401,
-      };
-      return response(options, req, res, next);
     }
+    const options = {
+      message: "Token is invalid.",
+      status: 401,
+    };
+    return response(options, req, res, next);
   });
 }
 
@@ -64,7 +60,7 @@ function onlyCompany(req, res, next) {
     };
     return response(options, req, res, next);
   }
-  next();
+  return next();
 }
 
 /**
@@ -84,7 +80,7 @@ function onlyWorker(req, res, next) {
     };
     return response(options, req, res, next);
   }
-  next();
+  return next();
 }
 
 module.exports = { auth, onlyCompany, onlyWorker };
