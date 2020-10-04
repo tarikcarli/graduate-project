@@ -5,6 +5,7 @@ const env = {
   secret: process.env.SECRET,
   port: Number.parseInt(process.env.PORT),
   test: process.env.TEST === "true",
+  logging: process.env.LOGGING === "true",
 };
 console.log(env);
 

@@ -1,12 +1,11 @@
-const env = require("../config/env");
-const { DataTypes } = require("sequelize");
-const { sequelize } = require("../connection/db");
+const { DataTypes, Model } = require("sequelize");
+const { sequelize } = require("../connections/db");
 
-const Log = sequelize.define(
-  "Log",
+class Log extends Model {}
+
+Log.init(
   {
     id: {
-      field: "id",
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -16,44 +15,40 @@ const Log = sequelize.define(
       type: DataTypes.INTEGER,
     },
     ip: {
-      field: "ip",
       type: DataTypes.STRING,
+      allowNull: false,
     },
     method: {
-      field: "method",
       type: DataTypes.STRING,
+      allowNull: false,
     },
     body: {
-      field: "body",
       type: DataTypes.TEXT,
+      allowNull: false,
     },
     headers: {
-      field: "headers",
       type: DataTypes.TEXT,
-    },
-    message: {
-      field: "message",
-      type: DataTypes.TEXT,
-    },
-    status: {
-      field: "status",
-      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     url: {
-      field: "url",
       type: DataTypes.STRING,
+      allowNull: false,
     },
-    createdAt: {
-      field: "created_at",
-      type: DataTypes.DATE,
+    message: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   },
   {
-    tableName: "t_dg_log",
-    schema: env.SCHEMA,
-    freezeTableName: true,
+    sequelize,
+    tableName: "log",
     timestamps: true,
     updatedAt: false,
+    createdAt: "created_at",
   }
 );
 

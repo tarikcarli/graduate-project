@@ -1,4 +1,5 @@
 require("./connections/rabitmq");
+require("./connections/db");
 const path = require("path");
 const express = require("express");
 

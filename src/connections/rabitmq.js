@@ -27,29 +27,37 @@ amqp.connect(env.rabbitmqUrl, (err, conn) => {
       ch.consume(
         q.queue,
         async (msg) => {
-          redis.del(`not${msg.fields.routingKey}`);
           console.log(
             ` [x] ${msg.fields.routingKey}: ${msg.content.toString()}`
           );
           ch.ack(msg);
+          redis.del(`not${msg.fields.routingKey}`);
         },
         { noAck: false }
       );
 
-      rabbitmq.bind = ((ch, q, exchange) => async (userId) => {
-        ch.bindQueue(q.queue, exchange, userId);
-        const reply = await redis.get(`not${userId}`);
-        if (reply) rabbitmq.publish(userId, reply);
+      rabbitmq.bind = ((ch, q, exchange) => (userId) => {
+        ch.bindQueue(q.queue, exchange, userId, null, async (err, result) => {
+          if (err) {
+            console.log(`ch.bindQueue Error ${err}`);
+            return;
+          }
+          const reply = await redis.get(`not${userId}`);
+          if (reply) rabbitmq.publish(userId, reply);
+        });
       })(ch, q, exchange);
 
       rabbitmq.unbind = ((ch, q, exchange) => (userId) => {
-        ch.unbindQueue(q.queue, exchange, userId);
+        ch.unbindQueue(q.queue, exchange, userId, null, async (err, result) => {
+          if (err) {
+            console.log(`ch.unbindQueue Error ${err}`);
+            return;
+          }
+        });
       })(ch, q, exchange);
       // rabbitmq.bind("1");
-      // setTimeout(() => {
-      //   rabbitmq.bind("2");
-      //   rabbitmq.bind("3");
-      // }, 2000);
+      // rabbitmq.bind("2");
+      // rabbitmq.bind("3");
     });
     rabbitmq.publish = ((ch, exchange) => async (userId, msg) => {
       await redis.set(`not${userId}`, msg);
@@ -58,12 +66,9 @@ amqp.connect(env.rabbitmqUrl, (err, conn) => {
       });
       console.log(` [x] Sent ${msg} to ${exchange}: ${userId}`);
     })(ch, exchange);
-    // setTimeout(() => {
-    //   rabbitmq.publish("1", "tarik carli");
-    //   rabbitmq.publish("2", "tarik carli");
-    //   rabbitmq.publish("3", "tarik carli");
-    //   rabbitmq.publish("3", "tarik carli");
-    // }, 1000);
+    // rabbitmq.publish("1", "tarik carli");
+    // rabbitmq.publish("2", "tarik carli");
+    // rabbitmq.publish("3", "tarik carli");
   });
 });
 module.exports = rabbitmq;

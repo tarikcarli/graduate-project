@@ -1,5 +1,5 @@
-const { sequelize } = require("../connection/db");
-const env = require("../config/env");
+const { sequelize } = require("../connections/db");
+const { env } = require("../config/env");
 
 /**
  * Log http request into the database.
@@ -8,8 +8,8 @@ const env = require("../config/env");
  * @param {import("express").Request} req Request object with header
  */
 async function log(options, req) {
-  // @ts-ignore
   const { reqUserId } = req;
+  if (reqUserId) reqUserId = 0;
   await sequelize.models.Log.create({
     ip: req.connection.remoteAddress,
     userId: reqUserId,
@@ -44,7 +44,7 @@ function response(options, req, res, next) {
     (options.message && options.data) ||
     (!options.message && !options.data)
   ) {
-    next(Error(`Options.data or options.message parameter required.`));
+    next(Error(`Either options.data or options.message parameter required.`));
     return;
   }
 
@@ -52,7 +52,7 @@ function response(options, req, res, next) {
     data: options.data,
     message: options.message,
   };
-  if (env.LOGGING || options.status >= 400) log(options, req);
+  if (env.logging || options.status >= 400) log(options, req);
 
   res.status(options.status).json(response);
 }
