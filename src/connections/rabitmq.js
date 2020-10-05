@@ -1,6 +1,5 @@
 const amqp = require("amqplib/callback_api");
 const { clients } = require("./ws");
-const redis = require("./redis");
 const { env } = require("../config/env");
 
 const rabbitmq = {};
@@ -16,66 +15,68 @@ amqp.connect(env.rabbitmqUrl, (err, conn) => {
       console.log(`conn.createChannel Error ${err}`);
       return;
     }
-    ch.assertExchange(exchange, "direct", {
-      durable: true,
-    });
-    ch.assertQueue("", { exclusive: true }, (err, q) => {
-      if (err) {
-        console.log(`ch.assertQueue Error ${err}`);
-        return;
-      }
-      ch.prefetch(1);
-      ch.consume(
-        q.queue,
-        async (msg) => {
-          console.log(
-            ` [x] ${msg.fields.routingKey}: ${msg.content.toString()}`
-          );
-          ch.ack(msg);
-          clients.send(msg.content.toString());
-          await redis.del(`not${msg.fields.routingKey}`);
-        },
-        { noAck: false }
-      );
-
-      rabbitmq.bind = ((ch, q, exchange) => (userId) => {
-        ch.bindQueue(q.queue, exchange, userId, null, async (err, _result) => {
-          if (err) {
-            console.log(`ch.bindQueue Error ${err}`);
-            return;
-          }
-          const reply = await redis.get(`not${userId}`);
-          if (reply) rabbitmq.publish(userId, reply);
-        });
-      })(ch, q, exchange);
-
-      rabbitmq.unbind = ((ch, q, exchange) => (userId) => {
-        ch.unbindQueue(
-          q.queue,
-          exchange,
-          userId,
-          null,
-          async (err, _result) => {
-            if (err) {
-              console.log(`ch.unbindQueue Error ${err}`);
+    rabbitmq.bind = ((ch) => (userId) => {
+      ch.assertQueue(`user${userId}`, { durable: true }, (err, _q) => {
+        if (err) {
+          console.log(`ch.assertQueue Error ${err}`);
+          return;
+        }
+        ch.prefetch(1);
+        ch.consume(
+          `user${userId}`,
+          async (msg) => {
+            console.log(` [x] ${userId}: ${msg.content.toString()}`);
+            ch.ack(msg);
+            if (clients[userId]) {
+              clients[userId].send(msg.content.toString());
             }
-          }
+          },
+          { noAck: false, consumerTag: `user${userId}` }
         );
-      })(ch, q, exchange);
-      // rabbitmq.bind("1");
-      // rabbitmq.bind("2");
-      // rabbitmq.bind("3");
-    });
-    rabbitmq.publish = ((ch, exchange) => async (userId, msg) => {
-      await redis.set(`not${userId}`, msg);
-      ch.publish(exchange, userId, Buffer.from(msg), {
-        persistent: true,
       });
-      console.log(` [x] Sent ${msg} to ${exchange}: ${userId}`);
-    })(ch, exchange);
-    // rabbitmq.publish("1", "tarik carli");
-    // rabbitmq.publish("2", "tarik carli");
-    // rabbitmq.publish("3", "tarik carli");
+    })(ch);
+
+    rabbitmq.unbind = ((ch) => (userId) => {
+      ch.cancel(`user${userId}`, (err, _result) => {
+        if (err) {
+          console.log(`ch.cancel Error ${err}`);
+        }
+      });
+    })(ch);
+
+    rabbitmq.publish = ((ch) => async (userId, msg) => {
+      ch.assertQueue(`user${userId}`, { durable: true }, (err, _q) => {
+        if (err) {
+          console.log(`ch.assertQueue Error ${err}`);
+          return;
+        }
+        const result = ch.sendToQueue(`user${userId}`, Buffer.from(msg), {
+          persistent: true,
+        });
+        console.log(`${result} [x] Sent ${msg} to ${exchange}: ${userId}`);
+      });
+    })(ch);
   });
 });
+
+// setTimeout(() => {
+//   rabbitmq.bind("1");
+//   rabbitmq.bind("2");
+// }, 500);
+
+// setTimeout(() => {
+//   rabbitmq.unbind("2");
+// }, 750);
+
+// setTimeout(() => {
+//   rabbitmq.bind("3");
+//   rabbitmq.bind("2");
+// }, 3000);
+
+// setTimeout(() => {
+//   rabbitmq.publish("1", "tarik carli");
+//   rabbitmq.publish("2", "tarik carli");
+//   rabbitmq.publish("3", "tarik carli");
+// }, 2000);
+
 module.exports = rabbitmq;
