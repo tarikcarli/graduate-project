@@ -51,7 +51,6 @@ function auth(req, res, next) {
  * @returns {undefined}
  */
 function onlyCompany(req, res, next) {
-  // @ts-ignore
   const { reqUserRole } = req;
   if (reqUserRole === 1) {
     const options = {
@@ -68,10 +67,9 @@ function onlyCompany(req, res, next) {
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
- * @returns {undefined} undefined
+ * @returns {undefined}
  */
 function onlyWorker(req, res, next) {
-  // @ts-ignore
   const { reqUserRole } = req;
   if (reqUserRole === 0) {
     const options = {

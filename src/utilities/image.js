@@ -16,16 +16,24 @@ const s3 = new AWS.S3();
  * @param {String} data
  * @return {void}
  */
-const writeBase64Image = (imagePath, data) => {
+const Base64ImageToS3 = (imagePath, data) => {
   const params = {
     Bucket: env.S3_BUCKET_NAME,
     Body: Buffer.from(data, "base64"),
     Key: imagePath,
   };
-  return s3.upload(params, (error, data) => {
-    if (error) console.log(`writeBase64Image.s3.upload Error ${error}`);
-    if (data) console.log(`writeBase64Image.s3.upload Success ${data}`);
+  return new Promise((resolve, reject) => {
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.log(`writeBase64Image.s3.upload Error ${err}`);
+        reject(err);
+      }
+      if (data) {
+        console.log(`writeBase64Image.s3.upload Success ${data}`);
+        resolve(data);
+      }
+    });
   });
 };
 
-module.exports = { writeBase64Image };
+module.exports = { Base64ImageToS3 };

@@ -6,6 +6,9 @@ const env = {
   port: Number.parseInt(process.env.PORT, 10),
   test: process.env.TEST === "true",
   logging: process.env.LOGGING === "true",
+  AWSAccessKeyId: "",
+  AWSSecretKey: "",
+  S3_BUCKET_NAME: "",
 };
 console.log(env);
 

@@ -4,7 +4,17 @@ const { env } = require("../config/env");
 const sequelize = new Sequelize(env.dbUrl);
 exports.sequelize = sequelize;
 
+require("../models/business");
+require("../models/city");
+require("../models/invoice");
+require("../models/location");
 require("../models/log");
+require("../models/otherInvoice");
+require("../models/photo");
+require("../models/taxiInvoice");
+require("../models/user");
+require("../models/userLocation");
+require("../models/workerCompany");
 
 (async () => {
   try {

@@ -13,6 +13,7 @@ UserLocation.init(
     locationId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      unique: true,
       field: "location_id",
     },
   },

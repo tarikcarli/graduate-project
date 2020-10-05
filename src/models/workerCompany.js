@@ -17,5 +17,5 @@ WorkerCompany.init(
       field: "company_id",
     },
   },
-  { sequelize }
+  { sequelize, tableName: "worker_company", timestamps: false }
 );

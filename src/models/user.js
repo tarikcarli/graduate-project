@@ -16,7 +16,7 @@ User.init(
       field: "photo_id",
     },
     role: {
-      tpye: DataTypes.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     name: {

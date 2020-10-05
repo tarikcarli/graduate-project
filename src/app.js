@@ -1,7 +1,8 @@
-require("./connections/db");
-require("./connections/rabitmq");
 const path = require("path");
 const express = require("express");
+require("./connections/redis");
+require("./connections/rabitmq");
+require("./connections/db");
 
 const app = express();
 exports.app = app;
