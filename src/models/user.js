@@ -23,11 +23,10 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    phoneNumber: {
+    email: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      field: "phone_number",
     },
     password: {
       type: DataTypes.STRING,
