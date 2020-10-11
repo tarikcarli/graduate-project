@@ -17,17 +17,14 @@ TaxiInvoice.init(
     locationBegin: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "location_begin",
     },
     locationEnd: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "location_end",
     },
     priceEstimate: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "price_estimate",
     },
     distance: {
       type: DataTypes.INTEGER,

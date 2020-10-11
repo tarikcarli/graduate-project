@@ -9,12 +9,10 @@ WorkerCompany.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
-      field: "worker_id",
     },
     companyId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "company_id",
     },
   },
   { sequelize, tableName: "worker_company", timestamps: false }

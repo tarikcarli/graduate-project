@@ -1,7 +1,42 @@
 const { DataTypes, Model } = require("sequelize");
+const bcrypt = require("bcrypt");
 const { sequelize } = require("../connections/db");
 
-class User extends Model {}
+class User extends Model {
+  /**
+   * To compare plain text password to hash password value.
+   * @param {String} password plain text password
+   * @memberof User
+   */
+  async verifyPassword(password) {
+    return new Promise((resolve, _reject) => {
+      return bcrypt.compare(password, this.password, (err, result) => {
+        return resolve(result);
+      });
+    });
+  }
+
+  /**
+   * To compare plain text password to hash password value.
+   * @param {String} password plain text password
+   * @memberof User
+   */
+  static async hashPassword(password) {
+    return new Promise((resolve, reject) => {
+      bcrypt.genSalt(10, (err, salt) => {
+        if (err) {
+          return reject(err);
+        }
+        return bcrypt.hash(password, salt, (err, hash) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve(hash);
+        });
+      });
+    });
+  }
+}
 
 User.init(
   {
@@ -12,12 +47,11 @@ User.init(
     },
     photoId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      field: "photo_id",
     },
     role: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.ENUM,
       allowNull: false,
+      values: ["company", "worker"],
     },
     name: {
       type: DataTypes.STRING,
@@ -37,7 +71,5 @@ User.init(
     sequelize,
     tableName: "user",
     timestamps: true,
-    createdAt: "created_at",
-    updatedAt: "updated_at",
   }
 );

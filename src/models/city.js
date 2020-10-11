@@ -17,7 +17,6 @@ City.init(
     taxiPrice: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "taxi_price",
     },
   },
   { sequelize, tableName: "city", timestamps: false }

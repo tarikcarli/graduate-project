@@ -10,7 +10,8 @@ const { env } = require("../config/env");
 async function log(options, req) {
   let { reqUserId } = req;
   if (reqUserId) reqUserId = 0;
-  await sequelize.models.Log.create({
+  const db = req.db || sequelize.models;
+  await db.Log.create({
     ip: req.connection.remoteAddress,
     userId: reqUserId,
     method: req.method,

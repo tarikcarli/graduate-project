@@ -1,5 +1,7 @@
+const fs = require("fs");
+const path = require("path");
 const AWS = require("aws-sdk");
-const env = require("../config/env");
+const { env } = require("../config/env");
 
 AWS.config.update({
   accessKeyId: env.AWSAccessKeyId,
@@ -17,6 +19,19 @@ const s3 = new AWS.S3();
  * @return {void}
  */
 const Base64ImageToS3 = (imagePath, data) => {
+  if (env.test) {
+    const binaryData = Buffer.from(data);
+    return new Promise((resolve, reject) => {
+      fs.writeFile(
+        path.join(__dirname, "../../public/images", `${imagePath}.jpeg`),
+        binaryData,
+        (err) => {
+          if (err) return reject(err);
+          return resolve();
+        }
+      );
+    });
+  }
   const params = {
     Bucket: env.S3_BUCKET_NAME,
     Body: Buffer.from(data, "base64"),

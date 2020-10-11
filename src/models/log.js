@@ -11,36 +11,28 @@ Log.init(
       autoIncrement: true,
     },
     userId: {
-      field: "user_id",
       type: DataTypes.INTEGER,
     },
     ip: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     method: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     body: {
       type: DataTypes.TEXT,
-      allowNull: false,
     },
     headers: {
       type: DataTypes.TEXT,
-      allowNull: false,
     },
     url: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     message: {
       type: DataTypes.TEXT,
-      allowNull: false,
     },
     status: {
       type: DataTypes.INTEGER,
-      allowNull: false,
     },
   },
   {
@@ -48,7 +40,6 @@ Log.init(
     tableName: "log",
     timestamps: true,
     updatedAt: false,
-    createdAt: "created_at",
   }
 );
 

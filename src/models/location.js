@@ -24,6 +24,5 @@ Location.init(
     tableName: "location",
     timestamps: true,
     updatedAt: false,
-    createdAt: "created_at",
   }
 );

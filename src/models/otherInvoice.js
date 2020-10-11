@@ -13,12 +13,10 @@ OtherInvoice.init(
     invoiceId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "invoice_id",
     },
     locationId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "location_id",
     },
   },
   { sequelize, tableName: "invoice_other", timestamps: false }

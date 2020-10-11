@@ -13,12 +13,10 @@ Invoice.init(
     businessId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "business_id",
     },
     photoId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "photo_id",
     },
     type: {
       type: DataTypes.INTEGER,
@@ -31,7 +29,6 @@ Invoice.init(
     invoicedAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      field: "invoiced_at",
     },
   },
   {
@@ -39,6 +36,5 @@ Invoice.init(
     tableName: "invoice",
     timestamps: true,
     updatedAt: false,
-    createdAt: "created_at",
   }
 );

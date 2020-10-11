@@ -1,25 +1,20 @@
-const jwt = require("jsonwebtoken");
 const redis = require("../connections/redis");
 const { sequelize } = require("../connections/db");
 const { env } = require("../config/env");
 const response = require("../utilities/response");
+const { verify } = require("../utilities/jwt");
 
 /**
  *
- * @param {String} token
- * @param {String} secret
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @returns {undefined}
  */
-function verify(token, secret) {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, secret, async (err, decoded) => {
-      if (err) {
-        return reject(err);
-      }
-      return resolve(decoded);
-    });
-  });
+function insertDb(req, res, next) {
+  req.db = sequelize.models;
+  return next();
 }
-
 /**
  *
  * @param {import("express").Request} req
@@ -29,7 +24,8 @@ function verify(token, secret) {
  */
 async function auth(req, res, next) {
   try {
-    const token = req.headers.authorization;
+    const baererToken = req.headers.authorization;
+    const token = baererToken.split(" ")[1];
     if (!token) {
       const options = {
         message: "Token is required.",
@@ -40,8 +36,7 @@ async function auth(req, res, next) {
     const decoded = await verify(token, env.secret);
     req.userId = Number(decoded.id);
     req.userRole = Number(decoded.role);
-    req.db = sequelize.models;
-    const reply = await redis.get(`token${req.reqUserId.toString()}`);
+    const reply = await redis.get(`token${req.userId.toString()}`);
     if (!reply || reply !== token) {
       throw new Error("Token isn't stored.");
     }
@@ -94,4 +89,4 @@ function onlyWorker(req, res, next) {
   return next();
 }
 
-module.exports = { auth, onlyCompany, onlyWorker };
+module.exports = { auth, onlyCompany, onlyWorker, insertDb };

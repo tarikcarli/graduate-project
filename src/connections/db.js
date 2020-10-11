@@ -19,103 +19,131 @@ require("../models/workerCompany");
 const db = sequelize.models;
 // Photo associations
 db.Photo.hasOne(db.User, {
-  foreignKey: "photo_id",
+  foreignKey: "photoId",
 });
-db.User.belongsTo(db.Photo);
+db.User.belongsTo(db.Photo, {
+  foreignKey: "photoId",
+});
 
 db.Photo.hasOne(db.Invoice, {
-  foreignKey: "photo_id",
+  foreignKey: "photoId",
 });
-db.Invoice.belongsTo(db.Photo);
+db.Invoice.belongsTo(db.Photo, {
+  foreignKey: "photoId",
+});
 
 // City associations
 db.City.hasMany(db.Business, {
-  foreignKey: "city_id",
+  foreignKey: "cityId",
 });
-db.Business.belongsTo(db.City);
+db.Business.belongsTo(db.City, {
+  foreignKey: "cityId",
+});
 
 // User associations
 db.User.hasOne(db.WorkerCompany, {
-  foreignKey: "worker_id",
-  as: "company",
+  foreignKey: "workerId",
+  as: "Company",
 });
 db.WorkerCompany.belongsTo(db.User, {
-  as: "workerCompany",
+  foreignKey: "workerId",
+  as: "CompanyWorker",
 });
 
 db.User.hasMany(db.WorkerCompany, {
-  foreignKey: "company_id",
-  as: "worker",
+  foreignKey: "companyId",
+  as: "Worker",
 });
 db.WorkerCompany.belongsTo(db.User, {
-  as: "companyWorker",
+  as: "WorkerCompany",
+  foreignKey: "companyId",
 });
 
 db.User.hasMany(db.UserLocation, {
-  foreignKey: "user_id",
+  foreignKey: "userId",
 });
-db.UserLocation.belongsTo(db.User);
+db.UserLocation.belongsTo(db.User, {
+  foreignKey: "userId",
+});
 
 db.User.hasMany(db.Business, {
-  foreignKey: "company_id",
-  as: "companyBusiness",
+  foreignKey: "companyId",
+  as: "CompanyBusiness",
 });
-db.Business.belongsTo(db.User);
+db.Business.belongsTo(db.User, {
+  foreignKey: "companyId",
+});
 
 db.User.hasMany(db.Business, {
-  foreignKey: "worker_id",
-  as: "workerBusiness",
+  foreignKey: "workerId",
+  as: "WorkerBusiness",
 });
-db.Business.belongsTo(db.User);
+db.Business.belongsTo(db.User, {
+  foreignKey: "workerId",
+});
 
 // Location associations
 db.Location.hasOne(db.UserLocation, {
-  foreignKey: "location_id",
+  foreignKey: "locationId",
 });
-db.UserLocation.belongsTo(db.Location);
+db.UserLocation.belongsTo(db.Location, {
+  foreignKey: "locationId",
+});
 
 db.Location.hasOne(db.Business, {
-  foreignKey: "location_id",
+  foreignKey: "locationId",
 });
-db.Business.belongsTo(db.Location);
+db.Business.belongsTo(db.Location, {
+  foreignKey: "locationId",
+});
 
 db.Location.hasOne(db.OtherInvoice, {
-  foreignKey: "location_id",
+  foreignKey: "locationId",
 });
-db.OtherInvoice.belongsTo(db.Location);
-
-db.Location.hasOne(db.TaxiInvoice, {
-  foreignKey: "location_begin",
-  as: "locationBegin",
-});
-db.TaxiInvoice.belongsTo(db.Location, {
-  as: "beginLocation",
+db.OtherInvoice.belongsTo(db.Location, {
+  foreignKey: "locationId",
 });
 
 db.Location.hasOne(db.TaxiInvoice, {
-  foreignKey: "location_end",
-  as: "locationEnd",
+  foreignKey: "locationBegin",
+  as: "LocationBegin",
 });
 db.TaxiInvoice.belongsTo(db.Location, {
-  as: "endLocation",
+  foreignKey: "locationBegin",
+  as: "BeginLocation",
+});
+
+db.Location.hasOne(db.TaxiInvoice, {
+  foreignKey: "locationEnd",
+  as: "LocationEnd",
+});
+db.TaxiInvoice.belongsTo(db.Location, {
+  foreignKey: "locationEnd",
+  as: "EndLocation",
 });
 
 // Business associations
 db.Business.hasMany(db.Invoice, {
-  foreignKey: "business_id",
+  foreignKey: "businessId",
 });
-db.Invoice.belongsTo(db.Business);
+db.Invoice.belongsTo(db.Business, {
+  foreignKey: "businessId",
+});
 
 // Invoice associations
 db.Invoice.hasOne(db.OtherInvoice, {
-  foreignKey: "invoice_id",
+  foreignKey: "invoiceId",
 });
-db.OtherInvoice.belongsTo(db.Invoice);
+db.OtherInvoice.belongsTo(db.Invoice, {
+  foreignKey: "invoiceId",
+});
 
 db.Invoice.hasOne(db.TaxiInvoice, {
-  foreignKey: "invoice_id",
+  foreignKey: "invoiceId",
 });
-db.TaxiInvoice.belongsTo(db.Invoice);
+db.TaxiInvoice.belongsTo(db.Invoice, {
+  foreignKey: "invoiceId",
+});
 
 (async () => {
   try {
