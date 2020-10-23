@@ -1,6 +1,6 @@
 const redis = require("../connections/redis");
 const { sequelize } = require("../connections/db");
-const { env } = require("../config/env");
+const configs = require("../constants/configs");
 const response = require("../utilities/response");
 const { verify } = require("../utilities/jwt");
 
@@ -33,7 +33,7 @@ async function auth(req, res, next) {
       };
       return response(options, req, res, next);
     }
-    const decoded = await verify(token, env.secret);
+    const decoded = await verify(token, configs.secret);
     req.userId = Number(decoded.id);
     req.userRole = Number(decoded.role);
     const reply = await redis.get(`token${req.userId.toString()}`);

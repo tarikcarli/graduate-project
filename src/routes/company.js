@@ -1,6 +1,8 @@
 const { app } = require("../app");
 const companyController = require("../controllers/company");
-// const middleware = require("../middlewares/auth");
+const { onlyCompany } = require("../middlewares/auth");
+
+app.get("/api/company/workers", onlyCompany, companyController.getWorkers);
 
 // app.get(
 //   "/api/company/invoice",
@@ -22,8 +24,6 @@ const companyController = require("../controllers/company");
 //   middleware.onlyCompany,
 //   companyController.getLocation
 // );
-
-app.post("/api/company/register", companyController.register);
 
 // app.post(
 //   "/api/company/business",

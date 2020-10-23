@@ -1,5 +1,5 @@
 const { sequelize } = require("../connections/db");
-const { env } = require("../config/env");
+const configs = require("../constants/configs");
 
 /**
  * Log http request into the database.
@@ -53,7 +53,7 @@ function response(options, req, res, next) {
     data: options.data,
     message: options.message,
   };
-  if (env.logging || options.status >= 400) log(options, req);
+  if (!configs.logOnlyError || options.status >= 400) log(options, req);
 
   res.status(options.status).json(responseData);
 }

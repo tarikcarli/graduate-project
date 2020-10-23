@@ -19,8 +19,9 @@ Invoice.init(
       allowNull: false,
     },
     type: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.ENUM,
       allowNull: false,
+      values:["taxi","other"],
     },
     price: {
       type: DataTypes.INTEGER,

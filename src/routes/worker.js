@@ -1,6 +1,5 @@
 const { app } = require("../app");
 const workerController = require("../controllers/worker");
-const middleware = require("../middlewares/auth");
 
 // app.get(
 //   "/api/worker/invoice",
@@ -15,12 +14,7 @@ const middleware = require("../middlewares/auth");
 //   workerController.getBusiness
 // );
 
-app.post(
-  "/api/worker/register",
-  middleware.auth,
-  middleware.onlyCompany,
-  workerController.register
-);
+app.post("/api/worker/register", workerController.register);
 
 // app.post(
 //   "/api/worker/location",

@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { env } = require("../config/env");
+const configs = require("../constants/configs");
 /**
  *
  * @param {String} token
@@ -21,7 +21,7 @@ function verify(token, secret) {
  */
 function sign(data) {
   return new Promise((resolve, reject) => {
-    return jwt.sign(data, env.secret, {}, (err, token) => {
+    return jwt.sign(data, configs.jwt.secret, {}, (err, token) => {
       if (err) return reject(err);
       return resolve(token);
     });

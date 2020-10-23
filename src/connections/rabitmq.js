@@ -1,11 +1,11 @@
 const amqp = require("amqplib/callback_api");
 const { clients } = require("./ws");
-const { env } = require("../config/env");
+const configs = require("../constants/configs");
 
 const rabbitmq = {};
-const exchange = "NOTIFICATION7";
+const exchange = "NOTIFICATION";
 
-amqp.connect(env.rabbitmqUrl, (err, conn) => {
+amqp.connect(configs.rabbitmq.url, (err, conn) => {
   if (err) {
     console.log(`amqp.connect Error ${err}`);
     return;

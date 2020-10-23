@@ -2,6 +2,8 @@ const response = require("../utilities/response");
 const { sign } = require("../utilities/jwt");
 const redis = require("../connections/redis");
 const image = require("../utilities/image");
+const { db } = require("../connections/db");
+
 /**
  *
  *
@@ -11,7 +13,7 @@ const image = require("../utilities/image");
  */
 const login = async (req, res, next) => {
   try {
-    const { db } = req;
+    // const { db } = req;
     const { email, password } = req.body.data;
     const user = await db.User.findOne({
       where: {
@@ -32,7 +34,6 @@ const login = async (req, res, next) => {
       return response(options, req, res, next);
     }
     const result = await user.verifyPassword(password);
-    console.log(result);
     if (!result) {
       const options = {
         message: "Password mismatch.",
@@ -41,68 +42,11 @@ const login = async (req, res, next) => {
       return response(options, req, res, next);
     }
     const token = await sign({ id: user.id, role: user.role });
-    let loginResponse;
-    if (user.role === "company") {
-      loginResponse = await db.User.findByPk(user.id, {
-        attributes: {
-          exclude: ["photoId"],
-        },
-        include: [
-          {
-            model: db.Photo,
-          },
-          {
-            model: db.WorkerCompany,
-            as: "Worker",
-            attributes: {
-              exclude: ["id"],
-            },
-            include: {
-              model: db.User,
-              as: "CompanyWorker",
-              attributes: {
-                exclude: ["password", "photoId"],
-              },
-              include: {
-                model: db.Photo,
-              },
-            },
-          },
-        ],
-      });
-    } else {
-      loginResponse = await db.User.findByPk(user.id, {
-        attributes: {
-          exclude: ["photoId"],
-        },
-        include: [
-          {
-            model: db.Photo,
-          },
-          {
-            model: db.WorkerCompany,
-            as: "Company",
-            attributes: {
-              exclude: ["id"],
-            },
-            include: {
-              model: db.User,
-              as: "WorkerCompany",
-              attributes: {
-                exclude: ["password", "photoId"],
-              },
-              include: {
-                model: db.Photo,
-              },
-            },
-          },
-        ],
-      });
-    }
-    loginResponse.dataValues.token = token;
+    await user.getPhoto();
+    user.dataValues.token = token;
     await redis.set(`token${user.id}`, token);
     const options = {
-      data: loginResponse.toJSON(),
+      data: user.toJSON(),
       status: 200,
     };
     return response(options, req, res, next);
@@ -124,7 +68,7 @@ const logout = async (req, res, next) => {
     const { userId } = req;
     await redis.del(`token${userId}`);
     const options = {
-      data: {},
+      data: { userId },
       status: 200,
     };
     return response(options, req, res, next);
@@ -143,7 +87,8 @@ const logout = async (req, res, next) => {
  */
 const update = async (req, res, next) => {
   try {
-    const { db, userId } = req;
+    // const { db } = req;
+    const { userId } = req;
     const { email, password, photo } = req.body.data;
     const data = {};
     if (email) {
@@ -153,20 +98,29 @@ const update = async (req, res, next) => {
       data.password = await db.User.hashPassword(password);
     }
     if (photo) {
-      await image.Base64ImageToS3(`user${userId}`, photo);
+      image.Base64ImageToS3(`user${userId}`, photo);
     }
-    console.log(data);
-    console.log(userId);
-    const user = await db.User.update(data, { where: { id: userId } });
-    if (user[0] === 1) {
+    const user = await db.User.update(data, {
+      where: { id: userId },
+      returning: true,
+      plain: true,
+    });
+    if (user[1]) {
       const options = {
-        data: {},
+        data: user[1].toJSON(),
         status: 200,
       };
       return response(options, req, res, next);
     }
   } catch (err) {
     console.log(`user.update Error ${err}`);
+    if (err && err.errors && err.errors[0].type === "unique violation") {
+      const options = {
+        message: "The user have this email have already registered.",
+        status: 409,
+      };
+      return response(options, req, res, next);
+    }
   }
   return next(new Error("Someting went wrong"));
 };

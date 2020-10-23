@@ -6,7 +6,7 @@
 const debug = require("debug")("server:server");
 const http = require("http");
 const { app } = require("../app");
-const { env } = require("../config/env.js");
+const configs = require("../constants/configs");
 const { init } = require("../connections/ws");
 /**
  * Get port from environment and store in Express.
@@ -33,7 +33,7 @@ function normalizePort(val) {
   return false;
 }
 
-const port = normalizePort(env.port || "4000");
+const port = normalizePort(configs.port || "4000");
 
 app.set("port", port);
 

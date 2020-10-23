@@ -45,6 +45,9 @@ User.init(
       primaryKey: true,
       autoIncrement: true,
     },
+    companyId:{
+      type:DataTypes.INTEGER
+    },
     photoId: {
       type: DataTypes.INTEGER,
     },

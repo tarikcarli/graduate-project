@@ -1,6 +1,6 @@
 const redis = require("redis");
 const { promisify } = require("util");
-const { env } = require("../config/env");
+const configs = require("../constants/configs");
 
 const client = redis.createClient();
 
@@ -13,7 +13,7 @@ client.on("error", (err) => {
 });
 
 (() => {
-  if (env.test)
+  if (configs.test)
     client.flushdb((err, success) => {
       if (err) console.log(`client.flushdb Error ${err}`);
       if (success) console.log(`client.flushdb Success ${success}`);

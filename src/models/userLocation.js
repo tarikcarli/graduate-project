@@ -5,15 +5,28 @@ class UserLocation extends Model {}
 
 UserLocation.init(
   {
-    userId: {
+    id: {
       type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    userId:{
+      type:DataTypes.INTEGER,
+      allowNull:false,
+    },
+    latitude: {
+      type: DataTypes.DOUBLE,
       allowNull: false,
     },
-    locationId: {
-      type: DataTypes.INTEGER,
+    longitude: {
+      type: DataTypes.DOUBLE,
       allowNull: false,
-      unique: true,
     },
   },
-  { sequelize, tableName: "user_location", timestamps: false }
+  {
+    sequelize,
+    tableName: "user_location",
+    timestamps: true,
+    updatedAt: false,
+  }
 );

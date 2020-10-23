@@ -1,9 +1,9 @@
 const { Sequelize } = require("sequelize");
-const { env } = require("../config/env");
+const configs = require("../constants/configs");
 
-const sequelize = new Sequelize(env.dbUrl);
+const sequelize = new Sequelize(configs.postgres.url);
 exports.sequelize = sequelize;
-
+exports.db = sequelize.models;
 require("../models/business");
 require("../models/city");
 require("../models/invoice");
@@ -14,7 +14,6 @@ require("../models/photo");
 require("../models/taxiInvoice");
 require("../models/user");
 require("../models/userLocation");
-require("../models/workerCompany");
 
 const db = sequelize.models;
 // Photo associations
@@ -41,22 +40,14 @@ db.Business.belongsTo(db.City, {
 });
 
 // User associations
-db.User.hasOne(db.WorkerCompany, {
-  foreignKey: "workerId",
-  as: "Company",
-});
-db.WorkerCompany.belongsTo(db.User, {
-  foreignKey: "workerId",
-  as: "CompanyWorker",
+db.User.hasMany(db.User, {
+  foreignKey: "companyId",
+  as: "Workers",
 });
 
-db.User.hasMany(db.WorkerCompany, {
+db.User.belongsTo(db.User, {
   foreignKey: "companyId",
-  as: "Worker",
-});
-db.WorkerCompany.belongsTo(db.User, {
-  as: "WorkerCompany",
-  foreignKey: "companyId",
+  as: "Company",
 });
 
 db.User.hasMany(db.UserLocation, {
@@ -72,6 +63,7 @@ db.User.hasMany(db.Business, {
 });
 db.Business.belongsTo(db.User, {
   foreignKey: "companyId",
+  as: "BusinessCompany",
 });
 
 db.User.hasMany(db.Business, {
@@ -80,16 +72,10 @@ db.User.hasMany(db.Business, {
 });
 db.Business.belongsTo(db.User, {
   foreignKey: "workerId",
+  as: "BusinessWorker",
 });
 
 // Location associations
-db.Location.hasOne(db.UserLocation, {
-  foreignKey: "locationId",
-});
-db.UserLocation.belongsTo(db.Location, {
-  foreignKey: "locationId",
-});
-
 db.Location.hasOne(db.Business, {
   foreignKey: "locationId",
 });
@@ -106,20 +92,20 @@ db.OtherInvoice.belongsTo(db.Location, {
 
 db.Location.hasOne(db.TaxiInvoice, {
   foreignKey: "locationBegin",
-  as: "LocationBegin",
+  as: "BeginLocation",
 });
 db.TaxiInvoice.belongsTo(db.Location, {
   foreignKey: "locationBegin",
-  as: "BeginLocation",
+  as: "LocationBegin",
 });
 
 db.Location.hasOne(db.TaxiInvoice, {
   foreignKey: "locationEnd",
-  as: "LocationEnd",
+  as: "EndLocation",
 });
 db.TaxiInvoice.belongsTo(db.Location, {
   foreignKey: "locationEnd",
-  as: "EndLocation",
+  as: "LocationEnd",
 });
 
 // Business associations
@@ -148,7 +134,7 @@ db.TaxiInvoice.belongsTo(db.Invoice, {
 (async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ force: env.test });
+    await sequelize.sync({ force: configs.test });
     console.log("Connection has been established successfully.");
   } catch (err) {
     console.error(`In db.js anonymous function  Error ${err}`);
