@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../connections/db");
+const { sequelize } = require("../connections/postgres");
 
 class Log extends Model {}
 

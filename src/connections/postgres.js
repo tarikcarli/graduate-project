@@ -1,4 +1,5 @@
 const { Sequelize } = require("sequelize");
+const cities = require("../constants/city.json");
 const configs = require("../constants/configs");
 
 const sequelize = new Sequelize(configs.postgres.url);
@@ -51,10 +52,10 @@ db.User.belongsTo(db.User, {
 });
 
 db.User.hasMany(db.UserLocation, {
-  foreignKey: "userId",
+  foreignKey: "workerId",
 });
 db.UserLocation.belongsTo(db.User, {
-  foreignKey: "userId",
+  foreignKey: "workerId",
 });
 
 db.User.hasMany(db.Business, {
@@ -108,6 +109,13 @@ db.TaxiInvoice.belongsTo(db.Location, {
   as: "LocationEnd",
 });
 
+db.Location.hasOne(db.City, {
+  foreignKey: "locationId",
+});
+db.City.belongsTo(db.Location, {
+  foreignKey: "locationId",
+});
+
 // Business associations
 db.Business.hasMany(db.Invoice, {
   foreignKey: "businessId",
@@ -130,12 +138,27 @@ db.Invoice.hasOne(db.TaxiInvoice, {
 db.TaxiInvoice.belongsTo(db.Invoice, {
   foreignKey: "invoiceId",
 });
-
+function populateCity() {
+  cities.forEach(async (city) => {
+    const location = await db.Location.create({
+      latitude: city.latitude,
+      longitude: city.longitude,
+    });
+    await db.City.create({
+      locationId: location.dataValues.id,
+      name: city.name,
+      taxiPrice: 5,
+    });
+  });
+}
 (async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync({ force: configs.test });
     console.log("Connection has been established successfully.");
+    if (configs.test) {
+      populateCity();
+    }
   } catch (err) {
     console.error(`In db.js anonymous function  Error ${err}`);
   }

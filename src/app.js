@@ -3,13 +3,11 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
-const { auth } = require("./middlewares/auth");
-const { login, serverStatus } = require("./controllers/user");
-const { register } = require("./controllers/company");
-const response = require("./utilities/response");
 require("./connections/redis");
 require("./connections/rabitmq");
-require("./connections/db");
+require("./connections/postgres");
+// const { auth } = require("./middlewares/auth");
+const response = require("./utilities/response");
 
 const app = express();
 exports.app = app;
@@ -24,15 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(bodyParser.json({ limit: "5mb" }));
 
-app.post("/api/user/login", login);
-app.post("/api/company/register", register);
-app.get("/api/server/status", serverStatus);
-
-app.use(auth);
-
 require("./routes/user");
-require("./routes/company");
-require("./routes/worker");
 
 app.get("/", (req, res) => {
   res.status(200).send("Graduation Project Aykut Akdeniz and Tarik Carli");

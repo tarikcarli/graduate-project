@@ -1,20 +1,9 @@
 const redis = require("../connections/redis");
-const { sequelize } = require("../connections/db");
+const { sequelize } = require("../connections/postgres");
 const configs = require("../constants/configs");
 const response = require("../utilities/response");
 const { verify } = require("../utilities/jwt");
 
-/**
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- * @returns {undefined}
- */
-function insertDb(req, res, next) {
-  req.db = sequelize.models;
-  return next();
-}
 /**
  *
  * @param {import("express").Request} req
@@ -33,7 +22,7 @@ async function auth(req, res, next) {
       };
       return response(options, req, res, next);
     }
-    const decoded = await verify(token, configs.secret);
+    const decoded = await verify(token, configs.jwt.secret);
     req.userId = Number(decoded.id);
     req.userRole = Number(decoded.role);
     const reply = await redis.get(`token${req.userId.toString()}`);
@@ -86,6 +75,18 @@ function onlyWorker(req, res, next) {
     };
     return response(options, req, res, next);
   }
+  return next();
+}
+
+/**
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @returns {undefined}
+ */
+function insertDb(req, res, next) {
+  req.db = sequelize.models;
   return next();
 }
 

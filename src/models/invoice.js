@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../connections/db");
+const { sequelize } = require("../connections/postgres");
 
 class Invoice extends Model {}
 
@@ -21,7 +21,7 @@ Invoice.init(
     type: {
       type: DataTypes.ENUM,
       allowNull: false,
-      values:["taxi","other"],
+      values: ["taxi", "other"],
     },
     price: {
       type: DataTypes.INTEGER,

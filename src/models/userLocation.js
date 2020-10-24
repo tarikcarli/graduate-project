@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../connections/db");
+const { sequelize } = require("../connections/postgres");
 
 class UserLocation extends Model {}
 
@@ -10,9 +10,9 @@ UserLocation.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    userId:{
-      type:DataTypes.INTEGER,
-      allowNull:false,
+    workerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     latitude: {
       type: DataTypes.DOUBLE,

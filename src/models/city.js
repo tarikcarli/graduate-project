@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../connections/db");
+const { sequelize } = require("../connections/postgres");
 
 class City extends Model {}
 
@@ -9,6 +9,9 @@ City.init(
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
+    },
+    locationId: {
+      type: DataTypes.INTEGER,
     },
     name: {
       type: DataTypes.STRING,

@@ -1,4 +1,4 @@
-const { sequelize } = require("../connections/db");
+const { sequelize } = require("../connections/postgres");
 const configs = require("../constants/configs");
 
 /**

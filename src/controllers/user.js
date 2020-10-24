@@ -2,7 +2,94 @@ const response = require("../utilities/response");
 const { sign } = require("../utilities/jwt");
 const redis = require("../connections/redis");
 const image = require("../utilities/image");
-const { db } = require("../connections/db");
+const { db } = require("../connections/postgres");
+
+/**
+ *To create a company user
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const register = async (req, res, next) => {
+  try {
+    const { photo, password, ...data } = req.body.data;
+    data.password = await db.User.hashPassword(password);
+    const user = await db.User.create(data);
+    image.Base64ImageToS3(`user${user.id}`, photo);
+    const userPhoto = await user.createPhoto({ path: `user${user.id}` });
+    user.dataValues.photo = userPhoto.dataValues;
+    delete user.dataValues.photoId;
+    const options = {
+      data: user.toJSON(),
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`company.register Error ${err}`);
+    if (err && err.errors && err.errors[0].type === "unique violation") {
+      const options = {
+        message: "The user have this email have already registered.",
+        status: 409,
+      };
+      return response(options, req, res, next);
+    }
+  }
+  return next(new Error("Something went wrong"));
+};
+
+/**
+ *To get workers belongs to Company
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const getWorkers = async (req, res, next) => {
+  try {
+    const companyId = Number.parseInt(req.query.companyId, 10);
+    const users = await db.User.findAll({
+      where: { companyId },
+      attributes: {
+        exclude: ["photoId", "password"],
+      },
+      include: {
+        model: db.Photo,
+      },
+    });
+    const options = { data: users, status: 200 };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`company.getWorkers Error ${err}`);
+  }
+  return next(new Error("Unknown Error"));
+};
+
+/**
+ *To get workers belongs to Company
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const getAdmin = async (req, res, next) => {
+  try {
+    const companyId = Number.parseInt(req.query.companyId, 10);
+    const users = await db.User.findByPk(companyId, {
+      attributes: {
+        exclude: ["photoId", "password"],
+      },
+      include: {
+        model: db.Photo,
+      },
+    });
+    const options = { data: users, status: 200 };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`company.getWorkers Error ${err}`);
+  }
+  return next(new Error("Unknown Error"));
+};
 
 /**
  *
@@ -155,8 +242,13 @@ const serverStatus = (req, res, next) => {
   return response(options, req, res, next);
 };
 
-exports.login = login;
-exports.logout = logout;
-exports.update = update;
-exports.tokenStatus = tokenStatus;
-exports.serverStatus = serverStatus;
+module.exports = {
+  serverStatus,
+  register,
+  update,
+  login,
+  logout,
+  tokenStatus,
+  getWorkers,
+  getAdmin,
+};

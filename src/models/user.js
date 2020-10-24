@@ -1,6 +1,6 @@
 const { DataTypes, Model } = require("sequelize");
 const bcrypt = require("bcrypt");
-const { sequelize } = require("../connections/db");
+const { sequelize } = require("../connections/postgres");
 
 class User extends Model {
   /**
@@ -45,8 +45,8 @@ User.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    companyId:{
-      type:DataTypes.INTEGER
+    companyId: {
+      type: DataTypes.INTEGER,
     },
     photoId: {
       type: DataTypes.INTEGER,
