@@ -22,7 +22,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(bodyParser.json({ limit: "5mb" }));
 
+require("./routes/status");
 require("./routes/user");
+require("./routes/userLocation");
+require("./routes/business");
+require("./routes/invoice");
+require("./routes/location");
+require("./routes/photo");
 
 app.get("/", (req, res) => {
   res.status(200).send("Graduation Project Aykut Akdeniz and Tarik Carli");

@@ -10,7 +10,7 @@ UserLocation.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    workerId: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

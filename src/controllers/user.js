@@ -1,6 +1,6 @@
 const response = require("../utilities/response");
 const { sign } = require("../utilities/jwt");
-const redis = require("../connections/redis");
+// const redis = require("../connections/redis");
 const image = require("../utilities/image");
 const { db } = require("../connections/postgres");
 
@@ -131,7 +131,7 @@ const login = async (req, res, next) => {
     const token = await sign({ id: user.id, role: user.role });
     await user.getPhoto();
     user.dataValues.token = token;
-    await redis.set(`token${user.id}`, token);
+    // await redis.set(`token${user.id}`, token);
     const options = {
       data: user.toJSON(),
       status: 200,
@@ -153,7 +153,7 @@ const login = async (req, res, next) => {
 const logout = async (req, res, next) => {
   try {
     const { userId } = req;
-    await redis.del(`token${userId}`);
+    // await redis.del(`token${userId}`);
     const options = {
       data: { userId },
       status: 200,
@@ -227,23 +227,7 @@ const tokenStatus = (req, res, next) => {
   return response(options, req, res, next);
 };
 
-/**
- *
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- */
-const serverStatus = (req, res, next) => {
-  const options = {
-    data: {},
-    status: 200,
-  };
-  return response(options, req, res, next);
-};
-
 module.exports = {
-  serverStatus,
   register,
   update,
   login,

@@ -2,7 +2,11 @@ const { Sequelize } = require("sequelize");
 const cities = require("../constants/city.json");
 const configs = require("../constants/configs");
 
-const sequelize = new Sequelize(configs.postgres.url);
+const sequelize = new Sequelize(configs.postgres.url, {
+  dialectOptions: {
+    useUTC: true,
+  },
+});
 exports.sequelize = sequelize;
 exports.db = sequelize.models;
 require("../models/business");
@@ -52,10 +56,10 @@ db.User.belongsTo(db.User, {
 });
 
 db.User.hasMany(db.UserLocation, {
-  foreignKey: "workerId",
+  foreignKey: "userId",
 });
 db.UserLocation.belongsTo(db.User, {
-  foreignKey: "workerId",
+  foreignKey: "userId",
 });
 
 db.User.hasMany(db.Business, {
@@ -148,6 +152,7 @@ function populateCity() {
       locationId: location.dataValues.id,
       name: city.name,
       taxiPrice: 5,
+      startingPrice: 5,
     });
   });
 }

@@ -17,6 +17,10 @@ City.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    startingPrice: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     taxiPrice: {
       type: DataTypes.INTEGER,
       allowNull: false,
