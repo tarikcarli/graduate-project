@@ -96,20 +96,20 @@ db.OtherInvoice.belongsTo(db.Location, {
 });
 
 db.Location.hasOne(db.TaxiInvoice, {
-  foreignKey: "locationBegin",
+  foreignKey: "locationBeginId",
   as: "BeginLocation",
 });
 db.TaxiInvoice.belongsTo(db.Location, {
-  foreignKey: "locationBegin",
+  foreignKey: "locationBeginId",
   as: "LocationBegin",
 });
 
 db.Location.hasOne(db.TaxiInvoice, {
-  foreignKey: "locationEnd",
+  foreignKey: "locationEndId",
   as: "EndLocation",
 });
 db.TaxiInvoice.belongsTo(db.Location, {
-  foreignKey: "locationEnd",
+  foreignKey: "locationEndId",
   as: "LocationEnd",
 });
 

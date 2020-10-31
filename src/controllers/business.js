@@ -2,6 +2,50 @@ const response = require("../utilities/response");
 const { db } = require("../connections/postgres");
 
 /**
+ *To get business
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const getBusiness = async (req, res, next) => {
+  try {
+    const { id, companyId, workerId } = req.query;
+    if (id) {
+      const business = await db.Business.findByPk(Number.parseInt(id, 10));
+      const options = {
+        data: business,
+        status: 200,
+      };
+      return response(options, req, res, next);
+    }
+    if (companyId) {
+      const business = await db.Business.findAll({
+        where: { companyId: Number.parseInt(companyId, 10) },
+      });
+      const options = {
+        data: business,
+        status: 200,
+      };
+      return response(options, req, res, next);
+    }
+    if (workerId) {
+      const business = await db.Business.findAll({
+        where: { workerId: Number.parseInt(workerId, 10) },
+      });
+      const options = {
+        data: business,
+        status: 200,
+      };
+      return response(options, req, res, next);
+    }
+  } catch (err) {
+    console.log(`company.getBusiness Error ${err}`);
+  }
+  return next(new Error("Unknown Error"));
+};
+
+/**
  *To post business
  *
  * @param {import("express").Request} req
@@ -16,11 +60,9 @@ const postBusiness = async (req, res, next) => {
       longitude: location.longitude,
     });
     data.locationId = businessLocation.dataValues.id;
-    data.startedAt = new Date(data.startedAt);
-    data.finishedAt = new Date(data.finishedAt);
     const business = await db.Business.create(data);
     const options = {
-      data: business.toJSON(),
+      data: business,
       status: 200,
     };
     return response(options, req, res, next);
@@ -31,25 +73,30 @@ const postBusiness = async (req, res, next) => {
 };
 
 /**
- *To get business
+ *To put business
  *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
  */
-const getBusiness = async (req, res, next) => {
+const putBusiness = async (req, res, next) => {
   try {
+    const { id } = req.query;
     const { location, ...data } = req.body.data;
     const businessLocation = await db.Location.create({
       latitude: location.latitude,
       longitude: location.longitude,
     });
     data.locationId = businessLocation.dataValues.id;
-    data.startedAt = new Date(data.startedAt);
-    data.finishedAt = new Date(data.finishedAt);
-    const business = await db.Business.create(data);
+    const business = await db.Business.update(data, {
+      where: {
+        id,
+      },
+      returning: true,
+      plain: true,
+    });
     const options = {
-      data: business.toJSON(),
+      data: business[1],
       status: 200,
     };
     return response(options, req, res, next);
@@ -60,6 +107,7 @@ const getBusiness = async (req, res, next) => {
 };
 
 module.exports = {
-  postBusiness,
   getBusiness,
+  postBusiness,
+  putBusiness,
 };

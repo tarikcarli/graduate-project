@@ -14,11 +14,11 @@ TaxiInvoice.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    locationBegin: {
+    locationBeginId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    locationEnd: {
+    locationEndId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -28,6 +28,10 @@ TaxiInvoice.init(
     },
     distance: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    isValid: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
   },

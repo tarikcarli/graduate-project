@@ -16,7 +16,7 @@ Invoice.init(
     },
     photoId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     type: {
       type: DataTypes.ENUM,
