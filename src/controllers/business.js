@@ -54,12 +54,7 @@ const getBusiness = async (req, res, next) => {
  */
 const postBusiness = async (req, res, next) => {
   try {
-    const { location, ...data } = req.body.data;
-    const businessLocation = await db.Location.create({
-      latitude: location.latitude,
-      longitude: location.longitude,
-    });
-    data.locationId = businessLocation.dataValues.id;
+    const { data } = req.body;
     const business = await db.Business.create(data);
     const options = {
       data: business,
@@ -82,12 +77,7 @@ const postBusiness = async (req, res, next) => {
 const putBusiness = async (req, res, next) => {
   try {
     const { id } = req.query;
-    const { location, ...data } = req.body.data;
-    const businessLocation = await db.Location.create({
-      latitude: location.latitude,
-      longitude: location.longitude,
-    });
-    data.locationId = businessLocation.dataValues.id;
+    const { data } = req.body;
     const business = await db.Business.update(data, {
       where: {
         id,
@@ -101,7 +91,7 @@ const putBusiness = async (req, res, next) => {
     };
     return response(options, req, res, next);
   } catch (err) {
-    console.log(`company.postBusiness Error ${err}`);
+    console.log(`company.putBusiness Error ${err}`);
   }
   return next(new Error("Unknown Error"));
 };

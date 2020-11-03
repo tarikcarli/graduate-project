@@ -3,52 +3,6 @@ const response = require("../utilities/response");
 const { db } = require("../connections/postgres");
 
 /**
- *To post location
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- */
-const postLocation = async (req, res, next) => {
-  try {
-    const { data } = req.body;
-
-    const location = await db.UserLocation.create(data);
-    const options = {
-      data: location.toJSON(),
-      status: 200,
-    };
-    return response(options, req, res, next);
-  } catch (err) {
-    console.log(`userLocation.postLocation Error ${err}`);
-  }
-  return next(new Error("Unknown Error"));
-};
-
-/**
- *To post locations
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- */
-const postLocations = async (req, res, next) => {
-  try {
-    const { data } = req.body.data;
-    const locations = await db.UserLocation.bulkCreate(data);
-    // data.startedAt = new Date(data.startedAt);
-    // data.finishedAt = new Date(data.finishedAt);
-    const options = {
-      data: locations.toJSON(),
-      status: 200,
-    };
-    return response(options, req, res, next);
-  } catch (err) {
-    console.log(`post.locations Error ${err}`);
-  }
-  return next(new Error("Unknown Error"));
-};
-/**
  *To get history location
  *
  * @param {import("express").Request} req
@@ -71,7 +25,6 @@ const getHistoryLocation = async (req, res, next) => {
         ],
       },
     });
-    console.log(locations);
     const options = {
       data: locations,
       status: 200,
@@ -100,12 +53,57 @@ const getCurrentLocation = async (req, res, next) => {
       order: [["createdAt", "DESC"]],
     });
     const options = {
-      data: location.toJSON(),
+      data: location,
       status: 200,
     };
     return response(options, req, res, next);
   } catch (err) {
     console.log(`userLocation.getCurrentLocation Error ${err}`);
+  }
+  return next(new Error("Unknown Error"));
+};
+
+/**
+ *To post location
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const postLocation = async (req, res, next) => {
+  try {
+    const { data } = req.body;
+
+    const location = await db.UserLocation.create(data);
+    const options = {
+      data: location,
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`userLocation.postLocation Error ${err}`);
+  }
+  return next(new Error("Unknown Error"));
+};
+
+/**
+ *To post locations
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const postLocations = async (req, res, next) => {
+  try {
+    const { data } = req.body;
+    const locations = await db.UserLocation.bulkCreate(data);
+    const options = {
+      data: locations,
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`post.locations Error ${err}`);
   }
   return next(new Error("Unknown Error"));
 };

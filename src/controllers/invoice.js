@@ -1,5 +1,4 @@
 const response = require("../utilities/response");
-const image = require("../utilities/image");
 const { db } = require("../connections/postgres");
 
 /**
@@ -47,75 +46,34 @@ const postInvoice = async (req, res, next) => {
   try {
     const { type } = req.body.data;
     if (type === "taxi") {
-      const { photo, taxi, ...data } = req.body.data;
+      const { taxi, ...data } = req.body.data;
       const invoice = await db.Invoice.create(data);
-      const invoiceLocationBegin = await db.Location.create({
-        latitude: taxi.locationBegin.latitude,
-        longitude: taxi.locationBegin.longitude,
-      });
-      const invoiceLocationEnd = await db.Location.create({
-        latitude: taxi.locationEnd.latitude,
-        longitude: taxi.locationEnd.longitude,
-      });
-      const invoiceAWSPhotoPromise = image.Base64ImageToS3(
-        `invoice${invoice.dataValues.id}`,
-        photo
-      );
-      const invoicePhotoPromise = db.Photo.create({
-        path: `invoice${invoice.dataValues.id}`,
-      });
 
-      const otherInvoicePromise = db.TaxiInvoice.create({
-        distance: taxi.distance,
-        priceEstimate: taxi.priceEstimate,
-        isValid: taxi.isValid,
-        locationBeginId: invoiceLocationBegin.dataValues.id,
-        locationEndId: invoiceLocationEnd.dataValues.id,
+      const taxiInvoice = await db.TaxiInvoice.create({
+        ...taxi,
         invoiceId: invoice.dataValues.id,
       });
-      const promiseArray = await Promise.all([
-        invoiceAWSPhotoPromise,
-        invoicePhotoPromise,
-        otherInvoicePromise,
-      ]);
-      invoice.setPhoto(promiseArray[1]);
+
       const options = {
         data: {
           ...invoice.dataValues,
-          taxi: { ...promiseArray[2].dataValues },
+          taxi: { ...taxiInvoice.dataValues },
         },
         status: 200,
       };
       return response(options, req, res, next);
     }
-    const { photo, other, ...data } = req.body.data;
+    const { other, ...data } = req.body.data;
     const invoice = await db.Invoice.create(data);
-    const invoiceLocation = await db.Location.create({
-      latitude: other.location.latitude,
-      longitude: other.location.longitude,
-    });
-    const invoiceAWSPhotoPromise = image.Base64ImageToS3(
-      `invoice${invoice.dataValues.id}`,
-      photo
-    );
-    const invoicePhotoPromise = db.Photo.create({
-      path: `invoice${invoice.dataValues.id}`,
-    });
 
-    const otherInvoicePromise = db.OtherInvoice.create({
-      locationId: invoiceLocation.dataValues.id,
+    const otherInvoice = await db.OtherInvoice.create({
+      ...other,
       invoiceId: invoice.dataValues.id,
     });
-    const promiseArray = await Promise.all([
-      invoiceAWSPhotoPromise,
-      invoicePhotoPromise,
-      otherInvoicePromise,
-    ]);
-    invoice.setPhoto(promiseArray[1]);
     const options = {
       data: {
         ...invoice.dataValues,
-        other: { ...promiseArray[2].dataValues },
+        other: { ...otherInvoice.dataValues },
       },
       status: 200,
     };
@@ -135,10 +93,7 @@ const postInvoice = async (req, res, next) => {
 const putInvoice = async (req, res, next) => {
   try {
     const { id } = req.query;
-    const { photo, ...data } = req.body.data;
-    if (photo) {
-      image.Base64ImageToS3(`invoice${id}`, photo);
-    }
+    const { data } = req.body;
     const invoice = await db.Invoice.update(data, {
       where: { id },
       returning: true,

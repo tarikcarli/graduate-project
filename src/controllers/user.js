@@ -1,7 +1,6 @@
 const response = require("../utilities/response");
 const { sign } = require("../utilities/jwt");
 // const redis = require("../connections/redis");
-const image = require("../utilities/image");
 const { db } = require("../connections/postgres");
 
 /**
@@ -13,15 +12,11 @@ const { db } = require("../connections/postgres");
  */
 const register = async (req, res, next) => {
   try {
-    const { photo, password, ...data } = req.body.data;
+    const { password, ...data } = req.body.data;
     data.password = await db.User.hashPassword(password);
     const user = await db.User.create(data);
-    image.Base64ImageToS3(`user${user.id}`, photo);
-    const userPhoto = await user.createPhoto({ path: `user${user.id}` });
-    user.dataValues.photo = userPhoto.dataValues;
-    delete user.dataValues.photoId;
     const options = {
-      data: user.toJSON(),
+      data: user,
       status: 200,
     };
     return response(options, req, res, next);
@@ -100,7 +95,6 @@ const getAdmin = async (req, res, next) => {
  */
 const login = async (req, res, next) => {
   try {
-    // const { db } = req;
     const { email, password } = req.body.data;
     const user = await db.User.findOne({
       where: {
@@ -176,29 +170,20 @@ const update = async (req, res, next) => {
   try {
     // const { db } = req;
     const { userId } = req;
-    const { email, password, photo } = req.body.data;
-    const data = {};
-    if (email) {
-      data.email = email;
-    }
-    if (password) {
-      data.password = await db.User.hashPassword(password);
-    }
-    if (photo) {
-      image.Base64ImageToS3(`user${userId}`, photo);
+    const { data } = req.body;
+    if (data.password) {
+      data.password = await db.User.hashPassword(data.password);
     }
     const user = await db.User.update(data, {
       where: { id: userId },
       returning: true,
       plain: true,
     });
-    if (user[1]) {
-      const options = {
-        data: user[1].toJSON(),
-        status: 200,
-      };
-      return response(options, req, res, next);
-    }
+    const options = {
+      data: user[1].toJSON(),
+      status: 200,
+    };
+    return response(options, req, res, next);
   } catch (err) {
     console.log(`user.update Error ${err}`);
     if (err && err.errors && err.errors[0].type === "unique violation") {
