@@ -1,13 +1,37 @@
-const jwt = require("jsonwebtoken");
 const WebSocket = require("ws");
+const jwt = require("../utilities/jwt");
 const redis = require("./redis");
 const configs = require("../constants/configs");
+const wsClients = require("../constants/ws_clients");
 const { INTRODUCTION } = require("../constants/ws_types");
 
-const clients = {};
+/**
+ * Websocket introduction type handler
+ *
+ * @param {String} message
+ * @param {WebSocket} ws
+ */
+async function introductionHandler(message, ws) {
+  if (message.type === INTRODUCTION) {
+    if (configs.BYPASS_MIDDLEWARE) {
+      wsClients[message.data.id.toString()] = ws;
+      return message.data.id.toString();
+    }
+    const { token } = message.data;
+    const decoded = await jwt.verify(token, configs.JWT_SECRET);
+    const reply = await redis.get(`token-${decoded.id}`);
+    if (reply) {
+      wsClients[message.data.id.toString()] = ws;
+    } else {
+      throw new Error("Jwt token isn't store in redis.");
+    }
+    return decoded.id.toString();
+  }
+  return null;
+}
 
 /**
- *
+ * Create websocket server over existing http server
  *
  * @param {Object} server
  */
@@ -16,27 +40,10 @@ const init = (server) => {
 
   wss.on("connection", (ws) => {
     let userId;
-    ws.on("message", (data) => {
+    ws.on("message", async (data) => {
       try {
         const message = JSON.parse(data.toString());
-        if (message.type === INTRODUCTION) {
-          const { token } = message.data;
-          jwt.verify(token, configs.jwt.secret, async (err, decoded) => {
-            if (err) {
-              ws.close();
-              return;
-            }
-            userId = decoded.id.toString();
-            const reply = await redis.get(`token${userId}`);
-            if (reply) {
-              clients[message.data.userId.toString()] = ws;
-            } else {
-              ws.close();
-            }
-          });
-        } else {
-          ws.close();
-        }
+        userId = await introductionHandler(message, ws);
       } catch (err) {
         console.log(`ws.on message Error ${err}`);
         ws.close();
@@ -44,11 +51,11 @@ const init = (server) => {
     });
 
     ws.on("close", () => {
-      const result = delete clients[userId];
-      console.log(`Connection.on close Success ${userId} ${result}`);
+      const result = delete wsClients[userId];
+      console.log(`ws close event ${userId} ${result}`);
       ws.close();
     });
   });
 };
+
 exports.init = init;
-exports.clients = clients;

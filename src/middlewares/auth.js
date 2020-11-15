@@ -1,6 +1,6 @@
 const redis = require("../connections/redis");
-const { sequelize } = require("../connections/postgres");
 const configs = require("../constants/configs");
+const bypassMiddleware = require("../utilities/middlewareWrapper");
 const response = require("../utilities/response");
 const { verify } = require("../utilities/jwt");
 
@@ -22,7 +22,7 @@ async function auth(req, res, next) {
       };
       return response(options, req, res, next);
     }
-    const decoded = await verify(token, configs.jwt.secret);
+    const decoded = await verify(token, configs.JWT_SECRET);
     req.userId = Number(decoded.id);
     req.userRole = Number(decoded.role);
     const reply = await redis.get(`token${req.userId.toString()}`);
@@ -78,16 +78,8 @@ function onlyWorker(req, res, next) {
   return next();
 }
 
-/**
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- * @returns {undefined}
- */
-function insertDb(req, res, next) {
-  req.db = sequelize.models;
-  return next();
-}
-
-module.exports = { auth, onlyCompany, onlyWorker, insertDb };
+module.exports = {
+  auth: bypassMiddleware(auth),
+  onlyCompany: bypassMiddleware(onlyCompany),
+  onlyWorker: bypassMiddleware(onlyWorker),
+};

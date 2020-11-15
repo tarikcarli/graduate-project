@@ -82,7 +82,7 @@ const postPhoto = async (req, res, next) => {
 
 const putPhoto = async (req, res, next) => {
   try {
-    const { id } = req.query;
+    const { id } = req.body.data;
     const photoData = req.body.data.photo;
     const photoPath = uuid();
     const photo = await db.Photo.findByPk(Number.parseInt(id, 10));

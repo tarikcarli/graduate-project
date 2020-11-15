@@ -6,4 +6,4 @@ const wsType = {
   INVOICE_ADD: "INVOICE_ADD",
 };
 
-exports.wsType = wsType;
+module.exports = wsType;

@@ -2,13 +2,14 @@ const { Sequelize } = require("sequelize");
 const cities = require("../constants/city.json");
 const configs = require("../constants/configs");
 
-const sequelize = new Sequelize(configs.postgres.url, {
+const sequelize = new Sequelize(configs.POSTGRES_URL, {
   dialectOptions: {
     useUTC: true,
   },
 });
 exports.sequelize = sequelize;
 exports.db = sequelize.models;
+
 require("../models/business");
 require("../models/city");
 require("../models/invoice");
@@ -156,12 +157,13 @@ function populateCity() {
     });
   });
 }
+
 (async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ force: configs.test });
+    await sequelize.sync({ force: configs.TEST });
     console.log("Connection has been established successfully.");
-    if (configs.test) {
+    if (configs.TEST) {
       populateCity();
     }
   } catch (err) {

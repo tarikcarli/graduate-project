@@ -1,6 +1,6 @@
 const response = require("../utilities/response");
 const { sign } = require("../utilities/jwt");
-// const redis = require("../connections/redis");
+const redis = require("../connections/redis");
 const { db } = require("../connections/postgres");
 
 /**
@@ -125,7 +125,7 @@ const login = async (req, res, next) => {
     const token = await sign({ id: user.id, role: user.role });
     await user.getPhoto();
     user.dataValues.token = token;
-    // await redis.set(`token${user.id}`, token);
+    await redis.set(`token${user.id}`, token);
     const options = {
       data: user.toJSON(),
       status: 200,
@@ -146,10 +146,10 @@ const login = async (req, res, next) => {
  */
 const logout = async (req, res, next) => {
   try {
-    const { userId } = req;
-    // await redis.del(`token${userId}`);
+    const { id } = req.query;
+    await redis.del(`token${id}`);
     const options = {
-      data: { userId },
+      data: {},
       status: 200,
     };
     return response(options, req, res, next);
@@ -168,17 +168,16 @@ const logout = async (req, res, next) => {
  */
 const update = async (req, res, next) => {
   try {
-    // const { db } = req;
-    const { userId } = req;
-    const { data } = req.body;
+    const { id, ...data } = req.body.data;
     if (data.password) {
       data.password = await db.User.hashPassword(data.password);
     }
     const user = await db.User.update(data, {
-      where: { id: userId },
+      where: { id },
       returning: true,
       plain: true,
     });
+    user[1].dataValues.Photo = await user[1].getPhoto();
     const options = {
       data: user[1].toJSON(),
       status: 200,

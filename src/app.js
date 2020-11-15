@@ -4,9 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 require("./connections/redis");
-require("./connections/rabitmq");
 require("./connections/postgres");
-// const { auth } = require("./middlewares/auth");
 const response = require("./utilities/response");
 
 const app = express();
@@ -29,10 +27,6 @@ require("./routes/business");
 require("./routes/invoice");
 require("./routes/location");
 require("./routes/photo");
-
-app.get("/", (req, res) => {
-  res.status(200).send("Graduation Project Aykut Akdeniz and Tarik Carli");
-});
 
 app.use("*", (req, res, next) => {
   console.log(`404 Not Found Handler Execute`);

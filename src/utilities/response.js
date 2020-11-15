@@ -53,7 +53,7 @@ function response(options, req, res, next) {
     data: options.data,
     message: options.message,
   };
-  if (!configs.logOnlyError || options.status >= 400) log(options, req);
+  if (!configs.LOG_ONLY_ERROR || options.status >= 400) log(options, req);
 
   res.status(options.status).json(responseData);
 }

@@ -33,7 +33,7 @@ function normalizePort(val) {
   return false;
 }
 
-const port = normalizePort(configs.port || "4000");
+const port = normalizePort(configs.PORT || "4000");
 
 app.set("port", port);
 
