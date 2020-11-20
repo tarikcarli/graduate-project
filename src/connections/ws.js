@@ -15,13 +15,25 @@ async function introductionHandler(message, ws) {
   if (message.type === INTRODUCTION) {
     if (configs.BYPASS_MIDDLEWARE) {
       wsClients[message.data.id.toString()] = ws;
+      ws.send(JSON.stringify({ message: "Verified User" }));
+      const reply = await redis.get(`${redis.CHANNEL}-${message.data.id}`);
+      if (reply != null) {
+        ws.send(reply);
+        redis.del(`${redis.CHANNEL}-${message.data.id}`);
+      }
       return message.data.id.toString();
     }
     const { token } = message.data;
     const decoded = await jwt.verify(token, configs.JWT_SECRET);
-    const reply = await redis.get(`token-${decoded.id}`);
+    let reply = await redis.get(`token-${decoded.id}`);
     if (reply) {
       wsClients[message.data.id.toString()] = ws;
+      ws.send(JSON.stringify({ message: "Verified User" }));
+      reply = await redis.get(`${redis.CHANNEL}-${message.data.id}`);
+      if (reply != null) {
+        ws.send(reply);
+        redis.del(`${redis.CHANNEL}-${message.data.id}`);
+      }
     } else {
       throw new Error("Jwt token isn't store in redis.");
     }
@@ -41,11 +53,13 @@ const init = (server) => {
   wss.on("connection", (ws) => {
     let userId;
     ws.on("message", async (data) => {
+      console.log("ws message : ", data.toString());
       try {
         const message = JSON.parse(data.toString());
         userId = await introductionHandler(message, ws);
       } catch (err) {
         console.log(`ws.on message Error ${err}`);
+        ws.send(JSON.stringify({ message: "Unouthenticated User" }));
         ws.close();
       }
     });

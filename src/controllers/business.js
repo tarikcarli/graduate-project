@@ -1,4 +1,6 @@
 const response = require("../utilities/response");
+const { publish } = require("../connections/redis");
+const wsTypes = require("../constants/ws_types");
 const { db } = require("../connections/postgres");
 
 /**
@@ -60,6 +62,7 @@ const postBusiness = async (req, res, next) => {
       data: business,
       status: 200,
     };
+    publish(data.workerId, wsTypes.BUSINESS_ADD, business.dataValues);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`company.postBusiness Error ${err}`);
@@ -89,6 +92,7 @@ const putBusiness = async (req, res, next) => {
       data: business[1],
       status: 200,
     };
+    publish(data.companyId, wsTypes.BUSINESS_UPDATE, business.dataValues);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`company.putBusiness Error ${err}`);

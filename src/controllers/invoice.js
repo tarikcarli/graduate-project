@@ -1,6 +1,7 @@
 const response = require("../utilities/response");
 const { db } = require("../connections/postgres");
-
+const wsTypes = require("../constants/ws_types");
+const { publish } = require("../connections/redis");
 /**
  *To get invoice
  *
@@ -46,7 +47,7 @@ const postInvoice = async (req, res, next) => {
   try {
     const { type } = req.body.data;
     if (type === "taxi") {
-      const { taxi, ...data } = req.body.data;
+      const { taxi, companyId, ...data } = req.body.data;
       const invoice = await db.Invoice.create(data);
 
       const taxiInvoice = await db.TaxiInvoice.create({
@@ -61,9 +62,10 @@ const postInvoice = async (req, res, next) => {
         },
         status: 200,
       };
+      publish(companyId, wsTypes.INVOICE_ADD, options.data);
       return response(options, req, res, next);
     }
-    const { other, ...data } = req.body.data;
+    const { other, companyId, ...data } = req.body.data;
     const invoice = await db.Invoice.create(data);
 
     const otherInvoice = await db.OtherInvoice.create({
@@ -77,6 +79,7 @@ const postInvoice = async (req, res, next) => {
       },
       status: 200,
     };
+    publish(companyId, wsTypes.INVOICE_ADD, options.data);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`company.postInvoice Error ${err}`);
@@ -93,7 +96,7 @@ const postInvoice = async (req, res, next) => {
 const putInvoice = async (req, res, next) => {
   try {
     const { id } = req.query;
-    const { data } = req.body;
+    const { companyId, ...data } = req.body.data;
     const invoice = await db.Invoice.update(data, {
       where: { id },
       returning: true,
@@ -103,6 +106,7 @@ const putInvoice = async (req, res, next) => {
       data: invoice[1],
       status: 200,
     };
+    publish(companyId, wsTypes.INVOICE_UPDATE, options.data);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`company.putInvoice Error ${err}`);

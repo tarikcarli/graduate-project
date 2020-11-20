@@ -2,6 +2,7 @@ const { promisify } = require("util");
 const redis = require("redis");
 const configs = require("../constants/configs");
 const wsClients = require("../constants/ws_clients");
+const wsTypes = require("../constants/ws_types");
 
 const CHANNEL = "COMMUNICATION";
 
@@ -23,20 +24,35 @@ client.on("error", (err) => {
       if (success) console.log(`client.flushdb Success ${success}`);
     });
 })();
+subscriber.on("subscribe", function subscribe(channel, count) {
+  console.log(`On subscribe ${channel} ${count}`);
+});
 
-subscriber.on("message", function subscribe(channel, message) {
+subscriber.on("message", function getMessage(channel, message) {
   console.log(`${message} receive from ${channel} channel.`);
   const { id, type, data } = JSON.parse(message);
   if (!wsClients[id.toString()]) return;
+  del(`${CHANNEL}-${id}`);
   wsClients[id.toString()].send(JSON.stringify({ type, data }));
 });
+subscriber.subscribe(CHANNEL);
 
+/**
+ *
+ *
+ * @param {*} id  it is user id that he receives message.
+ * @param {*} type it is one of wsTypes strings.
+ * @param {*} data it is websocket message body.
+ */
 function publish(id, type, data) {
-  client.publish(CHANNEL, JSON.stringify({ type, id, data }));
+  const message = JSON.stringify({ type, id, data });
+  if (type !== wsTypes.USER_LOCATION_ADD) set(`${CHANNEL}-${id}`, message);
+  client.publish(CHANNEL, message);
 }
 module.exports = {
   get,
   set,
   del,
   publish,
+  CHANNEL,
 };

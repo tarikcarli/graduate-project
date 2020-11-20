@@ -1,7 +1,8 @@
 const { Op } = require("sequelize");
 const response = require("../utilities/response");
 const { db } = require("../connections/postgres");
-
+const wsTypes = require("../constants/ws_types");
+const { publish } = require("../connections/redis");
 /**
  *To get history location
  *
@@ -72,13 +73,14 @@ const getCurrentLocation = async (req, res, next) => {
  */
 const postLocation = async (req, res, next) => {
   try {
-    const { data } = req.body;
+    const { companyId, ...data } = req.body.data;
 
     const location = await db.UserLocation.create(data);
     const options = {
       data: location,
       status: 200,
     };
+    publish(companyId, wsTypes.USER_LOCATION_ADD, options.data);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`userLocation.postLocation Error ${err}`);
