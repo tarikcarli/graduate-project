@@ -11,7 +11,7 @@ const { publish } = require("../connections/redis");
  */
 const getInvoice = async (req, res, next) => {
   try {
-    const { id, businessId } = req.query;
+    const { id, taskId, operatorId, adminId } = req.query;
     if (id) {
       const invoice = await db.Invoice.findByPk(Number.parseInt(id, 10));
       const options = {
@@ -20,9 +20,29 @@ const getInvoice = async (req, res, next) => {
       };
       return response(options, req, res, next);
     }
-    if (businessId) {
+    if (taskId) {
       const invoice = await db.Invoice.findAll({
-        where: { businessId: Number.parseInt(businessId, 10) },
+        where: { taskId },
+      });
+      const options = {
+        data: invoice,
+        status: 200,
+      };
+      return response(options, req, res, next);
+    }
+    if (operatorId) {
+      const invoice = await db.Invoice.findAll({
+        where: { operatorId },
+      });
+      const options = {
+        data: invoice,
+        status: 200,
+      };
+      return response(options, req, res, next);
+    }
+    if (adminId) {
+      const invoice = await db.Invoice.findAll({
+        where: { adminId },
       });
       const options = {
         data: invoice,
@@ -45,46 +65,18 @@ const getInvoice = async (req, res, next) => {
  */
 const postInvoice = async (req, res, next) => {
   try {
-    const { type } = req.body.data;
-    if (type === "taxi") {
-      const { taxi, companyId, ...data } = req.body.data;
-      const invoice = await db.Invoice.create(data);
-
-      const taxiInvoice = await db.TaxiInvoice.create({
-        ...taxi,
-        invoiceId: invoice.dataValues.id,
-      });
-
-      const options = {
-        data: {
-          ...invoice.dataValues,
-          taxi: { ...taxiInvoice.dataValues },
-        },
-        status: 200,
-      };
-      publish(companyId, wsTypes.INVOICE_ADD, options.data);
-      return response(options, req, res, next);
-    }
-    const { other, companyId, ...data } = req.body.data;
+    const { data } = req.body;
     const invoice = await db.Invoice.create(data);
-
-    const otherInvoice = await db.OtherInvoice.create({
-      ...other,
-      invoiceId: invoice.dataValues.id,
-    });
     const options = {
-      data: {
-        ...invoice.dataValues,
-        other: { ...otherInvoice.dataValues },
-      },
+      data: invoice,
       status: 200,
     };
-    publish(companyId, wsTypes.INVOICE_ADD, options.data);
+    publish(data.operatorId, wsTypes.INVOICE_ADD, options.data);
     return response(options, req, res, next);
   } catch (err) {
-    console.log(`company.postInvoice Error ${err}`);
+    console.log(`Error company.postInvoice: ${err}`);
+    return next(err);
   }
-  return next(new Error("Unknown Error"));
 };
 /**
  *To put invoice
@@ -96,7 +88,7 @@ const postInvoice = async (req, res, next) => {
 const putInvoice = async (req, res, next) => {
   try {
     const { id } = req.query;
-    const { companyId, ...data } = req.body.data;
+    const { data } = req.body;
     const invoice = await db.Invoice.update(data, {
       where: { id },
       returning: true,
@@ -106,12 +98,12 @@ const putInvoice = async (req, res, next) => {
       data: invoice[1],
       status: 200,
     };
-    publish(companyId, wsTypes.INVOICE_UPDATE, options.data);
+    publish(data.adminId, wsTypes.INVOICE_UPDATE, options.data);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`company.putInvoice Error ${err}`);
+    return next(err);
   }
-  return next(new Error("Unknown Error"));
 };
 
 module.exports = {

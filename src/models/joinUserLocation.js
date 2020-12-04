@@ -1,16 +1,16 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../connections/postgres");
 
-class OtherInvoice extends Model {}
+class UserLocation extends Model {}
 
-OtherInvoice.init(
+UserLocation.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    invoiceId: {
+    operatorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -19,5 +19,10 @@ OtherInvoice.init(
       allowNull: false,
     },
   },
-  { sequelize, tableName: "invoice_other", timestamps: false }
+  {
+    sequelize,
+    tableName: "user_location",
+    timestamps: true,
+    updatedAt: false,
+  }
 );

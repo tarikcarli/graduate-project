@@ -1,3 +1,4 @@
+const { Op } = require("sequelize").Op;
 const response = require("../utilities/response");
 const { sign } = require("../utilities/jwt");
 const redis = require("../connections/redis");
@@ -14,6 +15,7 @@ const register = async (req, res, next) => {
   try {
     const { password, ...data } = req.body.data;
     data.password = await db.User.hashPassword(password);
+    data.role = "other";
     const user = await db.User.create(data);
     const options = {
       data: user,
@@ -21,7 +23,7 @@ const register = async (req, res, next) => {
     };
     return response(options, req, res, next);
   } catch (err) {
-    console.log(`company.register Error ${err}`);
+    console.log(`Error user.register ${err}`);
     if (err && err.errors && err.errors[0].type === "unique violation") {
       const options = {
         message: "The user have this email have already registered.",
@@ -29,12 +31,16 @@ const register = async (req, res, next) => {
       };
       return response(options, req, res, next);
     }
+    const options = {
+      message: err.toString(),
+      status: 500,
+    };
+    return response(options, req, res, next);
   }
-  return next(new Error("Something went wrong"));
 };
 
 /**
- *To get workers belongs to Company
+ *To get operators belongs to Admin
  *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
@@ -42,26 +48,31 @@ const register = async (req, res, next) => {
  */
 const getWorkers = async (req, res, next) => {
   try {
-    const companyId = Number.parseInt(req.query.companyId, 10);
-    const users = await db.User.findAll({
-      where: { companyId },
-      attributes: {
-        exclude: ["photoId", "password"],
-      },
+    const adminId = Number.parseInt(req.query.adminId, 10);
+    const users = await db.UserUser.findAll({
+      where: { adminId },
       include: {
-        model: db.Photo,
+        model: db.User,
+        as: "operator",
+        attributes: {
+          exclude: "photoId",
+        },
+        include: {
+          model: db.Photo,
+        },
       },
     });
-    const options = { data: users, status: 200 };
+    const options = { data: users.map((e) => e.operator), status: 200 };
     return response(options, req, res, next);
   } catch (err) {
-    console.log(`company.getWorkers Error ${err}`);
+    console.log(`Error user.getWorkers: ${err}`);
+    const options = { message: err.toString(), status: 500 };
+    return response(options, req, res, next);
   }
-  return next(new Error("Unknown Error"));
 };
 
 /**
- *To get workers belongs to Company
+ *To get Admin belongs to operator
  *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
@@ -69,21 +80,27 @@ const getWorkers = async (req, res, next) => {
  */
 const getAdmin = async (req, res, next) => {
   try {
-    const companyId = Number.parseInt(req.query.companyId, 10);
-    const users = await db.User.findByPk(companyId, {
-      attributes: {
-        exclude: ["photoId", "password"],
-      },
+    const operatorId = Number.parseInt(req.query.operatorId, 10);
+    const user = await db.UserUser.findOne({
+      where: { operatorId },
       include: {
-        model: db.Photo,
+        model: db.User,
+        as: "admin",
+        attributes: {
+          exclude: ["photoId"],
+        },
+        include: {
+          model: db.Photo,
+        },
       },
     });
-    const options = { data: users, status: 200 };
+    const options = { data: user.admin, status: 200 };
     return response(options, req, res, next);
   } catch (err) {
-    console.log(`company.getWorkers Error ${err}`);
+    console.log(`Error user.getWorkers: ${err}`);
+    const options = { message: err.toString(), status: 500 };
+    return response(options, req, res, next);
   }
-  return next(new Error("Unknown Error"));
 };
 
 /**
@@ -123,11 +140,10 @@ const login = async (req, res, next) => {
       return response(options, req, res, next);
     }
     const token = await sign({ id: user.id, role: user.role });
-    await user.getPhoto();
     user.dataValues.token = token;
     await redis.set(`token${user.id}`, token);
     const options = {
-      data: user.toJSON(),
+      data: user,
       status: 200,
     };
     return response(options, req, res, next);
@@ -168,47 +184,48 @@ const logout = async (req, res, next) => {
  */
 const update = async (req, res, next) => {
   try {
-    const { id, ...data } = req.body.data;
-    if (data.password) {
-      data.password = await db.User.hashPassword(data.password);
-    }
-    const user = await db.User.update(data, {
-      where: { id },
-      returning: true,
-      plain: true,
-    });
-    user[1].dataValues.Photo = await user[1].getPhoto();
-    const options = {
-      data: user[1].toJSON(),
-      status: 200,
-    };
-    return response(options, req, res, next);
-  } catch (err) {
-    console.log(`user.update Error ${err}`);
-    if (err && err.errors && err.errors[0].type === "unique violation") {
-      const options = {
-        message: "The user have this email have already registered.",
-        status: 409,
-      };
+    const { id, role, operatorIds } = req.body.data;
+    if (role) {
+      const user = await db.User.update(
+        { role },
+        { where: { id }, planning: true, returning: true }
+      );
+      if (role === "other") {
+        await db.UserUser.destroy({
+          where: { [Op.or]: [{ operatorId: id }, { adminId: id }] },
+        });
+      }
+      if (role === "operator") {
+        await db.UserUser.destroy({
+          where: { adminId: id },
+        });
+      }
+      if (role === "admin") {
+        await db.UserUser.destroy({
+          where: { operatorId: id },
+        });
+      }
+      const options = { data: user[1][0], status: 200 };
       return response(options, req, res, next);
     }
+    if (operatorIds) {
+      await db.UserUser.destroy({ where: { adminId: id } });
+      const userUser = operatorIds.map((e) => {
+        return { adminId: id, operatorId: e };
+      });
+      const userUserResult = await db.UserUser.bulkCreate(userUser);
+      const options = { data: userUserResult, status: 200 };
+      return response(options, req, res, next);
+    }
+    return undefined;
+  } catch (err) {
+    console.log(`Error user.update ${err}`);
+    const options = {
+      message: err.toString(),
+      status: 500,
+    };
+    return response(options, req, res, next);
   }
-  return next(new Error("Someting went wrong"));
-};
-
-/**
- *
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- */
-const tokenStatus = (req, res, next) => {
-  const options = {
-    data: {},
-    status: 200,
-  };
-  return response(options, req, res, next);
 };
 
 module.exports = {
@@ -216,7 +233,6 @@ module.exports = {
   update,
   login,
   logout,
-  tokenStatus,
   getWorkers,
   getAdmin,
 };

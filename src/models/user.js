@@ -45,16 +45,14 @@ User.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    companyId: {
-      type: DataTypes.INTEGER,
-    },
     photoId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
     },
     role: {
       type: DataTypes.ENUM,
       allowNull: false,
-      values: ["company", "worker"],
+      values: ["system", "admin", "operator", "other"],
     },
     name: {
       type: DataTypes.STRING,

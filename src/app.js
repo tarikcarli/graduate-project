@@ -22,8 +22,7 @@ app.use(bodyParser.json({ limit: "5mb" }));
 
 require("./routes/status");
 require("./routes/user");
-require("./routes/userLocation");
-require("./routes/business");
+require("./routes/task");
 require("./routes/invoice");
 require("./routes/location");
 require("./routes/photo");
@@ -38,9 +37,9 @@ app.use("*", (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.log(`Global Error Handler Invoke Error: ${err}`);
+  console.log(`Error Express: ${err}`);
   const options = {
-    message: "Internal Server Error",
+    message: err.toString(),
     status: 500,
   };
   return response(options, req, res, next);

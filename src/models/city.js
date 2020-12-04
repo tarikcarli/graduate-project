@@ -10,19 +10,16 @@ City.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    locationId: {
-      type: DataTypes.INTEGER,
-    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    startingPrice: {
-      type: DataTypes.INTEGER,
+    priceInitial: {
+      type: DataTypes.DOUBLE,
       allowNull: false,
     },
-    taxiPrice: {
-      type: DataTypes.INTEGER,
+    pricePerKm: {
+      type: DataTypes.DOUBLE,
       allowNull: false,
     },
   },

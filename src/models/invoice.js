@@ -10,7 +10,15 @@ Invoice.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    businessId: {
+    adminId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    operatorId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    taskId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -18,13 +26,32 @@ Invoice.init(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    type: {
-      type: DataTypes.ENUM,
+    beginLocationId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      values: ["taxi", "other"],
+    },
+    endLocationId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     price: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    },
+    estimatePrice: {
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    },
+    distance: {
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    },
+    duration: {
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    },
+    isValid: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
     invoicedAt: {
@@ -36,6 +63,5 @@ Invoice.init(
     sequelize,
     tableName: "invoice",
     timestamps: true,
-    updatedAt: false,
   }
 );

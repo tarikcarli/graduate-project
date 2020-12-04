@@ -10,20 +10,20 @@ const { db } = require("../connections/postgres");
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
  */
-const getBusiness = async (req, res, next) => {
+const getTask = async (req, res, next) => {
   try {
-    const { id, companyId, workerId } = req.query;
+    const { id, adminId, operatorId } = req.query;
     if (id) {
-      const business = await db.Business.findByPk(Number.parseInt(id, 10));
+      const task = await db.Task.findByPk(Number.parseInt(id, 10));
       const options = {
-        data: business,
+        data: task,
         status: 200,
       };
       return response(options, req, res, next);
     }
-    if (companyId) {
-      const business = await db.Business.findAll({
-        where: { companyId: Number.parseInt(companyId, 10) },
+    if (operatorId) {
+      const business = await db.Task.findAll({
+        where: { operatorId: Number.parseInt(operatorId, 10) },
       });
       const options = {
         data: business,
@@ -31,9 +31,9 @@ const getBusiness = async (req, res, next) => {
       };
       return response(options, req, res, next);
     }
-    if (workerId) {
-      const business = await db.Business.findAll({
-        where: { workerId: Number.parseInt(workerId, 10) },
+    if (adminId) {
+      const business = await db.Task.findAll({
+        where: { adminId: Number.parseInt(adminId, 10) },
       });
       const options = {
         data: business,
@@ -41,10 +41,11 @@ const getBusiness = async (req, res, next) => {
       };
       return response(options, req, res, next);
     }
+    return undefined;
   } catch (err) {
-    console.log(`company.getBusiness Error ${err}`);
+    console.log(`Error task.getTask: ${err}`);
+    return next(err);
   }
-  return next(new Error("Unknown Error"));
 };
 
 /**
@@ -54,20 +55,20 @@ const getBusiness = async (req, res, next) => {
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
  */
-const postBusiness = async (req, res, next) => {
+const postTask = async (req, res, next) => {
   try {
     const { data } = req.body;
-    const business = await db.Business.create(data);
+    const task = await db.Task.create(data);
     const options = {
-      data: business,
+      data: task,
       status: 200,
     };
-    publish(data.workerId, wsTypes.BUSINESS_ADD, business.dataValues);
+    publish(data.operatorId, wsTypes.BUSINESS_ADD, task.dataValues);
     return response(options, req, res, next);
   } catch (err) {
-    console.log(`company.postBusiness Error ${err}`);
+    console.log(`Error task.postTask: ${err}`);
+    return next(err);
   }
-  return next(new Error("Unknown Error"));
 };
 
 /**
@@ -77,11 +78,11 @@ const postBusiness = async (req, res, next) => {
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
  */
-const putBusiness = async (req, res, next) => {
+const putTask = async (req, res, next) => {
   try {
     const { id } = req.query;
     const { data } = req.body;
-    const business = await db.Business.update(data, {
+    const business = await db.Task.update(data, {
       where: {
         id,
       },
@@ -92,16 +93,16 @@ const putBusiness = async (req, res, next) => {
       data: business[1],
       status: 200,
     };
-    publish(data.companyId, wsTypes.BUSINESS_UPDATE, business.dataValues);
+    publish(data.adminId, wsTypes.BUSINESS_UPDATE, business.dataValues);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`company.putBusiness Error ${err}`);
+    return next(err);
   }
-  return next(new Error("Unknown Error"));
 };
 
 module.exports = {
-  getBusiness,
-  postBusiness,
-  putBusiness,
+  getBusiness: getTask,
+  postBusiness: postTask,
+  putBusiness: putTask,
 };

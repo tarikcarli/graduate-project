@@ -1,5 +1,4 @@
 const { Sequelize } = require("sequelize");
-const cities = require("../constants/city.json");
 const configs = require("../constants/configs");
 
 const sequelize = new Sequelize(configs.POSTGRES_URL, {
@@ -10,19 +9,18 @@ const sequelize = new Sequelize(configs.POSTGRES_URL, {
 exports.sequelize = sequelize;
 exports.db = sequelize.models;
 
-require("../models/business");
+require("../models/task");
 require("../models/city");
 require("../models/invoice");
 require("../models/location");
 require("../models/log");
-require("../models/otherInvoice");
 require("../models/photo");
-require("../models/taxiInvoice");
 require("../models/user");
-require("../models/userLocation");
+require("../models/joinUserLocation");
+require("../models/joinUserUser");
 
 const db = sequelize.models;
-// Photo associations
+// PHOTO_TO_USER associations
 db.Photo.hasOne(db.User, {
   foreignKey: "photoId",
 });
@@ -30,6 +28,7 @@ db.User.belongsTo(db.Photo, {
   foreignKey: "photoId",
 });
 
+// PHOTO_TO_INVOICE associations
 db.Photo.hasOne(db.Invoice, {
   foreignKey: "photoId",
 });
@@ -37,126 +36,121 @@ db.Invoice.belongsTo(db.Photo, {
   foreignKey: "photoId",
 });
 
-// City associations
-db.City.hasMany(db.Business, {
+// CITY_TO_TASK associations
+db.City.hasMany(db.Task, {
   foreignKey: "cityId",
 });
-db.Business.belongsTo(db.City, {
+db.Task.belongsTo(db.City, {
   foreignKey: "cityId",
 });
 
-// User associations
-db.User.hasMany(db.User, {
-  foreignKey: "companyId",
-  as: "Workers",
+// USER_TO_USER associations
+db.User.hasMany(db.UserUser, {
+  foreignKey: "adminId",
+  as: "admin",
 });
 
-db.User.belongsTo(db.User, {
-  foreignKey: "companyId",
-  as: "Company",
+db.UserUser.belongsTo(db.User, {
+  foreignKey: "adminId",
+  as: "admin",
 });
 
+db.User.hasOne(db.UserUser, {
+  foreignKey: "operatorId",
+  as: "operator",
+});
+db.UserUser.belongsTo(db.User, {
+  foreignKey: "operatorId",
+  as: "operator",
+});
+// USER_TO_INVOICE associations
+db.User.hasMany(db.Invoice, {
+  foreignKey: "adminId",
+  as: "adminInvoice",
+});
+
+db.Invoice.belongsTo(db.User, {
+  foreignKey: "adminId",
+  as: "adminInvoice",
+});
+
+db.User.hasOne(db.Invoice, {
+  foreignKey: "operatorId",
+  as: "operatorInvoice",
+});
+db.Invoice.belongsTo(db.User, {
+  foreignKey: "operatorId",
+  as: "operatorInvoice",
+});
+
+// USER_TO_LOCATION associations
 db.User.hasMany(db.UserLocation, {
-  foreignKey: "userId",
+  foreignKey: "operatorId",
 });
 db.UserLocation.belongsTo(db.User, {
-  foreignKey: "userId",
+  foreignKey: "operatorId",
+});
+// USER_TO_TASK associations
+db.User.hasMany(db.Task, {
+  foreignKey: "adminId",
+  as: "adminTasks",
+});
+db.Task.belongsTo(db.User, {
+  foreignKey: "adminId",
+  as: "adminTasks",
 });
 
-db.User.hasMany(db.Business, {
-  foreignKey: "companyId",
-  as: "CompanyBusiness",
+db.User.hasMany(db.Task, {
+  foreignKey: "operatorId",
+  as: "operatorTasks",
 });
-db.Business.belongsTo(db.User, {
-  foreignKey: "companyId",
-  as: "BusinessCompany",
-});
-
-db.User.hasMany(db.Business, {
-  foreignKey: "workerId",
-  as: "WorkerBusiness",
-});
-db.Business.belongsTo(db.User, {
-  foreignKey: "workerId",
-  as: "BusinessWorker",
+db.Task.belongsTo(db.User, {
+  foreignKey: "operatorId",
+  as: "operatorTasks",
 });
 
-// Location associations
-db.Location.hasOne(db.Business, {
+// LOCATION_TO_USER associations
+db.Location.hasOne(db.UserLocation, {
   foreignKey: "locationId",
 });
-db.Business.belongsTo(db.Location, {
-  foreignKey: "locationId",
-});
-
-db.Location.hasOne(db.OtherInvoice, {
-  foreignKey: "locationId",
-});
-db.OtherInvoice.belongsTo(db.Location, {
+db.UserLocation.belongsTo(db.Location, {
   foreignKey: "locationId",
 });
 
-db.Location.hasOne(db.TaxiInvoice, {
-  foreignKey: "locationBeginId",
-  as: "BeginLocation",
-});
-db.TaxiInvoice.belongsTo(db.Location, {
-  foreignKey: "locationBeginId",
-  as: "LocationBegin",
-});
-
-db.Location.hasOne(db.TaxiInvoice, {
-  foreignKey: "locationEndId",
-  as: "EndLocation",
-});
-db.TaxiInvoice.belongsTo(db.Location, {
-  foreignKey: "locationEndId",
-  as: "LocationEnd",
-});
-
-db.Location.hasOne(db.City, {
+// LOCATION_TO_TASK associations
+db.Location.hasOne(db.Task, {
   foreignKey: "locationId",
 });
-db.City.belongsTo(db.Location, {
+db.Task.belongsTo(db.Location, {
   foreignKey: "locationId",
 });
 
-// Business associations
-db.Business.hasMany(db.Invoice, {
-  foreignKey: "businessId",
+// LOCATION_TO_INVOICE associations
+db.Location.hasOne(db.Invoice, {
+  foreignKey: "beginLocationId",
+  as: "beginLocation",
 });
-db.Invoice.belongsTo(db.Business, {
-  foreignKey: "businessId",
-});
-
-// Invoice associations
-db.Invoice.hasOne(db.OtherInvoice, {
-  foreignKey: "invoiceId",
-});
-db.OtherInvoice.belongsTo(db.Invoice, {
-  foreignKey: "invoiceId",
+db.Invoice.belongsTo(db.Location, {
+  foreignKey: "beginLocationId",
+  as: "beginLocation",
 });
 
-db.Invoice.hasOne(db.TaxiInvoice, {
-  foreignKey: "invoiceId",
+db.Location.hasOne(db.Invoice, {
+  foreignKey: "endLocationId",
+  as: "endLocation",
 });
-db.TaxiInvoice.belongsTo(db.Invoice, {
-  foreignKey: "invoiceId",
+db.Invoice.belongsTo(db.Location, {
+  foreignKey: "endLocationId",
+  as: "endLocation",
 });
-function populateCity() {
-  cities.forEach(async (city) => {
-    const location = await db.Location.create({
-      latitude: city.latitude,
-      longitude: city.longitude,
-    });
-    await db.City.create({
-      locationId: location.dataValues.id,
-      name: city.name,
-      taxiPrice: 5,
-      startingPrice: 5,
-    });
-  });
-}
+
+// TASK_TO_INVOICE associations
+db.Task.hasMany(db.Invoice, {
+  foreignKey: "taskId",
+});
+db.Invoice.belongsTo(db.Task, {
+  foreignKey: "taskId",
+});
 
 (async () => {
   try {
@@ -164,7 +158,9 @@ function populateCity() {
     await sequelize.sync({ force: configs.TEST });
     console.log("Connection has been established successfully.");
     if (configs.TEST) {
-      populateCity();
+      // eslint-disable-next-line no-use-before-define
+      // eslint-disable-next-line global-require
+      require("../utilities/populateDb")();
     }
   } catch (err) {
     console.error(`In db.js anonymous function  Error ${err}`);

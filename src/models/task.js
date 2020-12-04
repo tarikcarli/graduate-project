@@ -1,20 +1,20 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../connections/postgres");
 
-class Business extends Model {}
+class Task extends Model {}
 
-Business.init(
+Task.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    companyId: {
+    adminId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    workerId: {
+    operatorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -26,10 +26,6 @@ Business.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    radius: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -38,14 +34,10 @@ Business.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    budget: {
-      type: DataTypes.INTEGER,
+    isOperatorOnTask: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
       allowNull: false,
-    },
-    expense: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
     },
     startedAt: {
       type: DataTypes.DATE,
@@ -58,7 +50,7 @@ Business.init(
   },
   {
     sequelize,
-    tableName: "business",
+    tableName: "task",
     timestamps: true,
   }
 );
