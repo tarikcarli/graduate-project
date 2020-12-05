@@ -1,10 +1,17 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-use-before-define */
 const cities = require("../constants/city.json");
+const users = require("../constants/user.json");
+
 const { db } = require("../connections/postgres");
 
+async function populateDb() {
+  await populateCity();
+  await populateUser();
+}
 async function populateCity() {
-  // eslint-disable-next-line no-restricted-syntax
   for (const city of cities) {
-    // eslint-disable-next-line no-await-in-loop
     await db.City.create({
       name: city.name,
       priceInitial: 5,
@@ -12,4 +19,17 @@ async function populateCity() {
     });
   }
 }
-module.exports = populateCity;
+
+async function populateUser() {
+  for (const user of users) {
+    await db.User.create({
+      photoId: user.photoId,
+      role: user.role,
+      name: user.name,
+      email: user.email,
+      password: await db.User.hashPassword(user.password),
+    });
+  }
+}
+
+module.exports = populateDb;

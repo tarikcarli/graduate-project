@@ -47,7 +47,7 @@ User.init(
     },
     photoId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     role: {
       type: DataTypes.ENUM,

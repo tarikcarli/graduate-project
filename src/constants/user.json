@@ -1,0 +1,16 @@
+[
+  {
+    "photoId": null,
+    "role": "system",
+    "name": "system administrator",
+    "email": "system@gmail.com",
+    "password": "12345678"
+  },
+  {
+    "photoId": null,
+    "role": "admin",
+    "name": "administrator",
+    "email": "admin@gmail.com",
+    "password": "12345678"
+  }
+]

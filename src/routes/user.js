@@ -12,3 +12,9 @@ app.post("/api/user/logout", userController.logout);
 app.get("/api/user/company/workers", userController.getWorkers);
 
 app.get("/api/user/worker/company", userController.getAdmin);
+
+app.get("/api/user/operatorIds", userController.getOperatorIds);
+
+app.get("/api/user/all", userController.getAllUser);
+
+app.get("/api/user/me", userController.getMe);

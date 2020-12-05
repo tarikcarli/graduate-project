@@ -1,4 +1,4 @@
-const { Op } = require("sequelize").Op;
+const { Op } = require("sequelize");
 const response = require("../utilities/response");
 const { sign } = require("../utilities/jwt");
 const redis = require("../connections/redis");
@@ -131,6 +131,13 @@ const login = async (req, res, next) => {
       };
       return response(options, req, res, next);
     }
+    if (user && user.getDataValue("role") === "other") {
+      const options = {
+        message: "User has other role cannot login",
+        status: 403,
+      };
+      return response(options, req, res, next);
+    }
     const result = await user.verifyPassword(password);
     if (!result) {
       const options = {
@@ -149,8 +156,8 @@ const login = async (req, res, next) => {
     return response(options, req, res, next);
   } catch (err) {
     console.log(`user.login Error ${err}`);
+    return next(err);
   }
-  return next(new Error("Someting went wrong"));
 };
 
 /**
@@ -184,6 +191,7 @@ const logout = async (req, res, next) => {
  */
 const update = async (req, res, next) => {
   try {
+    console.log(req.body);
     const { id, role, operatorIds } = req.body.data;
     if (role) {
       const user = await db.User.update(
@@ -227,6 +235,80 @@ const update = async (req, res, next) => {
     return response(options, req, res, next);
   }
 };
+/**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function getMe(req, res, next) {
+  const { id } = req.query;
+  try {
+    const user = await db.User.findByPk(id, {
+      attributes: {
+        exclude: ["password"],
+      },
+      include: {
+        model: db.Photo,
+      },
+    });
+    const options = {
+      data: user,
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (error) {
+    console.log(`Error user.getMe: ${error}`);
+  }
+  return next(Error(""));
+}
+
+/**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function getAllUser(req, res, next) {
+  try {
+    const operators = await db.User.findAll({ include: db.Photo });
+    const options = {
+      data: operators,
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (error) {
+    console.log(`User.getAllUsers Error ${error}`);
+  }
+  return next(new Error("Unknown Error"));
+}
+
+/**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function getOperatorIds(req, res, next) {
+  const { adminId } = req.query;
+  try {
+    const operators = await db.UserUser.findAll({
+      attributes: ["operatorId"],
+      where: { adminId },
+    });
+    const options = {
+      data: operators.map((element) => element.operatorId),
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(` Error user.getOperatorIds: ${err}`);
+    return next(err);
+  }
+}
 
 module.exports = {
   register,
@@ -235,4 +317,7 @@ module.exports = {
   logout,
   getWorkers,
   getAdmin,
+  getMe,
+  getAllUser,
+  getOperatorIds,
 };

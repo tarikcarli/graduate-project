@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 const { Sequelize } = require("sequelize");
 const configs = require("../constants/configs");
 
@@ -158,8 +159,6 @@ db.Invoice.belongsTo(db.Task, {
     await sequelize.sync({ force: configs.TEST });
     console.log("Connection has been established successfully.");
     if (configs.TEST) {
-      // eslint-disable-next-line no-use-before-define
-      // eslint-disable-next-line global-require
       require("../utilities/populateDb")();
     }
   } catch (err) {
