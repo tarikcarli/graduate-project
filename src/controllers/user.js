@@ -5,6 +5,137 @@ const redis = require("../connections/redis");
 const { db } = require("../connections/postgres");
 
 /**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function getOperatorIds(req, res, next) {
+  const { adminId } = req.query;
+  try {
+    const operators = await db.UserUser.findAll({
+      attributes: ["operatorId"],
+      where: { adminId },
+    });
+    const options = {
+      data: operators.map((element) => element.operatorId),
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(` Error user.getOperatorIds: ${err}`);
+    return next(err);
+  }
+}
+
+/**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function getOperators(req, res, next) {
+  const { adminId } = req.query;
+  try {
+    const operators = await db.UserUser.findAll({
+      attributes: ["operatorId"],
+      where: { adminId },
+      include: {
+        model: db.User,
+        as: "operator",
+        include: {
+          model: db.Photo,
+        },
+      },
+    });
+    const options = {
+      data: operators.map((element) => element.operator),
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`User.getOperators Error ${err}`);
+    return next(err);
+  }
+}
+/**
+ *To get Admin belongs to operator
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const getAdmin = async (req, res, next) => {
+  try {
+    const { operatorId } = req.query;
+    const user = await db.UserUser.findOne({
+      where: { operatorId },
+      include: {
+        model: db.User,
+        as: "admin",
+        attributes: {
+          exclude: ["photoId"],
+        },
+        include: {
+          model: db.Photo,
+        },
+      },
+    });
+    const options = { data: user.admin, status: 200 };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`Error user.getWorkers: ${err}`);
+    const options = { message: err.toString(), status: 500 };
+    return response(options, req, res, next);
+  }
+};
+
+/**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function getAllUser(req, res, next) {
+  try {
+    const operators = await db.User.findAll({ include: db.Photo });
+    const options = {
+      data: operators,
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (error) {
+    console.log(`User.getAllUsers Error ${error}`);
+  }
+  return next(new Error("Unknown Error"));
+}
+
+/**
+ *
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const logout = async (req, res, next) => {
+  try {
+    const { id } = req.query;
+    await redis.del(`token${id}`);
+    const options = {
+      data: {},
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`user.logout Error ${err}`);
+  }
+  return next(new Error("Someting went wrong"));
+};
+
+/**
  *To create a company user
  *
  * @param {import("express").Request} req
@@ -35,70 +166,6 @@ const register = async (req, res, next) => {
       message: err.toString(),
       status: 500,
     };
-    return response(options, req, res, next);
-  }
-};
-
-/**
- *To get operators belongs to Admin
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- */
-const getWorkers = async (req, res, next) => {
-  try {
-    const adminId = Number.parseInt(req.query.adminId, 10);
-    const users = await db.UserUser.findAll({
-      where: { adminId },
-      include: {
-        model: db.User,
-        as: "operator",
-        attributes: {
-          exclude: "photoId",
-        },
-        include: {
-          model: db.Photo,
-        },
-      },
-    });
-    const options = { data: users.map((e) => e.operator), status: 200 };
-    return response(options, req, res, next);
-  } catch (err) {
-    console.log(`Error user.getWorkers: ${err}`);
-    const options = { message: err.toString(), status: 500 };
-    return response(options, req, res, next);
-  }
-};
-
-/**
- *To get Admin belongs to operator
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- */
-const getAdmin = async (req, res, next) => {
-  try {
-    const operatorId = Number.parseInt(req.query.operatorId, 10);
-    const user = await db.UserUser.findOne({
-      where: { operatorId },
-      include: {
-        model: db.User,
-        as: "admin",
-        attributes: {
-          exclude: ["photoId"],
-        },
-        include: {
-          model: db.Photo,
-        },
-      },
-    });
-    const options = { data: user.admin, status: 200 };
-    return response(options, req, res, next);
-  } catch (err) {
-    console.log(`Error user.getWorkers: ${err}`);
-    const options = { message: err.toString(), status: 500 };
     return response(options, req, res, next);
   }
 };
@@ -161,80 +228,172 @@ const login = async (req, res, next) => {
 };
 
 /**
- *
- *
+ * api end point handler function.
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
  */
-const logout = async (req, res, next) => {
+async function assignOperator(req, res, next) {
+  const { data } = req.body;
   try {
-    const { id } = req.query;
-    await redis.del(`token${id}`);
+    const userUser = await db.UserUser.create(data);
     const options = {
-      data: {},
+      data: userUser,
       status: 200,
     };
     return response(options, req, res, next);
-  } catch (err) {
-    console.log(`user.logout Error ${err}`);
+  } catch (error) {
+    console.log(`User.assignOperator Error ${error}`);
+    return next(error);
   }
-  return next(new Error("Someting went wrong"));
-};
+}
 
 /**
- *
- *
+ * api end point handler function.
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
  */
-const update = async (req, res, next) => {
+async function unassignOperator(req, res, next) {
+  const { adminId, operatorId } = req.body.data;
   try {
-    console.log(req.body);
-    const { id, role, operatorIds } = req.body.data;
-    if (role) {
-      const user = await db.User.update(
-        { role },
-        { where: { id }, planning: true, returning: true }
-      );
-      if (role === "other") {
-        await db.UserUser.destroy({
-          where: { [Op.or]: [{ operatorId: id }, { adminId: id }] },
-        });
-      }
-      if (role === "operator") {
-        await db.UserUser.destroy({
-          where: { adminId: id },
-        });
-      }
-      if (role === "admin") {
-        await db.UserUser.destroy({
-          where: { operatorId: id },
-        });
-      }
-      const options = { data: user[1][0], status: 200 };
-      return response(options, req, res, next);
-    }
-    if (operatorIds) {
-      await db.UserUser.destroy({ where: { adminId: id } });
-      const userUser = operatorIds.map((e) => {
-        return { adminId: id, operatorId: e };
-      });
-      const userUserResult = await db.UserUser.bulkCreate(userUser);
-      const options = { data: userUserResult, status: 200 };
-      return response(options, req, res, next);
-    }
-    return undefined;
-  } catch (err) {
-    console.log(`Error user.update ${err}`);
+    const userUser = await db.UserUser.destroy({
+      where: { adminId, operatorId },
+    });
     const options = {
-      message: err.toString(),
-      status: 500,
+      data: userUser,
+      status: 200,
     };
     return response(options, req, res, next);
+  } catch (error) {
+    console.log(`User.unassignOperator Error ${error}`);
+    return next(error);
   }
-};
+}
+
+/**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function update(req, res, next) {
+  const { id, ...data } = req.body.data;
+  try {
+    const user = await db.User.update(data, {
+      where: {
+        id,
+      },
+      plaining: true,
+      returning: true,
+    });
+    const options = {
+      data: user,
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (error) {
+    console.log(`User.update Error ${error}`);
+    return next(error);
+  }
+}
+
+/**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function updateRole(req, res, next) {
+  const { id, role } = req.body.data;
+  try {
+    if (role === "admin")
+      await db.UserUser.destroy({ where: { operatorId: id } });
+    if (role === "operator")
+      await db.UserUser.destroy({ where: { adminId: id } });
+    if (role === "other")
+      await db.UserUser.destroy({
+        where: { [Op.or]: [{ operatorId: id }, { adminId: id }] },
+      });
+    const user = await db.User.update(
+      { role },
+      { where: { id }, returning: true, plain: true }
+    );
+    const options = {
+      data: user[1],
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (error) {
+    console.log(`User.updateRole Error ${error}`);
+    return next(error);
+  }
+}
+
+/**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function updatePassword(req, res, next) {
+  const { id, password } = req.body.data;
+  try {
+    const user = await db.User.findByPk(id);
+
+    const hash = db.User.hashPassword(password);
+    user.password = hash;
+
+    const updatedUser = await user.save();
+    const options = {
+      data: updatedUser,
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (error) {
+    console.log(`Error updatePassword: ${error}`);
+    return next(error);
+  }
+}
+
+/**
+ * api end point handler function.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ * @return {Promise<undefined>}
+ */
+async function deleteOperator(req, res, next) {
+  const { id } = req.query;
+  try {
+    await db.UserUser.destroy({
+      where: { [Op.or]: [{ operatorId: id }, { adminId: id }] },
+    });
+    const user = await db.User.findByPk(id);
+    if (!user) {
+      const options = {
+        message: "Not Found",
+        status: 404,
+      };
+      return response(options, req, res, next);
+    }
+    await user.destroy();
+    const options = {
+      data: { id: user.id },
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (error) {
+    console.log(`User.deleteOperator Error ${error}`);
+    return next(error);
+  }
+}
+
 /**
  * api end point handler function.
  * @param {import("express").Request} req
@@ -264,60 +423,19 @@ async function getMe(req, res, next) {
   return next(Error(""));
 }
 
-/**
- * api end point handler function.
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- * @return {Promise<undefined>}
- */
-async function getAllUser(req, res, next) {
-  try {
-    const operators = await db.User.findAll({ include: db.Photo });
-    const options = {
-      data: operators,
-      status: 200,
-    };
-    return response(options, req, res, next);
-  } catch (error) {
-    console.log(`User.getAllUsers Error ${error}`);
-  }
-  return next(new Error("Unknown Error"));
-}
-
-/**
- * api end point handler function.
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- * @return {Promise<undefined>}
- */
-async function getOperatorIds(req, res, next) {
-  const { adminId } = req.query;
-  try {
-    const operators = await db.UserUser.findAll({
-      attributes: ["operatorId"],
-      where: { adminId },
-    });
-    const options = {
-      data: operators.map((element) => element.operatorId),
-      status: 200,
-    };
-    return response(options, req, res, next);
-  } catch (err) {
-    console.log(` Error user.getOperatorIds: ${err}`);
-    return next(err);
-  }
-}
-
 module.exports = {
   register,
-  update,
   login,
+  assignOperator,
+  unassignOperator,
+  update,
+  updateRole,
+  updatePassword,
   logout,
-  getWorkers,
-  getAdmin,
-  getMe,
-  getAllUser,
+  getOperators,
   getOperatorIds,
+  getAdmin,
+  getAllUser,
+  getMe,
+  deleteOperator,
 };
