@@ -14,7 +14,9 @@ const getTask = async (req, res, next) => {
   try {
     const { id, adminId, operatorId } = req.query;
     if (id) {
-      const task = await db.Task.findByPk(Number.parseInt(id, 10));
+      const task = await db.Task.findByPk(Number.parseInt(id, 10), {
+        include: [db.Location, db.City],
+      });
       const options = {
         data: task,
         status: 200,
@@ -23,7 +25,10 @@ const getTask = async (req, res, next) => {
     }
     if (operatorId) {
       const business = await db.Task.findAll({
-        where: { operatorId: Number.parseInt(operatorId, 10) },
+        where: {
+          operatorId: Number.parseInt(operatorId, 10),
+        },
+        include: [db.Location, db.City],
       });
       const options = {
         data: business,
@@ -33,7 +38,10 @@ const getTask = async (req, res, next) => {
     }
     if (adminId) {
       const business = await db.Task.findAll({
-        where: { adminId: Number.parseInt(adminId, 10) },
+        where: {
+          adminId: Number.parseInt(adminId, 10),
+        },
+        include: [db.Location, db.City],
       });
       const options = {
         data: business,
