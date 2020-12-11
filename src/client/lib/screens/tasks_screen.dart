@@ -20,6 +20,8 @@ class _TasksScreenState extends State<TasksScreen> {
   UserProvider _userProvider;
   bool _loading = true;
   bool _firstLoading = true;
+  String _group = "all";
+  List<Task> _tasks = [];
   @override
   void initState() {
     super.initState();
@@ -59,6 +61,7 @@ class _TasksScreenState extends State<TasksScreen> {
           token: _userProvider.token,
           operatorId: _userProvider.user.id,
         );
+      _tasks = _tasksProvider.filterTask(_group);
     } catch (error) {
       await CustomDialog.show(
         ctx: context,
@@ -97,9 +100,14 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
+  void _select(String value) {
+    _group = value;
+    _tasks = _tasksProvider.filterTask(_group);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    final tasks = _tasksProvider?.tasks;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -108,6 +116,30 @@ class _TasksScreenState extends State<TasksScreen> {
             color: Theme.of(context).accentColor,
           ),
         ),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: _select,
+            initialValue: _group,
+            itemBuilder: (BuildContext context) {
+              return [
+                {"value": "all", "display": "Hepsi"},
+                {"value": "now", "display": "Şimdi"},
+                {"value": "future", "display": "Gelecek"},
+                {"value": "old", "display": "Eski"}
+              ].map((Map<String, String> element) {
+                return PopupMenuItem<String>(
+                  value: element["value"],
+                  child: Text(
+                    element["display"],
+                    style: _group == element["value"]
+                        ? style.copyWith(color: Theme.of(context).primaryColor)
+                        : style,
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       drawer: DrawerWidget(),
       body: _loading
@@ -116,14 +148,14 @@ class _TasksScreenState extends State<TasksScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                tasks.length > 0
+                _tasks.length > 0
                     ? Expanded(
                         child: ListView.builder(
-                          itemCount: tasks.length,
+                          itemCount: _tasks.length,
                           itemBuilder: (_, i) => Column(
                             children: [
                               TaskListItem(
-                                task: _tasksProvider.tasks[i],
+                                task: _tasks[i],
                                 deleteTask: deleteTask,
                                 user: _userProvider.user,
                                 token: _userProvider.token,

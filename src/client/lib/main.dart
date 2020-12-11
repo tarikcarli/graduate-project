@@ -28,31 +28,31 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(
             lazy: false,
             create: (ctx) {
-              GlobalProvider.invoiceProvider = InvoiceProvider();
-              return GlobalProvider.invoiceProvider;
+              MyProvider.invoice = InvoiceProvider();
+              return MyProvider.invoice;
             }),
         ChangeNotifierProvider(
             lazy: false,
             create: (ctx) {
-              GlobalProvider.locationProvider = LocationProvider();
-              return GlobalProvider.locationProvider;
+              MyProvider.location = LocationProvider();
+              return MyProvider.location;
             }),
         ChangeNotifierProvider(
             lazy: false,
             create: (ctx) {
-              GlobalProvider.taskProvider = TaskProvider();
-              return GlobalProvider.taskProvider;
+              MyProvider.task = TaskProvider();
+              return MyProvider.task;
             }),
         ChangeNotifierProvider(
             lazy: false,
             create: (ctx) {
-              GlobalProvider.userProvider = UserProvider();
-              GlobalProvider.userProvider.checkUserInfo().then((_) {
+              MyProvider.user = UserProvider();
+              MyProvider.user.checkUserInfo().then((_) {
                 setState(() {
                   _loading = false;
                 });
               });
-              return GlobalProvider.userProvider;
+              return MyProvider.user;
             }),
       ],
       child: Consumer<UserProvider>(

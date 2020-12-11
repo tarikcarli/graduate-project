@@ -1,6 +1,9 @@
 import 'package:business_travel/providers/user.dart';
+import 'package:business_travel/screens/operators_screen.dart';
 import 'package:business_travel/screens/system_user_edit_screen.dart';
 import 'package:business_travel/screens/system_user_settings_screen.dart';
+import 'package:business_travel/screens/tasks_screen.dart';
+import 'package:business_travel/utilities/show_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -35,17 +38,24 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               radius: MediaQuery.of(context).size.width * 0.2,
             ),
           ),
-          ListTile(
-            leading: Icon(
-              Icons.person,
-              color: Theme.of(context).primaryColor,
+          if (_userProvider.user.role == "admin")
+            ListTile(
+              leading: Icon(
+                Icons.person,
+                color: Theme.of(context).primaryColor,
+              ),
+              title: Text(
+                "Operatorler",
+                style: style,
+              ),
+              onTap: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (ctx) => OperatorsScreen(),
+                  ),
+                );
+              },
             ),
-            title: Text(
-              "Operatorler",
-              style: style,
-            ),
-            onTap: () {},
-          ),
           ListTile(
             leading: Icon(
               Icons.assignment,
@@ -55,7 +65,13 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               "Tasks",
               style: style,
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (ctx) => TasksScreen(),
+                ),
+              );
+            },
           ),
           ListTile(
             leading: Icon(
@@ -66,7 +82,13 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               "Invoices",
               style: style,
             ),
-            onTap: () {},
+            onTap: () {
+              // Navigator.of(context).pushReplacement(
+              //   MaterialPageRoute(
+              //     builder: (ctx) => TasksScreen(),
+              //   ),
+              // );
+            },
           ),
           ListTile(
             leading: Icon(
@@ -134,7 +156,18 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               style: style,
             ),
             onTap: () async {
-              await _userProvider.logout();
+              try {
+                await CustomDialog.show(
+                  ctx: context,
+                  withCancel: false,
+                  title: "Çıkış işlemi",
+                  content: "Güvenli bir şekilde çıkış yaptınız.",
+                  success: true,
+                );
+                await _userProvider.logout();
+              } catch (error) {
+                print("Error DrawerWidget.exit: " + error.toString());
+              }
             },
           ),
         ],

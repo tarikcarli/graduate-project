@@ -5,7 +5,7 @@ const { uuid } = require("uuidv4");
 const response = require("../utilities/response");
 const { db } = require("../connections/postgres");
 
-const assetsRootPath = path.join(__dirname, "../..", "public", "images");
+const assetsRootPath = path.join(__dirname, "../../..", "public", "images");
 
 const getPhoto = async (req, res, next) => {
   try {

@@ -1,6 +1,6 @@
 import 'package:business_travel/models/user.dart';
 import 'package:business_travel/providers/user.dart';
-import 'package:business_travel/screens/password_change_screen.dart';
+import 'package:business_travel/screens/system_password_change_screen.dart';
 import 'package:business_travel/utilities/ready_image.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
 import 'package:business_travel/utilities/url_creator.dart';
@@ -80,7 +80,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
       setState(() {
         loading = false;
       });
-      Navigator.of(context).pop();
+      if (_userProvider.user.role == "system") Navigator.of(context).pop();
     }
   }
 

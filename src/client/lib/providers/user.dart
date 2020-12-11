@@ -15,6 +15,14 @@ class UserProvider with ChangeNotifier {
   List<User> operators = [];
   List<User> users = [];
 
+  String operatorIdToName(operatorId) {
+    final op = operators.firstWhere(
+      (element) => element.id == operatorId,
+      orElse: () => null,
+    );
+    return op?.name;
+  }
+
   List<int> operatorIds() {
     return operators.map((element) => element.id).toList();
   }
@@ -315,10 +323,8 @@ class UserProvider with ChangeNotifier {
         user = User.fromJson(data);
         storage.write(key: "token", value: token);
         storage.write(key: "id", value: user.id.toString());
-        if (user.role == "admin")
-          getOperators();
-        else
-          getAdmin();
+        if (user.role == "admin") getOperators();
+        if (user.role == "operator") getAdmin();
         notifyListeners();
         return;
       }
@@ -371,9 +377,7 @@ class UserProvider with ChangeNotifier {
         headers: URL.jsonHeader(token: token),
       );
       if (response.statusCode == 200) {
-        json.decode(response.body)["data"].forEach((e) {
-          admin = User.fromJson(e);
-        });
+        admin = User.fromJson(json.decode(response.body)["data"]);
         return;
       }
     } catch (error) {

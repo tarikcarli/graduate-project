@@ -52,7 +52,7 @@ class TaskProvider with ChangeNotifier {
   }) async {
     http.Response response;
     try {
-      int locationId = await GlobalProvider.locationProvider.sendLocation(
+      int locationId = await MyProvider.location.sendLocation(
         latitude: latitude,
         longitude: longitude,
         token: token,
@@ -62,7 +62,7 @@ class TaskProvider with ChangeNotifier {
         body: json.encode(
           {
             "data": {
-              "adminId": GlobalProvider.userProvider.user.id,
+              "adminId": MyProvider.user.user.id,
               "operatorId": operatorId,
               "locationId": locationId,
               "radius": radius,
@@ -110,7 +110,7 @@ class TaskProvider with ChangeNotifier {
   }) async {
     http.Response response;
     try {
-      int locationId = await GlobalProvider.locationProvider.sendLocation(
+      int locationId = await MyProvider.location.sendLocation(
         latitude: latitude,
         longitude: longitude,
         token: token,
@@ -120,7 +120,7 @@ class TaskProvider with ChangeNotifier {
         body: json.encode(
           {
             "data": {
-              "adminId": GlobalProvider.userProvider.user.id,
+              "adminId": MyProvider.user.user.id,
               "operatorId": operatorId,
               "locationId": locationId,
               "radius": radius,
@@ -212,5 +212,27 @@ class TaskProvider with ChangeNotifier {
       (element) => element.id == task.id,
     );
     notifyListeners();
+  }
+
+  List<Task> filterTask(String group) {
+    DateTime today = DateTime.now();
+    switch (group) {
+      case "now":
+        return tasks
+            .where((element) =>
+                element.startedAt.isBefore(today) &&
+                element.finishedAt.isAfter(today))
+            .toList();
+      case "future":
+        return tasks
+            .where((element) => element.startedAt.isAfter(today))
+            .toList();
+      case "old":
+        return tasks
+            .where((element) => element.finishedAt.isBefore(today))
+            .toList();
+      default:
+        return tasks;
+    }
   }
 }

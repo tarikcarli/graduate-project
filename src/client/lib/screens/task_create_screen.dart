@@ -323,9 +323,11 @@ class _CreateTaskState extends State<CreateTask> {
                             firstDate: DateTime(1900),
                             lastDate: DateTime(2100),
                           );
-                          _startedAt = date;
-                          _controllerStartedAt.text =
-                              date.toString().split(" ")[0];
+                          if (date != null) {
+                            _startedAt = date;
+                            _controllerStartedAt.text =
+                                date.toString().split(" ")[0];
+                          }
                         },
                       ),
                       TextFormField(
@@ -344,9 +346,11 @@ class _CreateTaskState extends State<CreateTask> {
                             firstDate: DateTime(1900),
                             lastDate: DateTime(2100),
                           );
-                          _finishedAt = date;
-                          _controllerFinishedAt.text =
-                              date.toString().split(" ")[0];
+                          if (date != null) {
+                            _finishedAt = date;
+                            _controllerFinishedAt.text =
+                                date.toString().split(" ")[0];
+                          }
                         },
                       ),
                     ],

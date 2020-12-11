@@ -6,7 +6,6 @@ import 'package:business_travel/utilities/show_dialog.dart';
 import 'package:business_travel/utilities/url_creator.dart';
 import 'package:business_travel/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
 enum Options {
@@ -59,10 +58,6 @@ class _SystemHomeScreenState extends State<SystemHomeScreen> {
         content: "Güvenli bir şekilde çıkış yaptınız.",
         success: true,
       );
-
-      final storage = FlutterSecureStorage();
-      await storage.delete(key: "token");
-      await storage.delete(key: "id");
       await _userProvider.logout();
     } catch (error) {
       print("system_home_screen logout " + error.toString());

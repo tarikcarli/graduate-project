@@ -1,5 +1,6 @@
 import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
+import 'package:business_travel/widgets/drawer_widget.dart';
 import 'package:business_travel/widgets/progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -83,6 +84,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
           ),
         ),
       ),
+      drawer: DrawerWidget(),
       body: SafeArea(
         child: loading
             ? ProgressWidget(text: "Ayarlar alınıyor...")

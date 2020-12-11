@@ -222,8 +222,8 @@
       "description": "Yurt dışından gelicek müşterimizi hava alanında karşılanacak.",
       "radius": 100,
       "isOperatorOnTask": false,
-      "startedAt": "2020-12-11T07:28:13.783Z",
-      "finishedAt": "2020-12-11T07:28:13.783Z"
+      "startedAt": "2020-12-10T07:28:13.783Z",
+      "finishedAt": "2020-12-10T07:28:13.783Z"
     },
     {
       "adminId": 2,
@@ -233,8 +233,8 @@
       "description": "Yeni yapılacak projelerle ilgili uzmanlar ile görüşülecek.",
       "radius": 75,
       "isOperatorOnTask": false,
-      "startedAt": "2020-12-11T07:28:13.783Z",
-      "finishedAt": "2020-12-11T07:28:13.783Z"
+      "startedAt": "2020-12-10T07:28:13.783Z",
+      "finishedAt": "2020-12-15T07:28:13.783Z"
     },
     {
       "adminId": 2,
@@ -244,8 +244,8 @@
       "description": "Firmamız için sakarya bölgesindeki fırsatlar değerlendirilecek.",
       "radius": 50,
       "isOperatorOnTask": false,
-      "startedAt": "2020-12-11T07:28:13.783Z",
-      "finishedAt": "2020-12-11T07:28:13.783Z"
+      "startedAt": "2020-12-15T07:28:13.783Z",
+      "finishedAt": "2020-12-18T07:28:13.783Z"
     }
   ],
   "invoices": [],

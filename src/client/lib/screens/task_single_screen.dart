@@ -1,10 +1,12 @@
 import 'package:business_travel/models/task.dart';
+import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/widgets/info_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
+import 'package:provider/provider.dart';
 
 class SingleTaskScreen extends StatefulWidget {
   final Task task;
@@ -16,10 +18,12 @@ class SingleTaskScreen extends StatefulWidget {
 
 class _SingleTaskScreenState extends State<SingleTaskScreen> {
   final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  UserProvider _userProvider;
   MapController mapController;
   StatefulMapController _statefulMapController;
   @override
   void initState() {
+    _userProvider = Provider.of<UserProvider>(context, listen: false);
     mapController = MapController();
     _statefulMapController =
         StatefulMapController(mapController: mapController);
@@ -93,6 +97,12 @@ class _SingleTaskScreenState extends State<SingleTaskScreen> {
                     ],
                   ),
                 ),
+                if (_userProvider.user.role == "admin") Divider(),
+                if (_userProvider.user.role == "admin")
+                  InformationLine(
+                    'Operator:',
+                    '${_userProvider.operatorIdToName(widget.task.operatorId)}',
+                  ),
                 Divider(),
                 InformationLine('Görev:', widget.task.name),
                 Divider(),
