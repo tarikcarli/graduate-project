@@ -1,4 +1,3 @@
-import 'package:business_travel/models/city.dart';
 import 'package:business_travel/models/location.dart';
 import 'package:flutter/foundation.dart';
 
@@ -7,7 +6,7 @@ class Task {
   int adminId;
   int operatorId;
   Location location;
-  City city;
+  int radius;
   String name;
   String description;
   bool isOperatorOnTask;
@@ -21,7 +20,7 @@ class Task {
     @required this.adminId,
     @required this.operatorId,
     @required this.location,
-    @required this.city,
+    @required this.radius,
     @required this.name,
     @required this.description,
     @required this.isOperatorOnTask,
@@ -37,16 +36,16 @@ class Task {
       adminId: json["adminId"],
       operatorId: json["operatorId"],
       location: Location.fromJson(json["Location"]),
-      city: City.fromJson(json["City"]),
+      radius: json["radius"],
       name: json["name"],
       description: json["description"],
       isOperatorOnTask: json["isOperatorOnTask"],
-      startedAt: DateTime.tryParse(json["startedAt"]),
-      finishedAt: DateTime.tryParse(json["finishedAt"]),
-      createdAt: DateTime.tryParse(json["createdAt"]),
+      startedAt: DateTime.tryParse(json["startedAt"]).toLocal(),
+      finishedAt: DateTime.tryParse(json["finishedAt"]).toLocal(),
+      createdAt: DateTime.tryParse(json["createdAt"]).toLocal(),
       updatedAt: DateTime.tryParse(
         json["updatedAt"] == null ? json["createdAt"] : json["updatedAt"],
-      ),
+      ).toLocal(),
     );
   }
 
@@ -57,7 +56,7 @@ class Task {
       "operatorId": operatorId,
       "locationId": location,
       "name": name,
-      "city": city.toJson(),
+      "radius": radius,
       "description": description,
       "isOperatorOnTask": isOperatorOnTask,
       "startedAt": startedAt.toIso8601String(),
@@ -73,7 +72,7 @@ class Task {
       adminId: adminId,
       operatorId: operatorId,
       location: location.copy(),
-      city: city.copy(),
+      radius: radius,
       name: name,
       description: description,
       isOperatorOnTask: isOperatorOnTask,

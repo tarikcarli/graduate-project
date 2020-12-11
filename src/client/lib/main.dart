@@ -5,8 +5,8 @@ import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/screens/auth_screen.dart';
 import 'package:business_travel/screens/system_home_screen.dart';
 import 'package:business_travel/screens/tasks_screen.dart';
+import 'package:business_travel/utilities/global_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -19,74 +19,66 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _isLoading = true;
-  @override
-  initState() {
-    super.initState();
-  }
-
-  Future<void> checkUserInfo(UserProvider _userProvider) async {
-    try {
-      final storage = new FlutterSecureStorage();
-      String token = await storage.read(key: 'token');
-      if (token != null) {
-        _userProvider.token = token;
-        int id = int.tryParse(await storage.read(key: 'id'));
-        bool runningServer = await _userProvider.checkServerStatus();
-        bool validUser = await _userProvider.checkTokenStatus(token: token);
-        if (runningServer && validUser) {
-          await _userProvider.getMe(id: id);
-        }
-      }
-    } catch (error) {
-      print(error);
-    }
-    setState(() {
-      _isLoading = false;
-    });
-  }
+  bool _loading = true;
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (ctx) => InvoiceProvider(),
-        ),
+            lazy: false,
+            create: (ctx) {
+              GlobalProvider.invoiceProvider = InvoiceProvider();
+              return GlobalProvider.invoiceProvider;
+            }),
         ChangeNotifierProvider(
-          create: (ctx) => LocationProvider(),
-        ),
+            lazy: false,
+            create: (ctx) {
+              GlobalProvider.locationProvider = LocationProvider();
+              return GlobalProvider.locationProvider;
+            }),
         ChangeNotifierProvider(
-          create: (ctx) => TaskProvider(),
-        ),
-        ChangeNotifierProvider(create: (ctx) {
-          final _userProvider = UserProvider();
-          checkUserInfo(_userProvider);
-          return _userProvider;
-        }),
+            lazy: false,
+            create: (ctx) {
+              GlobalProvider.taskProvider = TaskProvider();
+              return GlobalProvider.taskProvider;
+            }),
+        ChangeNotifierProvider(
+            lazy: false,
+            create: (ctx) {
+              GlobalProvider.userProvider = UserProvider();
+              GlobalProvider.userProvider.checkUserInfo().then((_) {
+                setState(() {
+                  _loading = false;
+                });
+              });
+              return GlobalProvider.userProvider;
+            }),
       ],
       child: Consumer<UserProvider>(
-        builder: (ctx, userProvider, _) => MaterialApp(
-          title: 'business travel',
-          theme: ThemeData(
-              primarySwatch: Colors.blue,
-              visualDensity: VisualDensity.adaptivePlatformDensity,
-              accentColor: Colors.white,
-              focusColor: Colors.yellow),
-          home: _isLoading
-              ? Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Theme.of(context).primaryColor,
+        builder: (ctx, userProvider, _) {
+          return MaterialApp(
+            title: 'business travel',
+            theme: ThemeData(
+                primarySwatch: Colors.blue,
+                visualDensity: VisualDensity.adaptivePlatformDensity,
+                accentColor: Colors.white,
+                focusColor: Colors.yellow),
+            home: _loading
+                ? Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
                     ),
-                  ),
-                )
-              : userProvider.token == null
-                  ? AuthScreen()
-                  : userProvider?.user?.role == "system"
-                      ? SystemHomeScreen()
-                      : TasksScreen(),
-        ),
+                  )
+                : userProvider.token == null
+                    ? AuthScreen()
+                    : userProvider?.user?.role == "system"
+                        ? SystemHomeScreen()
+                        : TasksScreen(),
+          );
+        },
       ),
     );
   }

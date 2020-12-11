@@ -2,7 +2,6 @@ import 'package:business_travel/models/task.dart';
 import 'package:business_travel/providers/task.dart';
 import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/screens/task_create_screen.dart';
-import 'package:business_travel/screens/task_single_screen.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
 import 'package:business_travel/widgets/drawer_widget.dart';
 import 'package:business_travel/widgets/progress.dart';
@@ -24,10 +23,7 @@ class _TasksScreenState extends State<TasksScreen> {
   @override
   void initState() {
     super.initState();
-    _userProvider = Provider.of<UserProvider>(
-      context,
-      listen: false,
-    );
+    _userProvider = Provider.of<UserProvider>(context, listen: false);
   }
 
   @override
@@ -77,21 +73,28 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
-  void onDismiss(DismissDirection direction, Task task) async {
-    try {
-      await _tasksProvider.deleteTask(
-        id: task.id,
-        token: _userProvider.token,
-      );
-    } catch (error) {
-      await CustomDialog.show(
-        ctx: context,
-        withCancel: false,
-        title: "Görev Silme İşlemi Hatası",
-        content: "Durum: ${error.toString()}",
-      );
+  Future<void> deleteTask(Task task, token) async {
+    final result = await CustomDialog.show(
+      ctx: context,
+      withCancel: true,
+      title: "Görev Silme",
+      content: "Görevi silmek istediğinizden emin misiniz ?",
+    );
+    if (result) {
+      try {
+        await _tasksProvider.deleteTask(
+          id: task.id,
+          token: token,
+        );
+      } catch (error) {
+        await CustomDialog.show(
+          ctx: context,
+          withCancel: false,
+          title: "Görev Silme İşlemi Hatası",
+          content: "Durum: ${error.toString()}",
+        );
+      }
     }
-    setState(() {});
   }
 
   @override
@@ -119,23 +122,11 @@ class _TasksScreenState extends State<TasksScreen> {
                           itemCount: tasks.length,
                           itemBuilder: (_, i) => Column(
                             children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return SingleTaskScreen(
-                                          task: tasks[i],
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: TaskListItem(
-                                  task: _tasksProvider.tasks[i],
-                                  onDismiss: onDismiss,
-                                  user: _userProvider.user,
-                                ),
+                              TaskListItem(
+                                task: _tasksProvider.tasks[i],
+                                deleteTask: deleteTask,
+                                user: _userProvider.user,
+                                token: _userProvider.token,
                               ),
                               Divider(),
                             ],

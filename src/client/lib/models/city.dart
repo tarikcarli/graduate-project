@@ -17,8 +17,8 @@ class City {
     return City(
       id: json["id"],
       name: json["name"],
-      priceInitial: json["priceInitial"],
-      pricePerKm: json["pricePerKm"],
+      priceInitial: json["priceInitial"].toDouble(),
+      pricePerKm: json["pricePerKm"].toDouble(),
     );
   }
 

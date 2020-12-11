@@ -1,6 +1,6 @@
 const response = require("../utilities/response");
-const { publish } = require("../connections/redis");
-const wsTypes = require("../constants/ws_types");
+// const { publish } = require("../connections/redis");
+// const wsTypes = require("../constants/ws_types");
 const { db } = require("../connections/postgres");
 
 /**
@@ -15,7 +15,7 @@ const getTask = async (req, res, next) => {
     const { id, adminId, operatorId } = req.query;
     if (id) {
       const task = await db.Task.findByPk(Number.parseInt(id, 10), {
-        include: [db.Location, db.City],
+        include: [db.Location],
       });
       const options = {
         data: task,
@@ -28,7 +28,7 @@ const getTask = async (req, res, next) => {
         where: {
           operatorId: Number.parseInt(operatorId, 10),
         },
-        include: [db.Location, db.City],
+        include: [db.Location],
       });
       const options = {
         data: business,
@@ -41,7 +41,7 @@ const getTask = async (req, res, next) => {
         where: {
           adminId: Number.parseInt(adminId, 10),
         },
-        include: [db.Location, db.City],
+        include: [db.Location],
       });
       const options = {
         data: business,
@@ -67,14 +67,16 @@ const postTask = async (req, res, next) => {
   try {
     const { data } = req.body;
     const task = await db.Task.create(data);
+    const location = await task.getLocation();
+    task.setDataValue("Location", location);
     const options = {
       data: task,
       status: 200,
     };
-    publish(data.operatorId, wsTypes.BUSINESS_ADD, task.dataValues);
+    // publish(data.operatorId, wsTypes.BUSINESS_ADD, task.dataValues);
     return response(options, req, res, next);
   } catch (err) {
-    console.log(`Error task.postTask: ${err}`);
+    console.log(`Error postTask: ${err}`);
     return next(err);
   }
 };
@@ -90,27 +92,55 @@ const putTask = async (req, res, next) => {
   try {
     const { id } = req.query;
     const { data } = req.body;
-    const business = await db.Task.update(data, {
+    const task = await db.Task.update(data, {
       where: {
         id,
       },
       returning: true,
       plain: true,
     });
+    const location = await task[1].getLocation();
+    task[1].setDataValue("Location", location);
     const options = {
-      data: business[1],
+      data: task[1],
       status: 200,
     };
-    publish(data.adminId, wsTypes.BUSINESS_UPDATE, business.dataValues);
+    // publish(data.adminId, wsTypes.BUSINESS_UPDATE, business.dataValues);
     return response(options, req, res, next);
   } catch (err) {
-    console.log(`company.putBusiness Error ${err}`);
+    console.log(`Error putTask: Error ${err}`);
     return next(err);
   }
 };
-
+/**
+ *To put business
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const deleteTask = async (req, res, next) => {
+  try {
+    const { id } = req.query;
+    await db.Task.destroy({
+      where: {
+        id,
+      },
+    });
+    const options = {
+      data: {},
+      status: 200,
+    };
+    // publish(data.adminId, wsTypes.BUSINESS_UPDATE, business.dataValues);
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`Error deleteTask: ${err}`);
+    return next(err);
+  }
+};
 module.exports = {
-  getBusiness: getTask,
-  postBusiness: postTask,
-  putBusiness: putTask,
+  getTask,
+  postTask,
+  putTask,
+  deleteTask,
 };

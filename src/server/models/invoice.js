@@ -34,6 +34,10 @@ Invoice.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    cityId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     price: {
       type: DataTypes.DOUBLE,
       allowNull: false,
@@ -53,6 +57,10 @@ Invoice.init(
     isValid: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+    },
+    isAccepted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
     },
     invoicedAt: {
       type: DataTypes.DATE,

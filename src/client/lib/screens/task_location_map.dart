@@ -94,7 +94,6 @@ class _TaskLocationMapState extends State<TaskLocationMap> {
           color: Theme.of(context).accentColor,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

@@ -38,10 +38,10 @@ db.Invoice.belongsTo(db.Photo, {
 });
 
 // CITY_TO_TASK associations
-db.City.hasMany(db.Task, {
+db.City.hasMany(db.Invoice, {
   foreignKey: "cityId",
 });
-db.Task.belongsTo(db.City, {
+db.Invoice.belongsTo(db.City, {
   foreignKey: "cityId",
 });
 

@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
-    "start": "node ./src/bin/www",
-    "dev": "nodemon -r dotenv/config ./src/bin/www",
+    "start": "node ./src/server/bin/www",
+    "dev": "nodemon --watch src/server -r dotenv/config ./src/server/bin/www",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

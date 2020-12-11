@@ -1,58 +1,78 @@
 import 'package:business_travel/models/user.dart';
-import 'package:business_travel/utilities/show_dialog.dart';
+import 'package:business_travel/screens/task_edit_screen.dart';
+import 'package:business_travel/screens/task_single_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../models/task.dart';
 
 class TaskListItem extends StatelessWidget {
+  final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+
   final Task task;
-  final void Function(DismissDirection direction, Task task) onDismiss;
+  final void Function(Task task, String token) deleteTask;
   final User user;
-  TaskListItem({this.task, this.onDismiss, this.user});
+  final String token;
+  TaskListItem({this.task, this.deleteTask, this.user, this.token});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Dismissible(
-        key: ValueKey(task.id),
-        background: Container(
-          color: Theme.of(context).errorColor,
-          child: Icon(
-            Icons.delete,
-            color: Colors.white,
-            size: 40,
-          ),
-          alignment: Alignment.centerRight,
-          padding: EdgeInsets.only(right: 20),
-          margin: EdgeInsets.symmetric(
-            horizontal: 15,
-            vertical: 4,
-          ),
-        ),
-        direction: DismissDirection.endToStart,
-        confirmDismiss: (direction) {
-          if (user.role == "admin")
-            return CustomDialog.show(
-              ctx: context,
-              withCancel: true,
-              title: "Emin misiniz?",
-              content: "Görevi silmek istediğinizden emin misiniz?\n" +
-                  "Bu işlem geri alınamaz.",
-            );
-          else
-            return CustomDialog.show(
-              ctx: context,
-              withCancel: false,
-              title: "Yetersiz Yetki",
-              content: 'Görevi silebilmek için yönetici olmalısınız.',
-            );
-        },
-        onDismissed: (direction) {
-          onDismiss(direction, task);
-        },
-        child: ListTile(
-          title: Text(task.name),
-          subtitle: Text(task.description),
+    return ListTile(
+      title: Text(
+        task.name,
+        style: style.copyWith(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(
+        task.description,
+        style: style.copyWith(fontSize: 13),
+      ),
+      trailing: Container(
+        width: MediaQuery.of(context).size.width * 0.3,
+        child: Row(
+          children: [
+            if (user.role == "admin")
+              Expanded(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.edit,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => EditTaskScreen(
+                          task,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            Expanded(
+              child: IconButton(
+                icon: Icon(
+                  Icons.details,
+                  color: Theme.of(context).primaryColor,
+                ),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => SingleTaskScreen(task: task),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (user.role == "admin")
+              Expanded(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.delete,
+                    color: Theme.of(context).errorColor,
+                  ),
+                  onPressed: () => deleteTask(task, token),
+                ),
+              ),
+          ],
         ),
       ),
     );

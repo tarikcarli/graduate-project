@@ -22,16 +22,16 @@ Task.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    cityId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     description: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    radius: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     isOperatorOnTask: {

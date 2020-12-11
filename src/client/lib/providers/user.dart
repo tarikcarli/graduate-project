@@ -311,11 +311,14 @@ class UserProvider with ChangeNotifier {
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body)["data"];
-        print(data);
         token = data["token"];
         user = User.fromJson(data);
         storage.write(key: "token", value: token);
         storage.write(key: "id", value: user.id.toString());
+        if (user.role == "admin")
+          getOperators();
+        else
+          getAdmin();
         notifyListeners();
         return;
       }
@@ -449,5 +452,25 @@ class UserProvider with ChangeNotifier {
       print(error);
     }
     return null;
+  }
+
+  Future<void> checkUserInfo() async {
+    try {
+      final storage = new FlutterSecureStorage();
+      String storeToken = await storage.read(key: 'token');
+      if (storeToken != null) {
+        token = storeToken;
+        int id = int.tryParse(await storage.read(key: 'id'));
+        bool runningServer = await checkServerStatus();
+        bool validUser = await checkTokenStatus(token: token);
+        if (runningServer && validUser) {
+          await getMe(id: id);
+          if (user.role == "admin") await getOperators();
+          if (user.role == "operator") await getAdmin();
+        }
+      }
+    } catch (error) {
+      print("Error checkUserInfo: $error");
+    }
   }
 }

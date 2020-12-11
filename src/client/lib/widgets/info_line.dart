@@ -12,10 +12,10 @@ class InformationLine extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Expanded(
-          flex: 3,
+          flex: 4,
           child: Text(
             identifier,
-            style: style,
+            style: style.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.left,
           ),
         ),

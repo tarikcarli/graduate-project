@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:business_travel/models/task.dart';
 import 'package:business_travel/providers/task.dart';
 import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/screens/task_location_map.dart';
@@ -13,15 +14,17 @@ import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
 import 'package:provider/provider.dart';
 
-class CreateTask extends StatefulWidget {
+class EditTaskScreen extends StatefulWidget {
+  final Task task;
+  EditTaskScreen(this.task);
   @override
-  _CreateTaskState createState() => _CreateTaskState();
+  _EditTaskScreenState createState() => _EditTaskScreenState();
 }
 
-class _CreateTaskState extends State<CreateTask> {
+class _EditTaskScreenState extends State<EditTaskScreen> {
   final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   int _operatorId;
-  int _radius = 25;
+  int _radius;
   String _name;
   String _description;
   LatLng _coordinate;
@@ -43,12 +46,39 @@ class _CreateTaskState extends State<CreateTask> {
     super.initState();
     _taskProvider = Provider.of<TaskProvider>(context, listen: false);
     _userProvider = Provider.of<UserProvider>(context, listen: false);
+    _operatorId = widget.task.operatorId;
+    _radius = widget.task.radius;
+    _name = widget.task.name;
+    _description = widget.task.description;
+    _coordinate = LatLng(
+      widget.task.location.latitude,
+      widget.task.location.longitude,
+    );
+    _startedAt = widget.task.startedAt;
+    _finishedAt = widget.task.finishedAt;
+    _controllerLocation.text =
+        '${_coordinate.latitude.toStringAsFixed(4)},${_coordinate.longitude.toStringAsFixed(4)}';
+    _controllerStartedAt.text = _startedAt.toString().split(" ")[0];
+    _controllerFinishedAt.text = _finishedAt.toString().split(" ")[0];
     CityService.getCities().then((value) {
       if (mounted) setState(() {});
     });
     mapController = MapController();
     _statefulMapController =
         StatefulMapController(mapController: mapController);
+    _statefulMapController.onReady.then((_) {
+      _statefulMapController.addMarker(
+        marker: Marker(
+          point: _coordinate,
+          builder: (context) => Icon(
+            Icons.location_on,
+            color: Colors.deepOrange,
+            size: 25,
+          ),
+        ),
+        name: 'taskLocation',
+      );
+    });
   }
 
   Future<void> _saveForm() async {
@@ -58,7 +88,8 @@ class _CreateTaskState extends State<CreateTask> {
         setState(() {
           _loading = true;
         });
-        await _taskProvider.addTask(
+        await _taskProvider.updateTask(
+          id: widget.task.id,
           operatorId: _operatorId,
           radius: _radius,
           latitude: _coordinate.latitude,
@@ -90,7 +121,7 @@ class _CreateTaskState extends State<CreateTask> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Görev Oluştur',
+          'Görev Güncelle',
           style: style.copyWith(color: Theme.of(context).accentColor),
         ),
       ),
@@ -110,7 +141,7 @@ class _CreateTaskState extends State<CreateTask> {
                         child: FlutterMap(
                           mapController: mapController,
                           options: MapOptions(
-                            center: LatLng(40.774173, 29.573892),
+                            center: _coordinate,
                             zoom: 7.0,
                             interactive: false,
                           ),
@@ -173,27 +204,28 @@ class _CreateTaskState extends State<CreateTask> {
                                     builder: (context) => TaskLocationMap(),
                                   ),
                                 );
-                                _statefulMapController.centerOnPoint(value);
-                                _statefulMapController.addMarker(
-                                  marker: Marker(
-                                    point: LatLng(
-                                      value.latitude,
-                                      value.longitude,
-                                    ),
-                                    builder: (context) => Icon(
-                                      Icons.location_on,
-                                      color: Colors.deepOrange,
-                                      size: 25,
-                                    ),
-                                  ),
-                                  name: 'taskLocation',
-                                );
                                 if (value != null) {
+                                  _statefulMapController.centerOnPoint(value);
+                                  _statefulMapController.addMarker(
+                                    marker: Marker(
+                                      point: LatLng(
+                                        value.latitude,
+                                        value.longitude,
+                                      ),
+                                      builder: (context) => Icon(
+                                        Icons.location_on,
+                                        color: Colors.deepOrange,
+                                        size: 25,
+                                      ),
+                                    ),
+                                    name: 'taskLocation',
+                                  );
+
                                   _coordinate = value;
                                   _controllerLocation.text =
                                       '${value.latitude.toStringAsFixed(4)},${value.longitude.toStringAsFixed(4)}';
+                                  setState(() {});
                                 }
-                                setState(() {});
                               },
                             ),
                           ),
@@ -246,41 +278,11 @@ class _CreateTaskState extends State<CreateTask> {
                         textField: 'display',
                         valueField: 'value',
                       ),
-                      // DropDownFormField(
-                      //   contentPadding: null,
-                      //   titleText: 'Şehirler',
-                      //   hintText: 'Lütfen görevin şehrini seçiniz.',
-                      //   value: _cityId,
-                      //   filled: false,
-                      //   onSaved: (value) {
-                      //     _cityId = value;
-                      //   },
-                      //   onChanged: (value) {
-                      //     setState(() {
-                      //       _cityId = value;
-                      //     });
-                      //   },
-                      //   validator: (value) {
-                      //     if (_cityId == null)
-                      //       return "Görev oluşturmak için Şehir belirlemelisiniz.";
-                      //     return null;
-                      //   },
-                      //   required: true,
-                      //   dataSource: CityService.cities
-                      //       .map(
-                      //         (e) => {
-                      //           "display": '${e.name}',
-                      //           "value": e.id,
-                      //         },
-                      //       )
-                      //       .toList(),
-                      //   textField: 'display',
-                      //   valueField: 'value',
-                      // ),
                       TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Görev İsmi',
                         ),
+                        initialValue: _name,
                         validator: (value) {
                           if (value.isEmpty) return 'Lütfen Değer giriniz.';
                           return null;
@@ -295,6 +297,7 @@ class _CreateTaskState extends State<CreateTask> {
                         decoration:
                             InputDecoration(labelText: 'Görev Açıklaması'),
                         maxLines: 3,
+                        initialValue: _description,
                         textInputAction: TextInputAction.done,
                         validator: (value) {
                           if (value.isEmpty) return 'Lütfen Değer giriniz.';

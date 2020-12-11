@@ -136,8 +136,8 @@ class URL {
     return null;
   }
 
-  static String putTask() {
-    return '${httpUrl}api/task';
+  static String putTask({@required id}) {
+    return '${httpUrl}api/task?id=$id';
   }
 
   static String deleteTask({@required id}) {
@@ -159,5 +159,9 @@ class URL {
 
   static String putInvoice({@required id}) {
     return '${httpUrl}api/invoice?id=$id';
+  }
+
+  static getCity() {
+    return '${httpUrl}api/city';
   }
 }

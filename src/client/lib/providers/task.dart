@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:business_travel/models/task.dart';
+import 'package:business_travel/utilities/global_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -38,25 +39,38 @@ class TaskProvider with ChangeNotifier {
         'Http hata kodu: ${response.statusCode}');
   }
 
-  Future<void> addTask(
-      {@required int adminId,
-      @required int operatorId,
-      @required int locationId,
-      @required String description,
-      @required String name,
-      @required String token}) async {
+  Future<void> addTask({
+    @required int operatorId,
+    @required double latitude,
+    @required double longitude,
+    @required int radius,
+    @required DateTime startedAt,
+    @required DateTime finishedAt,
+    @required String description,
+    @required String name,
+    @required String token,
+  }) async {
     http.Response response;
     try {
+      int locationId = await GlobalProvider.locationProvider.sendLocation(
+        latitude: latitude,
+        longitude: longitude,
+        token: token,
+      );
       response = await http.post(
         URL.postTask(),
         body: json.encode(
           {
             "data": {
-              "adminId": adminId,
+              "adminId": GlobalProvider.userProvider.user.id,
               "operatorId": operatorId,
               "locationId": locationId,
+              "radius": radius,
               "name": name,
               "description": description,
+              "isOperatorOnTask": false,
+              "startedAt": startedAt.toUtc().toIso8601String(),
+              "finishedAt": finishedAt.toUtc().toIso8601String(),
             },
           },
         ),
@@ -75,10 +89,8 @@ class TaskProvider with ChangeNotifier {
         return;
       }
     } catch (error) {
-      print(error);
-      throw Exception(
-          'Görev ekleme işlemi esnasında bilinmeyen bir hata meydana geldi.\n' +
-              'Lütfen internet bağlantınız olduğundan emin olunuz.');
+      print("Error addTask: $error");
+      throw error;
     }
     throw Exception('Bilinmeyen bir hata oluştu.\n' +
         'Http hata kodu: ${response.statusCode}');
@@ -86,20 +98,37 @@ class TaskProvider with ChangeNotifier {
 
   Future<void> updateTask({
     @required int id,
-    @required List<int> photoIds,
-    @required String comment,
+    @required int operatorId,
+    @required double latitude,
+    @required double longitude,
+    @required int radius,
+    @required DateTime startedAt,
+    @required DateTime finishedAt,
+    @required String description,
+    @required String name,
     @required String token,
   }) async {
     http.Response response;
     try {
+      int locationId = await GlobalProvider.locationProvider.sendLocation(
+        latitude: latitude,
+        longitude: longitude,
+        token: token,
+      );
       response = await http.put(
-        URL.putTask(),
+        URL.putTask(id: id),
         body: json.encode(
           {
             "data": {
-              "id": id,
-              "comment": comment,
-              "photos": photoIds.map((e) => {"id": e}).toList(),
+              "adminId": GlobalProvider.userProvider.user.id,
+              "operatorId": operatorId,
+              "locationId": locationId,
+              "radius": radius,
+              "name": name,
+              "description": description,
+              "isOperatorOnTask": false,
+              "startedAt": startedAt.toUtc().toIso8601String(),
+              "finishedAt": finishedAt.toUtc().toIso8601String(),
             },
           },
         ),
@@ -108,23 +137,23 @@ class TaskProvider with ChangeNotifier {
         ),
       );
       if (response.statusCode == 200) {
-        tasks = tasks.map((e) {
-          if (e.id == id)
-            return Task.fromJson(json.decode(response.body)["data"]);
-          return e;
-        }).toList();
+        print(response.body);
+        Task task = Task.fromJson(
+          json.decode(
+            response.body,
+          )["data"],
+        );
+        tasks.removeWhere((element) => element.id == task.id);
+        tasks.insert(0, task);
         notifyListeners();
         return;
       }
     } catch (error) {
-      print(error);
-      throw Exception(
-          'Görev ekleme işlemi esnasında bilinmeyen bir hata meydana geldi.\n' +
-              'Lütfen internet bağlantınız olduğundan emin olunuz.');
+      print("Error addTask: $error");
+      throw error;
     }
     throw Exception('Bilinmeyen bir hata oluştu.\n' +
-        'Http hata kodu: ${response.statusCode}.\n' +
-        'Http body:${response.body}.');
+        'Http hata kodu: ${response.statusCode}');
   }
 
   Future<void> deleteTask({@required int id, @required String token}) async {
@@ -140,10 +169,8 @@ class TaskProvider with ChangeNotifier {
         return;
       }
     } catch (error) {
-      print(error);
-      throw Exception(
-          'Çıkış işlemi esnasında bilinmeyen bir hata meydana geldi.\n' +
-              'Lütfen internet bağlantınız olduğundan emin olunuz.');
+      print("Error deleteTask: $error");
+      throw error;
     }
     throw Exception('Bilinmeyen bir hata oluştu.\n' +
         'Http hata kodu: ${response.statusCode}');
