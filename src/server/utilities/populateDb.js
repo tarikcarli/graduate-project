@@ -37,6 +37,9 @@ async function populateDb() {
 
     const { tasks } = data;
     await db.Task.bulkCreate(tasks);
+
+    const { invoices } = data;
+    await db.Invoice.bulkCreate(invoices);
   } catch (err) {
     console.log(`Error populateDb: ${err}`);
   }

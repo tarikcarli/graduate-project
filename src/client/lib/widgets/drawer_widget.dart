@@ -1,4 +1,5 @@
 import 'package:business_travel/providers/user.dart';
+import 'package:business_travel/screens/invoices_screens.dart';
 import 'package:business_travel/screens/operators_screen.dart';
 import 'package:business_travel/screens/system_user_edit_screen.dart';
 import 'package:business_travel/screens/system_user_settings_screen.dart';
@@ -83,11 +84,11 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               style: style,
             ),
             onTap: () {
-              // Navigator.of(context).pushReplacement(
-              //   MaterialPageRoute(
-              //     builder: (ctx) => TasksScreen(),
-              //   ),
-              // );
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (ctx) => InvoicesScreen(),
+                ),
+              );
             },
           ),
           ListTile(

@@ -235,4 +235,21 @@ class TaskProvider with ChangeNotifier {
         return tasks;
     }
   }
+
+  List<Map<String, String>> tasksIdAndNameToMap() {
+    List<Map<String, String>> drapDownMenuValues = [];
+    tasks.forEach((element) {
+      drapDownMenuValues
+          .add({"display": element.name, "value": element.id.toString()});
+    });
+    drapDownMenuValues.insert(0, {"value": "0", "display": "hepsi"});
+    return drapDownMenuValues;
+  }
+
+  String taskIdToName(int id) {
+    final task = tasks.firstWhere((element) {
+      return element.id == id;
+    }, orElse: () => null);
+    return task.name;
+  }
 }

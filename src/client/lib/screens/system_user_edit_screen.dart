@@ -113,7 +113,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
                           radius: MediaQuery.of(context).size.width * 0.25,
                         ),
                         onTap: () async {
-                          final photo = await selectImage(false);
+                          final photo = await selectImage(isCamera: false);
                           if (photo != null)
                             setState(() {
                               _photo = photo;

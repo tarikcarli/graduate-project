@@ -93,12 +93,12 @@ class URL {
     return '${httpUrl}api/location';
   }
 
-  static String postLocationUser() {
-    return '${httpUrl}api/location/user';
+  static String postUserLocation() {
+    return '${httpUrl}api/user/location';
   }
 
-  static String postLocationsUser() {
-    return '${httpUrl}api/locations/user';
+  static String postUserLocations() {
+    return '${httpUrl}api/user/locations';
   }
 
   static String getLocation({@required id}) {
@@ -106,7 +106,7 @@ class URL {
   }
 
   static String getCurrentLocation({@required int operatorId}) {
-    return '${httpUrl}api/location/user/current?operatorId=$operatorId';
+    return '${httpUrl}api/user/location/current?operatorId=$operatorId';
   }
 
   static String getHistoryLocation({
@@ -114,7 +114,7 @@ class URL {
     @required DateTime startDate,
     @required DateTime finishDate,
   }) {
-    return '${httpUrl}api/location/user/history?operatorId=$operatorId&startDate=${startDate.toIso8601String()}&finishDate=${finishDate.toIso8601String()}';
+    return '${httpUrl}api/user/location/history?operatorId=$operatorId&startDate=${startDate.toIso8601String()}&finishDate=${finishDate.toIso8601String()}';
   }
 
   static String getTotalTask({int operatorId, int adminId, bool isComplete}) {

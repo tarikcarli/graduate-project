@@ -146,72 +146,336 @@
     { "longitude": 28.74263763427734, "latitude": 41.26051725203973 }
   ],
   "userLocations": [
-    { "operatorId": 3, "locationId": 4 },
-    { "operatorId": 3, "locationId": 5 },
-    { "operatorId": 3, "locationId": 6 },
-    { "operatorId": 3, "locationId": 7 },
-    { "operatorId": 3, "locationId": 8 },
-    { "operatorId": 3, "locationId": 9 },
-    { "operatorId": 3, "locationId": 10 },
-    { "operatorId": 3, "locationId": 11 },
-    { "operatorId": 3, "locationId": 12 },
-    { "operatorId": 3, "locationId": 13 },
-    { "operatorId": 3, "locationId": 14 },
-    { "operatorId": 3, "locationId": 15 },
-    { "operatorId": 3, "locationId": 16 },
-    { "operatorId": 3, "locationId": 17 },
-    { "operatorId": 3, "locationId": 18 },
-    { "operatorId": 3, "locationId": 19 },
-    { "operatorId": 3, "locationId": 20 },
-    { "operatorId": 3, "locationId": 21 },
-    { "operatorId": 3, "locationId": 22 },
-    { "operatorId": 3, "locationId": 23 },
-    { "operatorId": 3, "locationId": 24 },
-    { "operatorId": 3, "locationId": 25 },
-    { "operatorId": 3, "locationId": 26 },
-    { "operatorId": 3, "locationId": 27 },
-    { "operatorId": 3, "locationId": 28 },
-    { "operatorId": 3, "locationId": 29 },
-    { "operatorId": 3, "locationId": 30 },
-    { "operatorId": 3, "locationId": 31 },
-    { "operatorId": 3, "locationId": 32 },
-    { "operatorId": 3, "locationId": 33 },
-    { "operatorId": 3, "locationId": 34 },
-    { "operatorId": 3, "locationId": 35 },
-    { "operatorId": 3, "locationId": 36 },
-    { "operatorId": 3, "locationId": 37 },
-    { "operatorId": 3, "locationId": 38 },
-    { "operatorId": 3, "locationId": 39 },
-    { "operatorId": 3, "locationId": 40 },
-    { "operatorId": 3, "locationId": 41 },
-    { "operatorId": 3, "locationId": 42 },
-    { "operatorId": 3, "locationId": 43 },
-    { "operatorId": 3, "locationId": 44 },
-    { "operatorId": 3, "locationId": 45 },
-    { "operatorId": 3, "locationId": 46 },
-    { "operatorId": 3, "locationId": 47 },
-    { "operatorId": 3, "locationId": 48 },
-    { "operatorId": 3, "locationId": 49 },
-    { "operatorId": 3, "locationId": 50 },
-    { "operatorId": 3, "locationId": 51 },
-    { "operatorId": 3, "locationId": 52 },
-    { "operatorId": 3, "locationId": 53 },
-    { "operatorId": 3, "locationId": 54 },
-    { "operatorId": 3, "locationId": 55 },
-    { "operatorId": 3, "locationId": 56 },
-    { "operatorId": 3, "locationId": 57 },
-    { "operatorId": 3, "locationId": 58 },
-    { "operatorId": 3, "locationId": 59 },
-    { "operatorId": 3, "locationId": 60 },
-    { "operatorId": 3, "locationId": 61 },
-    { "operatorId": 3, "locationId": 62 },
-    { "operatorId": 3, "locationId": 63 },
-    { "operatorId": 3, "locationId": 64 },
-    { "operatorId": 3, "locationId": 65 },
-    { "operatorId": 3, "locationId": 66 },
-    { "operatorId": 3, "locationId": 67 },
-    { "operatorId": 3, "locationId": 68 },
-    { "operatorId": 3, "locationId": 69 }
+    {
+      "operatorId": 3,
+      "locationId": 4,
+      "createdAt": "2020-12-10T17:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 5,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 6,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 7,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 8,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 9,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 10,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 11,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 12,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 13,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 14,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 15,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 16,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 17,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 18,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 19,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 20,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 21,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 22,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 23,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 24,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 25,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 26,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 27,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 28,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 29,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 30,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 31,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 32,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 33,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 34,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 35,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 36,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 37,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 38,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 39,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 40,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 41,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 42,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 43,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 44,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 45,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 46,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 47,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 48,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 49,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 50,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 51,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 52,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 53,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 54,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 55,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 56,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 57,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 58,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 59,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 60,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 61,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 62,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 63,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 64,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 65,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 66,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 67,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 68,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    },
+    {
+      "operatorId": 3,
+      "locationId": 69,
+      "createdAt": "2020-12-10T07:28:13.783Z"
+    }
   ],
   "tasks": [
     {
@@ -223,7 +487,7 @@
       "radius": 100,
       "isOperatorOnTask": false,
       "startedAt": "2020-12-10T07:28:13.783Z",
-      "finishedAt": "2020-12-10T07:28:13.783Z"
+      "finishedAt": "2020-12-15T07:28:13.783Z"
     },
     {
       "adminId": 2,
@@ -248,7 +512,56 @@
       "finishedAt": "2020-12-18T07:28:13.783Z"
     }
   ],
-  "invoices": [],
+  "invoices": [
+    {
+      "adminId": 2,
+      "operatorId": 3,
+      "taskId": 1,
+      "photoId": 8,
+      "beginLocationId": 4,
+      "endLocationId": 30,
+      "cityId": 41,
+      "price": 45.5,
+      "estimatePrice": 40.75,
+      "distance": 5.68,
+      "duration": 1800000,
+      "isValid": true,
+      "isAccepted": true,
+      "invoicedAt": "2020-12-10T08:28:13.783Z"
+    },
+    {
+      "adminId": 2,
+      "operatorId": 3,
+      "taskId": 1,
+      "photoId": 9,
+      "beginLocationId": 31,
+      "endLocationId": 49,
+      "cityId": 41,
+      "price": 65,
+      "estimatePrice": 40.75,
+      "distance": 3.68,
+      "duration": 1200000,
+      "isValid": false,
+      "isAccepted": false,
+      "invoicedAt": "2020-12-10T12:28:13.783Z"
+    },
+    {
+      "adminId": 2,
+      "operatorId": 3,
+      "taskId": 1,
+      "photoId": 10,
+      "beginLocationId": 50,
+      "endLocationId": 69,
+      "cityId": 41,
+      "price": 75.5,
+      "estimatePrice": 70.75,
+      "distance": 10.68,
+      "duration": 2400000,
+      "isValid": true,
+      "isAccepted": true,
+      "invoicedAt": "2020-12-10T15:28:13.783Z"
+    }
+  ],
   "cities": [
     {
       "name": "Adana",

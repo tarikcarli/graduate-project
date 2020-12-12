@@ -16,9 +16,9 @@ import 'package:latlong/latlong.dart';
 class LocationProvider with ChangeNotifier {
   Location currentLocation;
   List<Location> currentOperatorLocations = [];
+  List<Location> historyLocation = [];
   List<Location> historyLocationBig = []; //10m
-  List<Location> historyLocationMedium = []; //50m
-  List<Location> historyLocationSmall = []; //500m
+  List<Location> historyLocationMedium = []; //100m
   List<Location> historyLocationBorder = []; //first and last
   bool isAllowedBackgroundTracking = false;
 
@@ -83,17 +83,17 @@ class LocationProvider with ChangeNotifier {
       response = await http.get(
         URL.getHistoryLocation(
           operatorId: operatorId,
-          startDate: startDate,
-          finishDate: finishDate,
+          startDate: startDate.toUtc(),
+          finishDate: finishDate.toUtc(),
         ),
         headers: URL.jsonHeader(token: token),
       );
       if (response.statusCode == 200) {
-        historyLocationBig = [];
-        json.decode(response.body)["data"].forEach((e) {
-          historyLocationBig.add(Location.fromJson(e));
+        historyLocation = [];
+        json.decode(response.body)["data"]["locations"].forEach((e) {
+          historyLocation.add(Location.fromJson(e));
         });
-        historyLocationBig.forEach((location) {
+        historyLocation.forEach((location) {
           location.createdAt = location.createdAt.toLocal();
         });
         notifyListeners();
@@ -105,6 +105,20 @@ class LocationProvider with ChangeNotifier {
     }
     throw Exception('Bilinmeyen bir hata oluştu.\n' +
         'Http hata kodu: ${response.statusCode}');
+  }
+
+  List<Location> filterLocationByDate({
+    DateTime taskStartDate,
+    int historyDay,
+  }) {
+    DateTime startDate = taskStartDate.add(Duration(days: historyDay - 1));
+    DateTime finishDate = taskStartDate.add(Duration(days: historyDay));
+    final array = historyLocation
+        .where((element) =>
+            element.createdAt.isAfter(startDate) &&
+            element.createdAt.isBefore(finishDate))
+        .toList();
+    return array;
   }
 
   Future<int> sendLocation({
@@ -192,28 +206,26 @@ class LocationProvider with ChangeNotifier {
     }
   }
 
-  Future<void> prepareLocationHistoriesPoints() async {
-    if (historyLocationBig.length >= 2) {
-      double sum50 = 0;
-      double sum500 = 0;
-      historyLocationSmall = [];
+  Future<void> prepareLocationHistoriesPoints(List<Location> history) async {
+    if (history.length >= 2) {
+      double sum100 = 0;
+      double sum10 = 0;
+      historyLocationBig = [];
       historyLocationMedium = [];
-      historyLocationSmall.add(historyLocationBig.first);
-      historyLocationMedium.add(historyLocationBig.first);
-      historyLocationBorder.add(historyLocationBig.first);
-      historyLocationBorder.add(historyLocationBig.last);
+      historyLocationBorder = [];
+      historyLocationBig.add(history.first);
+      historyLocationMedium.add(history.first);
+      historyLocationBorder.add(history.first);
       Location previous;
       double distance;
-      for (final element in historyLocationBig
-          .getRange(0, historyLocationBig.length - 1)
-          .toList()) {
-        if (sum50 >= 50) {
-          historyLocationSmall.add(element);
-          sum50 = 0;
+      for (final element in history.getRange(0, history.length - 1).toList()) {
+        if (sum10 >= 10) {
+          historyLocationBig.add(element);
+          sum10 = 0;
         }
-        if (sum500 >= 500) {
+        if (sum100 >= 100) {
           historyLocationMedium.add(element);
-          sum500 = 0;
+          sum100 = 0;
         }
         if (previous == null) {
           previous = element;
@@ -224,18 +236,29 @@ class LocationProvider with ChangeNotifier {
             element.latitude,
             element.longitude,
           );
-          sum50 += distance;
-          sum500 += distance;
+          sum100 += distance;
+          sum10 += distance;
           previous = element;
         }
       }
-      historyLocationSmall.add(
-        historyLocationBig.last,
-      );
-      historyLocationMedium.add(
-        historyLocationBig.last,
-      );
+      historyLocationBig.add(history.last);
+      historyLocationMedium.add(history.last);
+      historyLocationBorder.add(history.last);
+    } else {
+      historyLocationBig = [];
+      historyLocationMedium = [];
+      historyLocationBorder = [];
     }
+  }
+
+  List<Location> locationsBetweenPoints(Location begin, Location end) {
+    List<Location> locations = [];
+    historyLocation.forEach((element) {
+      if (element.id > begin.id && element.id < end.id) {
+        locations.add(element);
+      }
+    });
+    return locations;
   }
 
   Location getCurrentOwnLocationWithTime() {
@@ -358,7 +381,7 @@ Future<void> sendLocationWithCheck({
   http.Response response;
   Future<void> sendLocation() async {
     response = await http.post(
-      URL.postLocationUser(),
+      URL.postUserLocation(),
       body: json.encode(
         {
           "data": {
@@ -382,7 +405,7 @@ Future<void> sendLocationWithCheck({
       if (response.statusCode == 200) return;
     } else {
       response = await http.post(
-        URL.postLocationsUser(),
+        URL.postUserLocations(),
         body: json.encode(
           {
             "data": {

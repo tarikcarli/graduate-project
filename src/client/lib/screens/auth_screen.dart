@@ -119,7 +119,7 @@ class _AuthCardState extends State<AuthCard> {
 
   void _iconOnTab(bool isCamera) async {
     _formKey.currentState.save();
-    final photo = await selectImage(isCamera);
+    final photo = await selectImage(isCamera: isCamera);
     setState(() {
       _photo = photo;
     });
@@ -243,7 +243,7 @@ class _AuthCardState extends State<AuthCard> {
                       flex: 6,
                       child: TextFormField(
                         decoration: InputDecoration(labelText: 'Password'),
-                        initialValue: _password,
+                        initialValue: "12345678", //_password,
                         obscureText: _obscurePasswordText,
                         validator: (value) {
                           if (value.isEmpty || value.length < 4) {

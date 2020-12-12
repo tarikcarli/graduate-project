@@ -13,7 +13,9 @@ const getInvoice = async (req, res, next) => {
   try {
     const { id, taskId, operatorId, adminId } = req.query;
     if (id) {
-      const invoice = await db.Invoice.findByPk(Number.parseInt(id, 10));
+      const invoice = await db.Invoice.findByPk(Number.parseInt(id, 10), {
+        include: ["beginLocation", "endLocation", db.City, db.Photo],
+      });
       const options = {
         data: invoice,
         status: 200,
@@ -23,6 +25,7 @@ const getInvoice = async (req, res, next) => {
     if (taskId) {
       const invoice = await db.Invoice.findAll({
         where: { taskId },
+        include: ["beginLocation", "endLocation", db.City, db.Photo],
       });
       const options = {
         data: invoice,
@@ -33,6 +36,7 @@ const getInvoice = async (req, res, next) => {
     if (operatorId) {
       const invoice = await db.Invoice.findAll({
         where: { operatorId },
+        include: ["beginLocation", "endLocation", db.City, db.Photo],
       });
       const options = {
         data: invoice,
@@ -40,20 +44,20 @@ const getInvoice = async (req, res, next) => {
       };
       return response(options, req, res, next);
     }
-    if (adminId) {
-      const invoice = await db.Invoice.findAll({
-        where: { adminId },
-      });
-      const options = {
-        data: invoice,
-        status: 200,
-      };
-      return response(options, req, res, next);
-    }
+    // AdminId default
+    const invoice = await db.Invoice.findAll({
+      where: { adminId },
+      include: ["beginLocation", "endLocation", db.City, db.Photo],
+    });
+    const options = {
+      data: invoice,
+      status: 200,
+    };
+    return response(options, req, res, next);
   } catch (err) {
-    console.log(`company.getInvoice Error ${err}`);
+    console.log(`Error getInvoice: ${err}`);
+    throw err;
   }
-  return next(new Error("Unknown Error"));
 };
 
 /**

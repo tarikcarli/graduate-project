@@ -1,3 +1,4 @@
+import 'package:business_travel/models/city.dart';
 import 'package:business_travel/models/location.dart';
 import 'package:flutter/foundation.dart';
 
@@ -9,6 +10,7 @@ class Invoice {
   int operatorId;
   int taskId;
   Photo photo;
+  City city;
   Location beginLocation;
   Location endLocation;
   double price;
@@ -16,6 +18,8 @@ class Invoice {
   double distance;
   double duration;
   bool isValid;
+  bool isAccepted;
+  DateTime invoicedAt;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -24,6 +28,8 @@ class Invoice {
     @required this.adminId,
     @required this.operatorId,
     @required this.taskId,
+    @required this.photo,
+    @required this.city,
     @required this.beginLocation,
     @required this.endLocation,
     @required this.price,
@@ -31,6 +37,8 @@ class Invoice {
     @required this.distance,
     @required this.duration,
     @required this.isValid,
+    @required this.isAccepted,
+    @required this.invoicedAt,
     @required this.createdAt,
     @required this.updatedAt,
   });
@@ -41,17 +49,21 @@ class Invoice {
       adminId: json["adminId"],
       operatorId: json["operatorId"],
       taskId: json["taskId"],
+      city: City.fromJson(json["City"]),
+      photo: Photo.fromJson(json["Photo"]),
       beginLocation: Location.fromJson(json["beginLocation"]),
       endLocation: Location.fromJson(json["endLocation"]),
-      price: json["price"],
-      estimatePrice: json["estimatePrice"],
-      distance: json["distance"],
-      duration: json["duration"],
+      price: json["price"].toDouble(),
+      estimatePrice: json["estimatePrice"].toDouble(),
+      distance: json["distance"].toDouble(),
+      duration: json["duration"].toDouble(),
       isValid: json["isValid"],
-      createdAt: DateTime.tryParse(json["createdAt"]),
+      isAccepted: json["isAccepted"],
+      invoicedAt: DateTime.tryParse(json["invoicedAt"]).toLocal(),
+      createdAt: DateTime.tryParse(json["createdAt"]).toLocal(),
       updatedAt: DateTime.tryParse(
         json["updatedAt"] == null ? json["createdAt"] : json["updatedAt"],
-      ),
+      ).toLocal(),
     );
   }
 
@@ -61,6 +73,8 @@ class Invoice {
       "adminId": adminId,
       "operatorId": operatorId,
       "taskId": taskId,
+      "photo": photo.toJson(),
+      "city": city.toJson(),
       "beginLocation": beginLocation.toJson(),
       "endLocation": endLocation.toJson(),
       "price": price,
@@ -68,6 +82,8 @@ class Invoice {
       "distance": distance,
       "duration": duration,
       "isValid": isValid,
+      "isAccepted": isAccepted,
+      "invoiceAt": invoicedAt.toIso8601String(),
       "createdAt": createdAt.toIso8601String(),
       "updatedAt": updatedAt.toIso8601String(),
     };
@@ -79,6 +95,8 @@ class Invoice {
       adminId: adminId,
       operatorId: operatorId,
       taskId: taskId,
+      city: city.copy(),
+      photo: photo.copy(),
       beginLocation: beginLocation.copy(),
       endLocation: endLocation.copy(),
       price: price,
@@ -86,6 +104,8 @@ class Invoice {
       distance: distance,
       duration: duration,
       isValid: isValid,
+      isAccepted: isAccepted,
+      invoicedAt: invoicedAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
