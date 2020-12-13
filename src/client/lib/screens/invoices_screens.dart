@@ -49,7 +49,9 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
   }
 
   void changeTaskToState() {
-    if (mounted) setState(() {});
+    setState(() {
+      _invoices = _invoiceProvider.filterInvoice(_taskId);
+    });
   }
 
   Future<void> getInvoices() async {
@@ -134,8 +136,8 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                             children: [
                               InvoiceListItem(
                                 invoice: _invoices[i],
+                                user: _userProvider.user,
                               ),
-                              Divider(),
                             ],
                           ),
                         ),

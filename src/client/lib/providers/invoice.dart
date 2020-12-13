@@ -43,10 +43,10 @@ class InvoiceProvider with ChangeNotifier {
     @required int beginLocationId,
     @required int endLocationId,
     @required int cityId,
-    @required double price,
-    @required double estimatePrice,
-    @required double distance,
-    @required double duration,
+    @required int price,
+    @required int estimatePrice,
+    @required int distance,
+    @required int duration,
     @required bool isValid,
     @required bool isAccepted,
     @required DateTime invoicedAt,
@@ -57,6 +57,9 @@ class InvoiceProvider with ChangeNotifier {
       final responsePhoto = await PhotoService.postPhoto(photo: photo);
       response = await http.post(
         URL.postInvoice(),
+        headers: URL.jsonHeader(
+          token: token,
+        ),
         body: json.encode(
           {
             "data": {
@@ -73,12 +76,9 @@ class InvoiceProvider with ChangeNotifier {
               "duration": duration,
               "isValid": isValid,
               "isAccepted": isAccepted,
-              "finishedAt": invoicedAt.toUtc().toIso8601String(),
+              "invoicedAt": invoicedAt.toUtc().toIso8601String(),
             },
           },
-        ),
-        headers: URL.jsonHeader(
-          token: token,
         ),
       );
       if (response.statusCode == 200) {
@@ -92,7 +92,101 @@ class InvoiceProvider with ChangeNotifier {
         return;
       }
     } catch (error) {
-      print("Error addTask: $error");
+      print("Error addInvoice: $error");
+      throw error;
+    }
+    throw Exception('Bilinmeyen bir hata oluştu.\n' +
+        'Http hata kodu: ${response.statusCode}');
+  }
+
+  Future<void> putInvoice({
+    @required int id,
+    @required int adminId,
+    @required int operatorId,
+    @required int taskId,
+    @required String photo,
+    @required int beginLocationId,
+    @required int endLocationId,
+    @required int cityId,
+    @required int price,
+    @required int estimatePrice,
+    @required int distance,
+    @required int duration,
+    @required bool isValid,
+    @required bool isAccepted,
+    @required DateTime invoicedAt,
+    @required String token,
+  }) async {
+    http.Response response;
+    try {
+      if (photo != null) {
+        final responsePhoto = await PhotoService.postPhoto(photo: photo);
+        response = await http.put(
+          URL.putInvoice(id: id),
+          headers: URL.jsonHeader(
+            token: token,
+          ),
+          body: json.encode(
+            {
+              "data": {
+                "adminId": adminId,
+                "operatorId": operatorId,
+                "taskId": taskId,
+                "photoId": responsePhoto.id,
+                "beginLocationId": beginLocationId,
+                "endLocationId": endLocationId,
+                "cityId": cityId,
+                "price": price,
+                "estimatePrice": estimatePrice,
+                "distance": distance,
+                "duration": duration,
+                "isValid": isValid,
+                "isAccepted": isAccepted,
+                "invoicedAt": invoicedAt.toUtc().toIso8601String(),
+              },
+            },
+          ),
+        );
+      } else {
+        response = await http.put(
+          URL.putInvoice(id: id),
+          headers: URL.jsonHeader(
+            token: token,
+          ),
+          body: json.encode(
+            {
+              "data": {
+                "adminId": adminId,
+                "operatorId": operatorId,
+                "taskId": taskId,
+                "beginLocationId": beginLocationId,
+                "endLocationId": endLocationId,
+                "cityId": cityId,
+                "price": price,
+                "estimatePrice": estimatePrice,
+                "distance": distance,
+                "duration": duration,
+                "isValid": isValid,
+                "isAccepted": isAccepted,
+                "invoicedAt": invoicedAt.toUtc().toIso8601String(),
+              },
+            },
+          ),
+        );
+      }
+      if (response.statusCode == 200) {
+        Invoice invoice = Invoice.fromJson(
+          json.decode(
+            response.body,
+          )["data"],
+        );
+        invoices =
+            invoices.map((e) => e.id == invoice.id ? invoice : e).toList();
+        notifyListeners();
+        return;
+      }
+    } catch (error) {
+      print("Error updateInvoice: $error");
       throw error;
     }
     throw Exception('Bilinmeyen bir hata oluştu.\n' +

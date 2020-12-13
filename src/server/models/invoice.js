@@ -39,19 +39,19 @@ Invoice.init(
       allowNull: false,
     },
     price: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     estimatePrice: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     distance: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     duration: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     isValid: {

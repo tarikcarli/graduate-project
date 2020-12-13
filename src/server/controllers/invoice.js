@@ -1,7 +1,7 @@
 const response = require("../utilities/response");
 const { db } = require("../connections/postgres");
-const wsTypes = require("../constants/ws_types");
-const { publish } = require("../connections/redis");
+// const wsTypes = require("../constants/ws_types");
+// const { publish } = require("../connections/redis");
 /**
  *To get invoice
  *
@@ -70,15 +70,18 @@ const getInvoice = async (req, res, next) => {
 const postInvoice = async (req, res, next) => {
   try {
     const { data } = req.body;
-    const invoice = await db.Invoice.create(data);
+    const created = await db.Invoice.create(data);
+    const invoice = await db.Invoice.findByPk(created.id, {
+      include: ["beginLocation", "endLocation", db.City, db.Photo],
+    });
     const options = {
       data: invoice,
       status: 200,
     };
-    publish(data.operatorId, wsTypes.INVOICE_ADD, options.data);
+    // publish(data.operatorId, wsTypes.INVOICE_ADD, options.data);
     return response(options, req, res, next);
   } catch (err) {
-    console.log(`Error company.postInvoice: ${err}`);
+    console.log(`Error postInvoice: ${err}`);
     return next(err);
   }
 };
@@ -93,16 +96,18 @@ const putInvoice = async (req, res, next) => {
   try {
     const { id } = req.query;
     const { data } = req.body;
-    const invoice = await db.Invoice.update(data, {
+    await db.Invoice.update(data, {
       where: { id },
-      returning: true,
-      plain: true,
     });
+    const invoice = await db.Invoice.findByPk(id, {
+      include: ["beginLocation", "endLocation", db.City, db.Photo],
+    });
+
     const options = {
-      data: invoice[1],
+      data: invoice,
       status: 200,
     };
-    publish(data.adminId, wsTypes.INVOICE_UPDATE, options.data);
+    // publish(data.adminId, wsTypes.INVOICE_UPDATE, options.data);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`company.putInvoice Error ${err}`);

@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 class URL {
-  static const httpUrl = 'http://192.168.1.45:4000/'; //  HOME
-  static const wsUrl = 'ws://192.168.1.45:4000/'; //  HOME
+  static const httpUrl = 'http://192.168.1.46:4000/'; //  HOME
+  static const wsUrl = 'ws://192.168.1.46:4000/'; //  HOME
   static Map<String, String> jsonHeader({String token}) {
     final headers = {"Content-type": "application/json"};
     if (token != null) headers['authorization'] = 'Bearer $token';

@@ -461,14 +461,14 @@ class UserProvider with ChangeNotifier {
   Future<void> checkUserInfo() async {
     try {
       final storage = new FlutterSecureStorage();
-      String storeToken = await storage.read(key: 'token');
-      if (storeToken != null) {
-        token = storeToken;
+      String storedToken = await storage.read(key: 'token');
+      if (storedToken != null) {
         int id = int.tryParse(await storage.read(key: 'id'));
         bool runningServer = await checkServerStatus();
-        bool validUser = await checkTokenStatus(token: token);
+        bool validUser = await checkTokenStatus(token: storedToken);
         if (runningServer && validUser) {
           await getMe(id: id);
+          token = storedToken;
           if (user.role == "admin") await getOperators();
           if (user.role == "operator") await getAdmin();
         }

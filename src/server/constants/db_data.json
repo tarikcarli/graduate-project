@@ -486,7 +486,7 @@
       "description": "Yurt dışından gelicek müşterimizi hava alanında karşılanacak.",
       "radius": 100,
       "isOperatorOnTask": false,
-      "startedAt": "2020-12-10T07:28:13.783Z",
+      "startedAt": "2020-12-08T07:28:13.783Z",
       "finishedAt": "2020-12-15T07:28:13.783Z"
     },
     {
@@ -497,7 +497,7 @@
       "description": "Yeni yapılacak projelerle ilgili uzmanlar ile görüşülecek.",
       "radius": 75,
       "isOperatorOnTask": false,
-      "startedAt": "2020-12-10T07:28:13.783Z",
+      "startedAt": "2020-12-08T07:28:13.783Z",
       "finishedAt": "2020-12-15T07:28:13.783Z"
     },
     {
@@ -521,9 +521,9 @@
       "beginLocationId": 4,
       "endLocationId": 30,
       "cityId": 41,
-      "price": 45.5,
-      "estimatePrice": 40.75,
-      "distance": 5.68,
+      "price": 45,
+      "estimatePrice": 40,
+      "distance": 5680,
       "duration": 1800000,
       "isValid": true,
       "isAccepted": true,
@@ -538,11 +538,11 @@
       "endLocationId": 49,
       "cityId": 41,
       "price": 65,
-      "estimatePrice": 40.75,
-      "distance": 3.68,
+      "estimatePrice": 40,
+      "distance": 3680,
       "duration": 1200000,
       "isValid": false,
-      "isAccepted": false,
+      "isAccepted": null,
       "invoicedAt": "2020-12-10T12:28:13.783Z"
     },
     {
@@ -553,9 +553,9 @@
       "beginLocationId": 50,
       "endLocationId": 69,
       "cityId": 41,
-      "price": 75.5,
-      "estimatePrice": 70.75,
-      "distance": 10.68,
+      "price": 75,
+      "estimatePrice": 70,
+      "distance": 16800,
       "duration": 2400000,
       "isValid": true,
       "isAccepted": true,

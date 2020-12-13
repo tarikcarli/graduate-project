@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:business_travel/models/city.dart';
+import 'package:business_travel/models/invoice.dart';
 import 'package:business_travel/models/location.dart';
 import 'package:business_travel/providers/invoice.dart';
 import 'package:business_travel/providers/location.dart';
@@ -12,6 +13,7 @@ import 'package:business_travel/utilities/city_service.dart';
 import 'package:business_travel/utilities/image_convert.dart';
 import 'package:business_travel/utilities/ready_image.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
+import 'package:business_travel/utilities/url_creator.dart';
 import 'package:business_travel/widgets/progress.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
@@ -22,12 +24,15 @@ import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
 import 'package:provider/provider.dart';
 
-class CreateInvoiceScreen extends StatefulWidget {
+class EditInvoiceScreen extends StatefulWidget {
+  final Invoice invoice;
+
+  EditInvoiceScreen(this.invoice);
   @override
-  _CreateInvoiceScreenState createState() => _CreateInvoiceScreenState();
+  _EditInvoiceScreenState createState() => _EditInvoiceScreenState();
 }
 
-class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
+class _EditInvoiceScreenState extends State<EditInvoiceScreen> {
   final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   final TextRecognizer textRecognizer =
       FirebaseVision.instance.textRecognizer();
@@ -56,7 +61,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
   int _distance;
   int _duration;
   bool _isValid;
-  bool _isAccepted; // null for operator
+  bool _isAccepted;
   DateTime _invoicedAt;
   bool _loading = false;
   bool _runningOCR = false;
@@ -77,11 +82,64 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
         StatefulMapController(mapController: mapController);
     _adminId = _userProvider.admin.id;
     _operatorId = _userProvider.user.id;
+    _taskId = widget.invoice.taskId;
+    _beginLocation = widget.invoice.beginLocation;
+    _endLocation = widget.invoice.endLocation;
+    _cityId = widget.invoice.city.id;
+    _price = widget.invoice.price;
+    _estimatePrice = widget.invoice.estimatePrice;
+    _distance = widget.invoice.distance;
+    _duration = widget.invoice.duration;
+    _isValid = widget.invoice.isValid;
+    _isAccepted = widget.invoice.isAccepted;
+    _invoicedAt = widget.invoice.invoicedAt;
+    calculateAll();
+    _statefulMapController.onReady.then((_) {
+      _statefulMapController.addMarker(
+        marker: Marker(
+          point: LatLng(
+            _endLocation.latitude,
+            _endLocation.longitude,
+          ),
+          builder: (context) => Icon(
+            Icons.location_on,
+            color: Colors.deepOrange,
+            size: 25,
+          ),
+        ),
+        name: 'endLocation',
+      );
+      _statefulMapController.addMarker(
+        marker: Marker(
+          point: LatLng(
+            _beginLocation.latitude,
+            _beginLocation.longitude,
+          ),
+          builder: (context) => Icon(
+            Icons.location_on,
+            color: Colors.deepOrange,
+            size: 25,
+          ),
+        ),
+        name: 'beginLocation',
+      );
+      _statefulMapController.centerOnPoint(
+        LatLng(
+          _beginLocation.latitude,
+          _beginLocation.longitude,
+        ),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    textRecognizer?.close();
+    super.dispose();
   }
 
   Future<void> _saveForm() async {
     if (_form.currentState.validate() &&
-        _photo != null &&
         _beginLocation != null &&
         _endLocation != null) {
       _form.currentState.save();
@@ -90,7 +148,8 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
           _loading = true;
         });
         calculateIsValid();
-        await _invoiceProvider.addInvoice(
+        await _invoiceProvider.putInvoice(
+          id: widget.invoice.id,
           adminId: _adminId,
           operatorId: _operatorId,
           taskId: _taskId,
@@ -215,6 +274,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
   void calculateIsValid() {
     if ((_price / 10) < (_estimatePrice - _price).abs()) {
       _isValid = false;
+      _isAccepted = null;
     } else {
       _isValid = true;
       _isAccepted = true;
@@ -456,7 +516,10 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                                 ? Center(
                                     child: ProgressWidget(),
                                   )
-                                : Image.asset("assets/images/no_image.jpg"),
+                                : Image.network(
+                                    URL.getBinaryPhoto(
+                                        path: widget.invoice.photo.path),
+                                  ),
                           ),
                           onTap: () async {
                             try {
@@ -469,6 +532,10 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                               );
                               if (photo != null) {
                                 _photo = photo;
+                              } else {
+                                setState(() {
+                                  _runningOCR = false;
+                                });
                               }
                             } catch (error) {
                               print("Error photo.onTab: $error");

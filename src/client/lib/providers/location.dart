@@ -254,7 +254,7 @@ class LocationProvider with ChangeNotifier {
   List<Location> locationsBetweenPoints(Location begin, Location end) {
     List<Location> locations = [];
     historyLocation.forEach((element) {
-      if (element.id > begin.id && element.id < end.id) {
+      if (element.id >= begin.id && element.id <= end.id) {
         locations.add(element);
       }
     });

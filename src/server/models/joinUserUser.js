@@ -8,7 +8,6 @@ UserUser.init(
     adminId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
     },
     operatorId: {
       type: DataTypes.INTEGER,

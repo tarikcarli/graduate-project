@@ -20,10 +20,15 @@ class TaskListItem extends StatelessWidget {
       title: Text(
         task.name,
         style: style.copyWith(fontWeight: FontWeight.bold),
+        softWrap: false,
+        overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
         task.description,
         style: style.copyWith(fontSize: 13),
+        maxLines: 2,
+        softWrap: false,
+        overflow: TextOverflow.ellipsis,
       ),
       trailing: Container(
         width: MediaQuery.of(context).size.width * 0.3,

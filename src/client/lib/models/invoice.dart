@@ -13,10 +13,10 @@ class Invoice {
   City city;
   Location beginLocation;
   Location endLocation;
-  double price;
-  double estimatePrice;
-  double distance;
-  double duration;
+  int price;
+  int estimatePrice;
+  int distance;
+  int duration;
   bool isValid;
   bool isAccepted;
   DateTime invoicedAt;
@@ -53,10 +53,10 @@ class Invoice {
       photo: Photo.fromJson(json["Photo"]),
       beginLocation: Location.fromJson(json["beginLocation"]),
       endLocation: Location.fromJson(json["endLocation"]),
-      price: json["price"].toDouble(),
-      estimatePrice: json["estimatePrice"].toDouble(),
-      distance: json["distance"].toDouble(),
-      duration: json["duration"].toDouble(),
+      price: json["price"],
+      estimatePrice: json["estimatePrice"],
+      distance: json["distance"],
+      duration: json["duration"],
       isValid: json["isValid"],
       isAccepted: json["isAccepted"],
       invoicedAt: DateTime.tryParse(json["invoicedAt"]).toLocal(),
