@@ -16,11 +16,21 @@ class UserProvider with ChangeNotifier {
   List<User> users = [];
 
   String operatorIdToName(operatorId) {
+    if (operatorId == user.id) return user.name;
     final op = operators.firstWhere(
       (element) => element.id == operatorId,
       orElse: () => null,
     );
     return op?.name;
+  }
+
+  User finByOperatorId(operatorId) {
+    if (operatorId == user.id) return user;
+    final op = operators.firstWhere(
+      (element) => element.id == operatorId,
+      orElse: () => null,
+    );
+    return op;
   }
 
   List<int> operatorIds() {

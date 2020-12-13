@@ -15,7 +15,6 @@ import 'package:latlong/latlong.dart';
 
 class LocationProvider with ChangeNotifier {
   Location currentLocation;
-  List<Location> currentOperatorLocations = [];
   List<Location> historyLocation = [];
   List<Location> historyLocationBig = []; //10m
   List<Location> historyLocationMedium = []; //100m
@@ -149,7 +148,7 @@ class LocationProvider with ChangeNotifier {
     );
   }
 
-  Future<void> getCurrentOwnLocation({
+  Future<void> getCurrentLocation({
     @required int operatorId,
     @required String token,
   }) async {
@@ -173,37 +172,6 @@ class LocationProvider with ChangeNotifier {
     }
     throw Exception('Bilinmeyen bir hata oluştu.\n' +
         'Http hata kodu: ${response.statusCode}');
-  }
-
-  Future<void> getAllCurrentLocation({
-    @required String token,
-    List<int> operatorIds,
-  }) async {
-    http.Response response;
-    currentOperatorLocations.clear();
-    try {
-      for (int operatorId in operatorIds) {
-        response = await http.get(
-          URL.getCurrentLocation(operatorId: operatorId),
-          headers: URL.jsonHeader(token: token),
-        );
-        if (response.statusCode == 200) {
-          final location =
-              Location.fromJson(json.decode(response.body)["data"]);
-          location.createdAt = location.createdAt.toLocal();
-          location.operatorId = operatorId;
-          currentOperatorLocations.add(location);
-        }
-      }
-      notifyListeners();
-      return;
-    } catch (error) {
-      print(error);
-      throw Exception('Lokasyon bilgisi gönderimi işlemi ' +
-          'esnasında bilinmeyen ' +
-          'bir hata meydana geldi.\n' +
-          'Lütfen internet bağlantınız olduğundan emin olunuz.');
-    }
   }
 
   Future<void> prepareLocationHistoriesPoints(List<Location> history) async {
@@ -280,7 +248,7 @@ class LocationProvider with ChangeNotifier {
 
   Location getCurrentOperatorLocationWithTime() {
     try {
-      return currentOperatorLocations[0];
+      return currentLocation;
     } catch (error) {
       print("Error getCurrentOperatorLocationWithTime: $error");
       return null;
@@ -290,8 +258,8 @@ class LocationProvider with ChangeNotifier {
   LatLng getCurrentOperatorLocationWithoutTime() {
     try {
       final position = LatLng(
-        currentOperatorLocations[0].latitude,
-        currentOperatorLocations[0].longitude,
+        currentLocation.latitude,
+        currentLocation.longitude,
       );
       return position;
     } catch (error) {
@@ -336,17 +304,11 @@ class LocationProvider with ChangeNotifier {
   }
 
   void updateLocalCurrentLocation(Location location) {
-    bool isLocationExist = false;
     location.createdAt = location.createdAt.toLocal();
-    currentOperatorLocations = currentOperatorLocations.map((element) {
-      if (element.operatorId == location.operatorId) {
-        isLocationExist = true;
-        return location;
-      }
-      return element;
-    }).toList();
-    if (!isLocationExist) currentOperatorLocations.add(location);
-    notifyListeners();
+    if (currentLocation.operatorId == location.operatorId) {
+      currentLocation = location;
+      notifyListeners();
+    }
   }
 }
 

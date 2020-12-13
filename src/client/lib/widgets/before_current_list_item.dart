@@ -1,3 +1,7 @@
+import 'package:business_travel/screens/location_current_map_screen.dart';
+import 'package:business_travel/utilities/global_provider.dart';
+import 'package:business_travel/utilities/show_dialog.dart';
+import 'package:business_travel/utilities/url_creator.dart';
 import 'package:flutter/material.dart';
 
 import '../models/user.dart';
@@ -8,31 +12,48 @@ class BeforeCurrentListItem extends StatelessWidget {
 
   BeforeCurrentListItem({
     @required this.user,
-    @required this.allUser,
   });
   final User user;
-  final List<User> allUser;
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(Icons.person),
-      title: Text(
-        user.name,
-        style: style,
+    return ListTileTheme(
+      tileColor: MyProvider.task.existActiveTask(user.id) == null
+          ? Colors.red[200]
+          : Colors.green[200],
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(
+            URL.getBinaryPhoto(path: user.photo.path),
+          ),
+        ),
+        title: Text(
+          user.name,
+          style: style,
+        ),
+        subtitle: Text(
+          user.email,
+          style: style.copyWith(color: Colors.grey, fontSize: 10),
+        ),
+        onTap: () {
+          if (MyProvider.task.existActiveTask(user.id) == null) {
+            CustomDialog.show(
+              ctx: context,
+              withCancel: false,
+              title: "Hata",
+              content:
+                  "Aktif görevi olmayan operatörün canlı konum verisini görüntüleyemezsiniz.",
+            );
+          } else {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => LocationCurrentMap(
+                  operatorId: user.id,
+                ),
+              ),
+            );
+          }
+        },
       ),
-      subtitle: Text(
-        user.email,
-        style: style.copyWith(color: Colors.grey, fontSize: 10),
-      ),
-      onTap: () {
-        // Navigator.of(context).push(
-        //   MaterialPageRoute(
-        //     builder: (context) => LocationCurrentMap(
-        //       allOperatorId: user.role == "admin" ? null : [user.id],
-        //     ),
-        //   ),
-        // );
-      },
     );
   }
 }

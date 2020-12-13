@@ -1,5 +1,9 @@
 import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/screens/invoices_screens.dart';
+import 'package:business_travel/screens/location_before_current_map.dart';
+import 'package:business_travel/screens/location_before_history_map.dart';
+import 'package:business_travel/screens/location_before_two_history_map.dart';
+import 'package:business_travel/screens/location_current_map_screen.dart';
 import 'package:business_travel/screens/operators_screen.dart';
 import 'package:business_travel/screens/system_user_edit_screen.dart';
 import 'package:business_travel/screens/system_user_settings_screen.dart';
@@ -100,7 +104,26 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               "Live Location",
               style: style,
             ),
-            onTap: () {},
+            onTap: () {
+              if (_userProvider.user.role == "admin") {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (ctx) => BeforeLocationCurrentMap(
+                      allOperator: _userProvider.operators,
+                    ),
+                  ),
+                );
+              } else {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (ctx) => LocationCurrentMap(
+                      operatorId: _userProvider.user.id,
+                      isAdmin: false,
+                    ),
+                  ),
+                );
+              }
+            },
           ),
           ListTile(
             leading: Icon(
@@ -111,7 +134,26 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               "History Location",
               style: style,
             ),
-            onTap: () {},
+            onTap: () {
+              if (_userProvider.user.role == "admin") {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (ctx) => BeforeLocationHistoryMap(
+                      allOperator: _userProvider.operators,
+                    ),
+                  ),
+                );
+              } else {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (ctx) => BeforeTwoLocationHistoryMap(
+                      operatorUser: _userProvider.user,
+                      isAdmin: false,
+                    ),
+                  ),
+                );
+              }
+            },
           ),
           ListTile(
             leading: Icon(

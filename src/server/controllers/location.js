@@ -124,7 +124,7 @@ const getCurrentLocation = async (req, res, next) => {
         model: db.Location,
       },
     });
-    location.dataValues.Location.dataValues.operatorId = operatorId;
+    location.dataValues.Location.dataValues.operatorId = Number(operatorId);
     const options = {
       data: location.dataValues.Location,
       status: 200,

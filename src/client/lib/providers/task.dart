@@ -13,6 +13,16 @@ class TaskProvider with ChangeNotifier {
   Task activeTask;
   List<Task> tasks = [];
 
+  Task existActiveTask(int operatorId) {
+    activeTask = tasks.firstWhere((element) => element.operatorId == operatorId,
+        orElse: () => null);
+    return activeTask;
+  }
+
+  List<Task> filterTaskByOperator(int operatorId) {
+    return tasks.where((element) => element.operatorId == operatorId).toList();
+  }
+
   Future<void> fetchAndSetTasks(
       {String token, int operatorId, int adminId}) async {
     http.Response response;

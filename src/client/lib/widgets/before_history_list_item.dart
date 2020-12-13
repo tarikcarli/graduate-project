@@ -1,21 +1,23 @@
+import 'package:business_travel/models/user.dart';
+import 'package:business_travel/screens/location_before_two_history_map.dart';
+import 'package:business_travel/utilities/url_creator.dart';
 import 'package:flutter/material.dart';
-
-import '../models/user.dart';
-// import '../screens/location_history_map_screen.dart';
 
 class BeforeHistoryListItem extends StatelessWidget {
   final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
   BeforeHistoryListItem({
     @required this.user,
-    @required this.duration,
   });
   final User user;
-  final int duration;
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.person),
+      leading: CircleAvatar(
+        backgroundImage: NetworkImage(
+          URL.getBinaryPhoto(path: user.photo.path),
+        ),
+      ),
       title: Text(
         '${user.name}',
         style: style,
@@ -25,14 +27,13 @@ class BeforeHistoryListItem extends StatelessWidget {
         style: style.copyWith(color: Colors.grey, fontSize: 10),
       ),
       onTap: () {
-        // Navigator.of(context).push(
-        //   MaterialPageRoute(
-        //     builder: (context) => LocationHistoryMap(
-        //       operatorId: user?.id,
-        //       duration: duration,
-        //     ),
-        //   ),
-        // );
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => BeforeTwoLocationHistoryMap(
+              operatorUser: user,
+            ),
+          ),
+        );
       },
     );
   }
