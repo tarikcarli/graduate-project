@@ -16,12 +16,13 @@ import 'package:latlong/latlong.dart';
 class LocationProvider with ChangeNotifier {
   Location currentLocation;
   List<Location> historyLocation = [];
-  List<Location> historyLocationBig = []; //10m
-  List<Location> historyLocationMedium = []; //100m
+  List<Location> historyLocationBig = []; //100m
+  List<Location> historyLocationMedium = []; //500m
   List<Location> historyLocationBorder = []; //first and last
   bool isAllowedBackgroundTracking = false;
 
-  void settingsBackgroundTracking() async {
+  void settingsBackgroundTracking(
+      {String token, int operatorId, int adminId}) async {
     ReceivePort port = ReceivePort();
     if (IsolateNameServer.lookupPortByName(
             LocationServiceRepository.isolateName) !=
@@ -33,7 +34,17 @@ class LocationProvider with ChangeNotifier {
         port.sendPort, LocationServiceRepository.isolateName);
     port.listen(
       (dynamic data) async {
-        print(data);
+        try {
+          sendLocationUser(
+            adminId: adminId,
+            operatorId: operatorId,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            token: token,
+          );
+        } catch (error) {
+          print("Error locationCallback: $error");
+        }
       },
     );
     print('Initializing...');
@@ -43,7 +54,11 @@ class LocationProvider with ChangeNotifier {
     print('Running $_isRunning');
   }
 
-  void allowBackgroundTracking() async {
+  void allowBackgroundTracking(
+      {String token, int operatorId, int adminId}) async {
+    OfflineLocationStorage.init();
+    settingsBackgroundTracking(
+        token: token, operatorId: operatorId, adminId: adminId);
     isAllowedBackgroundTracking = true;
     if (await LocationFunctions.checkLocationPermission()) {
       LocationFunctions.startLocator();
@@ -53,13 +68,11 @@ class LocationProvider with ChangeNotifier {
           "---> In Location Provider allowBackgroundTracking => Occurred Error !!");
     }
     LocationFunctions.startLocator();
-    notifyListeners();
   }
 
   void deniedBackgroundTracking() {
     isAllowedBackgroundTracking = false;
     LocationFunctions.stopLocator();
-    notifyListeners();
   }
 
   void toogleBackgroundTracking() {
@@ -68,7 +81,6 @@ class LocationProvider with ChangeNotifier {
     } else {
       allowBackgroundTracking();
     }
-    notifyListeners();
   }
 
   Future<void> fetchAndSetLocationHistory({
@@ -112,6 +124,7 @@ class LocationProvider with ChangeNotifier {
   }) {
     DateTime startDate = taskStartDate.add(Duration(days: historyDay - 1));
     DateTime finishDate = taskStartDate.add(Duration(days: historyDay));
+
     final array = historyLocation
         .where((element) =>
             element.createdAt.isAfter(startDate) &&
@@ -133,14 +146,14 @@ class LocationProvider with ChangeNotifier {
   }
 
   Future<void> sendLocationUser({
-    @required List<int> adminIds,
+    @required int adminId,
     @required int operatorId,
     @required double latitude,
     @required double longitude,
     @required String token,
   }) async {
     sendLocationWithCheck(
-      adminIds: adminIds,
+      adminId: adminId,
       operatorId: operatorId,
       latitude: latitude,
       longitude: longitude,
@@ -176,8 +189,8 @@ class LocationProvider with ChangeNotifier {
 
   Future<void> prepareLocationHistoriesPoints(List<Location> history) async {
     if (history.length >= 2) {
+      double sum500 = 0;
       double sum100 = 0;
-      double sum10 = 0;
       historyLocationBig = [];
       historyLocationMedium = [];
       historyLocationBorder = [];
@@ -187,13 +200,13 @@ class LocationProvider with ChangeNotifier {
       Location previous;
       double distance;
       for (final element in history.getRange(0, history.length - 1).toList()) {
-        if (sum10 >= 10) {
-          historyLocationBig.add(element);
-          sum10 = 0;
-        }
         if (sum100 >= 100) {
-          historyLocationMedium.add(element);
+          historyLocationBig.add(element);
           sum100 = 0;
+        }
+        if (sum500 >= 500) {
+          historyLocationMedium.add(element);
+          sum500 = 0;
         }
         if (previous == null) {
           previous = element;
@@ -204,8 +217,8 @@ class LocationProvider with ChangeNotifier {
             element.latitude,
             element.longitude,
           );
+          sum500 += distance;
           sum100 += distance;
-          sum10 += distance;
           previous = element;
         }
       }
@@ -334,7 +347,7 @@ Future<int> sendLocationWithoutCheck(
 }
 
 Future<void> sendLocationWithCheck({
-  @required List<int> adminIds,
+  @required int adminId,
   @required int operatorId,
   @required double latitude,
   @required double longitude,
@@ -347,7 +360,7 @@ Future<void> sendLocationWithCheck({
       body: json.encode(
         {
           "data": {
-            "adminIds": adminIds,
+            "adminIds": adminId,
             "operatorId": operatorId,
             "location": {
               "latitude": latitude,
@@ -362,7 +375,8 @@ Future<void> sendLocationWithCheck({
 
   try {
     final result = await OfflineLocationStorage.getLocation();
-    if (result == null) {
+    print("db stored location data length: ${result.length}");
+    if (result.length == 0) {
       await sendLocation();
       if (response.statusCode == 200) return;
     } else {
@@ -371,7 +385,7 @@ Future<void> sendLocationWithCheck({
         body: json.encode(
           {
             "data": {
-              "adminIds": adminIds,
+              "adminId": adminId,
               "operatorId": operatorId,
               "locations": result.map((e) => e.toJson()).toList(),
             },

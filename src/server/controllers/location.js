@@ -145,7 +145,8 @@ const getCurrentLocation = async (req, res, next) => {
  */
 const postUserLocation = async (req, res, next) => {
   try {
-    const { adminId, operatorId, ...data } = req.body.data;
+    console.log(req.body);
+    const { adminId, operatorId, location: data } = req.body.data;
     const location = await db.Location.create(data);
     await db.UserLocation.create({
       operatorId,
@@ -156,7 +157,7 @@ const postUserLocation = async (req, res, next) => {
       data: location,
       status: 200,
     };
-    publish(adminId, wsTypes.USER_LOCATION_ADD, options.data);
+    publish(adminId, wsTypes.OPERATOR_LOCATION_ADD, options.data);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`userLocation.postLocation Error ${err}`);

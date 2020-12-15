@@ -46,7 +46,7 @@ subscriber.subscribe(CHANNEL);
  */
 function publish(id, type, data) {
   const message = JSON.stringify({ type, id, data });
-  if (type !== wsTypes.USER_LOCATION_ADD) set(`${CHANNEL}-${id}`, message);
+  if (type !== wsTypes.OPERATOR_LOCATION_ADD) set(`${CHANNEL}-${id}`, message);
   client.publish(CHANNEL, message);
 }
 module.exports = {

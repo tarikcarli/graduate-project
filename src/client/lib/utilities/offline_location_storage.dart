@@ -38,7 +38,7 @@ class OfflineLocationStorage {
 
       if (result.length != 0) return result;
     }
-    return null;
+    return [];
   }
 
   static Future<void> addLocation({

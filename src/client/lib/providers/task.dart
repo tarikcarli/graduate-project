@@ -13,9 +13,23 @@ class TaskProvider with ChangeNotifier {
   Task activeTask;
   List<Task> tasks = [];
 
-  Task existActiveTask(int operatorId) {
-    activeTask = tasks.firstWhere((element) => element.operatorId == operatorId,
-        orElse: () => null);
+  Task existActiveTask({int operatorId}) {
+    DateTime today = DateTime.now();
+    if (operatorId != null) {
+      activeTask = tasks.firstWhere(
+          (element) =>
+              element.operatorId == operatorId &&
+              element.startedAt.isBefore(today) &&
+              element.finishedAt.isAfter(today),
+          orElse: () => null);
+    } else {
+      activeTask = tasks.firstWhere(
+          (element) =>
+              element.startedAt.isBefore(today) &&
+              element.finishedAt.isAfter(today),
+          orElse: () => null);
+    }
+
     return activeTask;
   }
 

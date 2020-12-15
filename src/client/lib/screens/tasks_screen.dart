@@ -1,8 +1,10 @@
 import 'package:business_travel/models/task.dart';
+import 'package:business_travel/providers/location.dart';
 import 'package:business_travel/providers/task.dart';
 import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/screens/task_create_screen.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
+import 'package:business_travel/utilities/ws_connection.dart';
 import 'package:business_travel/widgets/drawer_widget.dart';
 import 'package:business_travel/widgets/progress.dart';
 import 'package:business_travel/widgets/task_list_item.dart';
@@ -16,6 +18,7 @@ class TasksScreen extends StatefulWidget {
 
 class _TasksScreenState extends State<TasksScreen> {
   final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  WebSocket ws = WebSocket();
   TaskProvider _tasksProvider;
   UserProvider _userProvider;
   bool _loading = true;
@@ -26,22 +29,47 @@ class _TasksScreenState extends State<TasksScreen> {
   void initState() {
     super.initState();
     _userProvider = Provider.of<UserProvider>(context, listen: false);
+    if (_userProvider.user.role != "system") {
+      ws.open();
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
     _tasksProvider.removeListener(changeTaskToState);
+    ws.close();
+  }
+
+  void shouldLocationServiceActivate() {
+    final locationProvider =
+        Provider.of<LocationProvider>(context, listen: false);
+    if (_userProvider.user.role == "operator") {
+      try {
+        if (_tasksProvider.existActiveTask() != null) {
+          locationProvider.allowBackgroundTracking(
+            token: _userProvider.token,
+            adminId: _userProvider?.admin?.id,
+            operatorId: _userProvider.user.id,
+          );
+        } else {
+          locationProvider.deniedBackgroundTracking();
+        }
+        print(_tasksProvider.activeTask);
+      } catch (error) {
+        print("Error TaskScreens: $error");
+      }
+    }
   }
 
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     super.didChangeDependencies();
     if (_firstLoading) {
       _firstLoading = false;
       _tasksProvider = Provider.of<TaskProvider>(context, listen: true);
-      _tasksProvider.addListener(changeTaskToState);
       getTasks();
+      _tasksProvider.addListener(changeTaskToState);
     }
   }
 
@@ -62,6 +90,7 @@ class _TasksScreenState extends State<TasksScreen> {
           operatorId: _userProvider.user.id,
         );
       _tasks = _tasksProvider.filterTask(_group);
+      shouldLocationServiceActivate();
     } catch (error) {
       await CustomDialog.show(
         ctx: context,

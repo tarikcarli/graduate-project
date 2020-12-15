@@ -17,7 +17,7 @@ class BeforeCurrentListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTileTheme(
-      tileColor: MyProvider.task.existActiveTask(user.id) == null
+      tileColor: MyProvider.task.existActiveTask(operatorId: user.id) == null
           ? Colors.red[200]
           : Colors.green[200],
       child: ListTile(
@@ -35,7 +35,7 @@ class BeforeCurrentListItem extends StatelessWidget {
           style: style.copyWith(color: Colors.grey, fontSize: 10),
         ),
         onTap: () {
-          if (MyProvider.task.existActiveTask(user.id) == null) {
+          if (MyProvider.task.existActiveTask(operatorId: user.id) == null) {
             CustomDialog.show(
               ctx: context,
               withCancel: false,

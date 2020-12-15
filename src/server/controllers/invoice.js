@@ -1,7 +1,7 @@
 const response = require("../utilities/response");
 const { db } = require("../connections/postgres");
-// const wsTypes = require("../constants/ws_types");
-// const { publish } = require("../connections/redis");
+const wsTypes = require("../constants/ws_types");
+const { publish } = require("../connections/redis");
 /**
  *To get invoice
  *
@@ -78,7 +78,7 @@ const postInvoice = async (req, res, next) => {
       data: invoice,
       status: 200,
     };
-    // publish(data.operatorId, wsTypes.INVOICE_ADD, options.data);
+    publish(data.operatorId, wsTypes.INVOICE_ADD, options.data);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`Error postInvoice: ${err}`);
@@ -107,7 +107,7 @@ const putInvoice = async (req, res, next) => {
       data: invoice,
       status: 200,
     };
-    // publish(data.adminId, wsTypes.INVOICE_UPDATE, options.data);
+    publish(data.adminId, wsTypes.INVOICE_UPDATE, options.data);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`company.putInvoice Error ${err}`);

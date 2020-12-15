@@ -215,7 +215,7 @@ const login = async (req, res, next) => {
     }
     const token = await sign({ id: user.id, role: user.role });
     user.dataValues.token = token;
-    await redis.set(`token${user.id}`, token);
+    await redis.set(`token-${user.id}`, token);
     const options = {
       data: user,
       status: 200,

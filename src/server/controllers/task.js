@@ -1,6 +1,6 @@
 const response = require("../utilities/response");
-// const { publish } = require("../connections/redis");
-// const wsTypes = require("../constants/ws_types");
+const { publish } = require("../connections/redis");
+const wsTypes = require("../constants/ws_types");
 const { db } = require("../connections/postgres");
 
 /**
@@ -73,7 +73,7 @@ const postTask = async (req, res, next) => {
       data: task,
       status: 200,
     };
-    // publish(data.operatorId, wsTypes.BUSINESS_ADD, task.dataValues);
+    publish(data.operatorId, wsTypes.TASK_ADD, task.dataValues);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`Error postTask: ${err}`);
@@ -105,7 +105,7 @@ const putTask = async (req, res, next) => {
       data: task[1],
       status: 200,
     };
-    // publish(data.adminId, wsTypes.BUSINESS_UPDATE, business.dataValues);
+    publish(data.adminId, wsTypes.TASK_UPDATE, task[1].dataValues);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`Error putTask: Error ${err}`);
@@ -122,6 +122,7 @@ const putTask = async (req, res, next) => {
 const deleteTask = async (req, res, next) => {
   try {
     const { id } = req.query;
+    const task = await db.Task.findByPk(id);
     await db.Task.destroy({
       where: {
         id,
@@ -131,7 +132,7 @@ const deleteTask = async (req, res, next) => {
       data: {},
       status: 200,
     };
-    // publish(data.adminId, wsTypes.BUSINESS_UPDATE, business.dataValues);
+    publish(task.dataValues.adminId, wsTypes.TASK_UPDATE, task.dataValues);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`Error deleteTask: ${err}`);
