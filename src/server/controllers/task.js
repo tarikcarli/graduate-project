@@ -73,6 +73,7 @@ const postTask = async (req, res, next) => {
       data: task,
       status: 200,
     };
+    publish(data.operatorId, wsTypes.TASK_ADD_NOTIFICATION, {});
     publish(data.operatorId, wsTypes.TASK_ADD, task.dataValues);
     return response(options, req, res, next);
   } catch (err) {
@@ -92,6 +93,7 @@ const putTask = async (req, res, next) => {
   try {
     const { id } = req.query;
     const { data } = req.body;
+    const dbTask = await db.Task.findByPk(id);
     const task = await db.Task.update(data, {
       where: {
         id,
@@ -105,7 +107,13 @@ const putTask = async (req, res, next) => {
       data: task[1],
       status: 200,
     };
-    publish(data.adminId, wsTypes.TASK_UPDATE, task[1].dataValues);
+    if (dbTask.dataValues.isOperatorOnTask !== data.isOperatorOnTask) {
+      if (dbTask.dataValues.isOperatorOnTask)
+        publish(data.adminId, wsTypes.OPERATOR_ENTER_NOTIFICATION, {});
+      else publish(data.adminId, wsTypes.OPERATOR_LEAVE_NOTIFICATION, {});
+    } else {
+      publish(data.operatorId, wsTypes.TASK_UPDATE, task[1].dataValues);
+    }
     return response(options, req, res, next);
   } catch (err) {
     console.log(`Error putTask: Error ${err}`);
@@ -132,7 +140,7 @@ const deleteTask = async (req, res, next) => {
       data: {},
       status: 200,
     };
-    publish(task.dataValues.adminId, wsTypes.TASK_UPDATE, task.dataValues);
+    publish(task.dataValues.operatorId, wsTypes.TASK_DELETE, task.dataValues);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`Error deleteTask: ${err}`);

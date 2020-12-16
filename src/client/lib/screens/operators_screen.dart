@@ -16,15 +16,26 @@ class _OperatorsScreenState extends State<OperatorsScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
     _userProvider = Provider.of<UserProvider>(
       context,
-      listen: false,
+      listen: true,
     );
+    _userProvider.addListener(render);
+    super.didChangeDependencies();
   }
 
   @override
   void dispose() {
+    _userProvider.removeListener(render);
     super.dispose();
+  }
+
+  void render() {
+    if (mounted) setState(() {});
   }
 
   @override

@@ -1,66 +1,113 @@
 import 'package:business_travel/providers/user.dart';
+import 'package:business_travel/screens/system_home_screen.dart';
+import 'package:business_travel/screens/tasks_screen.dart';
 import 'package:business_travel/utilities/image_convert.dart';
 import 'package:business_travel/utilities/photo_service.dart';
 import 'package:business_travel/utilities/ready_image.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
+import 'package:business_travel/widgets/progress.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 enum AuthMode { Register, Login }
 
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends StatefulWidget {
+  @override
+  _AuthScreenState createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
+  UserProvider _userProvider;
+  bool _firstLoading = true;
+
+  @override
+  void initState() {
+    Provider.of<UserProvider>(context, listen: false).checkUserInfo().then(
+          (value) => setState(() {
+            _firstLoading = false;
+          }),
+        );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _userProvider.removeListener(render);
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_firstLoading) {
+      _userProvider = Provider.of<UserProvider>(context, listen: true);
+      _userProvider.addListener(render);
+    }
+    super.didChangeDependencies();
+  }
+
+  void render() {
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).primaryColor.withOpacity(0.5),
-                  Theme.of(context).accentColor.withOpacity(0.9),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: [0, 1],
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Container(
-              height: size.height,
-              width: size.width,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Flexible(
-                    flex: 10,
-                    child: Container(
+      body: _firstLoading
+          ? ProgressWidget()
+          : _userProvider.token != null
+              ? _userProvider.user.role == "system"
+                  ? SystemHomeScreen()
+                  : TasksScreen()
+              : Stack(
+                  children: <Widget>[
+                    Container(
                       decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/blue_map.jpg'),
-                          fit: BoxFit.fill,
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(context).primaryColor.withOpacity(0.5),
+                            Theme.of(context).accentColor.withOpacity(0.9),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0, 1],
                         ),
-                        shape: BoxShape.circle,
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 50,
-                  ),
-                  Flexible(
-                    flex: 40,
-                    child: AuthCard(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+                    SingleChildScrollView(
+                      child: Container(
+                        height: size.height,
+                        width: size.width,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Flexible(
+                              flex: 10,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/blue_map.jpg'),
+                                    fit: BoxFit.fill,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 50,
+                            ),
+                            Flexible(
+                              flex: 40,
+                              child: AuthCard(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
     );
   }
 }
@@ -80,16 +127,14 @@ class _AuthCardState extends State<AuthCard> {
   AuthMode _authMode = AuthMode.Login;
   bool _obscurePasswordText = true;
   bool _obscurePasswordValText = true;
-
   String _email = "";
   String _password = "";
   String _name = "";
   String _photo;
 
-  @override
-  void initState() {
-    super.initState();
+  initState() {
     _userProvider = Provider.of<UserProvider>(context, listen: false);
+    super.initState();
   }
 
   Future<void> _submit() async {

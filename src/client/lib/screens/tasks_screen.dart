@@ -4,7 +4,6 @@ import 'package:business_travel/providers/task.dart';
 import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/screens/task_create_screen.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
-import 'package:business_travel/utilities/ws_connection.dart';
 import 'package:business_travel/widgets/drawer_widget.dart';
 import 'package:business_travel/widgets/progress.dart';
 import 'package:business_travel/widgets/task_list_item.dart';
@@ -18,7 +17,6 @@ class TasksScreen extends StatefulWidget {
 
 class _TasksScreenState extends State<TasksScreen> {
   final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-  WebSocket ws = WebSocket();
   TaskProvider _tasksProvider;
   UserProvider _userProvider;
   bool _loading = true;
@@ -29,16 +27,13 @@ class _TasksScreenState extends State<TasksScreen> {
   void initState() {
     super.initState();
     _userProvider = Provider.of<UserProvider>(context, listen: false);
-    if (_userProvider.user.role != "system") {
-      ws.open();
-    }
+    if (_userProvider.user.role != "system") {}
   }
 
   @override
   void dispose() {
     super.dispose();
-    _tasksProvider.removeListener(changeTaskToState);
-    ws.close();
+    _tasksProvider.removeListener(render);
   }
 
   void shouldLocationServiceActivate() {
@@ -69,12 +64,15 @@ class _TasksScreenState extends State<TasksScreen> {
       _firstLoading = false;
       _tasksProvider = Provider.of<TaskProvider>(context, listen: true);
       getTasks();
-      _tasksProvider.addListener(changeTaskToState);
+      _tasksProvider.addListener(render);
     }
   }
 
-  void changeTaskToState() {
-    if (mounted) setState(() {});
+  void render() {
+    if (mounted)
+      setState(() {
+        _tasks = _tasksProvider.filterTask(_group);
+      });
   }
 
   Future<void> getTasks() async {

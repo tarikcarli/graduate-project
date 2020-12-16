@@ -1,21 +1,27 @@
 import 'dart:convert';
 
+import 'package:business_travel/models/location.dart';
 import 'package:business_travel/utilities/global_provider.dart';
+import 'package:business_travel/utilities/notification.dart';
 import 'package:business_travel/utilities/url_creator.dart';
 import 'package:web_socket_channel/io.dart';
-// import '../helpers/notification.dart';
 
 class Type {
   static const AUTHORIZATION = "AUTHORIZATION";
   static const UNAUTHORIZATED = "UNAUTHORIZATED";
   static const TASK_ADD = "TASK_ADD";
-  static const TASK_UPDATE = "TASK_UPDATED";
-  static const TASK_DELETE = "TASK_DELETED";
+  static const TASK_UPDATE = "TASK_UPDATE";
+  static const TASK_DELETE = "TASK_DELETE";
   static const OPERATOR_LOCATION_ADD = "OPERATOR_LOCATION_ADD";
-  static const OPERATOR_ENTER_TASK = "OPERATOR_ENTER_TASK";
-  static const OPERATOR_LEAVE_TASK = "OPERATOR_LEAVE_TASK";
+  static const OPERATOR_ENTER_NOTIFICATION = "OPERATOR_ENTER_NOTIFICATION";
+  static const OPERATOR_LEAVE_NOTIFICATION = "OPERATOR_LEAVE_NOTIFICATION";
+  static const TASK_ADD_NOTIFICATION = "TASK_ADD_NOTIFICATION";
+  static const INVOICE_ADD_NOTIFICATION = "INVOICE_ADD_NOTIFICATION";
+  static const INVOICE_UPDATE_NOTIFICATION = "INVOICE_UPDATE_NOTIFICATION";
   static const OPERATOR_ADD = "OPERATOR_ADD";
   static const OPERATOR_REMOVE = "OPERATOR_REMOVE";
+  static const ADMIN_ADD = "ADMIN_ADD";
+  static const ADMIN_REMOVE = "ADMIN_REMOVE";
   static const INVOICE_ADD = "INVOICE_ADD";
   static const INVOICE_UPDATE = "INVOICE_UPDATE";
 }
@@ -83,24 +89,49 @@ class WebSocket {
           print("Websocket: _taskDeleted");
           _operatorLocationAdd(response["data"]);
           break;
-        case Type.OPERATOR_ENTER_TASK:
-          print("Websocket: _taskCreatedNotification");
-          _operatorEnterTask(response["data"]);
+        case Type.OPERATOR_ENTER_NOTIFICATION:
+          print("Websocket: _operatorEnterNotification");
+          _operatorEnterNotification();
           break;
-        case Type.OPERATOR_LEAVE_TASK:
-          print("Websocket: _taskUpdatedNotification");
-          _operatorLeaveTask(response["data"]);
+        case Type.OPERATOR_LEAVE_NOTIFICATION:
+          print("Websocket: _operatorLeaveNotification");
+          _operatorLeaveNotification();
           break;
+        case Type.TASK_ADD_NOTIFICATION:
+          print("Websocket: _taskAddNotification");
+          _taskAddNotification();
+          break;
+        case Type.INVOICE_ADD_NOTIFICATION:
+          print("Websocket: _invoiceAddNotification");
+          _invoiceAddNotification();
+          break;
+        case Type.INVOICE_UPDATE_NOTIFICATION:
+          print("Websocket: _invoiceUpdateNotification");
+          _invoiceUpdateNotification();
+          break;
+
         case Type.OPERATOR_ADD:
+          print("Websocket: _operatorAdd");
           _operatorAdd(response["data"]);
           break;
         case Type.OPERATOR_REMOVE:
+          print("Websocket: _operatorRemove");
           _operatorRemove(response["data"]);
           break;
+        case Type.ADMIN_ADD:
+          print("Websocket: _adminAdd");
+          _adminAdd(response["data"]);
+          break;
+        case Type.ADMIN_REMOVE:
+          print("Websocket: _adminRemove");
+          _adminRemove(response["data"]);
+          break;
         case Type.INVOICE_ADD:
+          print("Websocket: _invoiceAdd");
           _invoideAdd(response["data"]);
           break;
         case Type.INVOICE_UPDATE:
+          print("Websocket: _invoiceUpdate");
           _invoiceUpdate(response["data"]);
           break;
         default:
@@ -113,23 +144,127 @@ class WebSocket {
     }
   }
 
-  void _taskAdd(Map<String, dynamic> data) {}
+  void _taskAdd(Map<String, dynamic> data) {
+    try {
+      MyProvider.task.fetchAndSetTasks(
+        token: MyProvider.user.token,
+        operatorId: MyProvider.user.user.id,
+      );
+    } catch (error) {
+      print("Error _taskAdd : $error");
+    }
+  }
 
-  void _taskUpdate(Map<String, dynamic> data) {}
+  void _taskUpdate(Map<String, dynamic> data) {
+    try {
+      MyProvider.task.fetchAndSetTasks(
+        token: MyProvider.user.token,
+        operatorId: MyProvider.user.user.id,
+      );
+    } catch (error) {
+      print("Error _taskUpdate : $error");
+    }
+  }
 
-  void _taskDelete(Map<String, dynamic> data) {}
+  void _taskDelete(Map<String, dynamic> data) {
+    try {
+      MyProvider.task.fetchAndSetTasks(
+        token: MyProvider.user.token,
+        operatorId: MyProvider.user.user.id,
+      );
+    } catch (error) {
+      print("Error _taskDelete : $error");
+    }
+  }
 
-  void _operatorLocationAdd(Map<String, dynamic> data) {}
+  void _operatorLocationAdd(Map<String, dynamic> data) {
+    try {
+      MyProvider.location.updateLocalCurrentLocation(Location.fromJson(data));
+    } catch (error) {
+      print("Error _operatorLocationAdd : $error");
+    }
+  }
 
-  void _operatorEnterTask(Map<String, dynamic> data) {}
+  void _operatorEnterNotification() {
+    createNotification(
+      "Görev Bildirimi",
+      "Operatör görev bildirim alanına girdi.",
+    );
+  }
 
-  void _operatorLeaveTask(Map<String, dynamic> data) {}
+  void _operatorLeaveNotification() {
+    createNotification(
+      "Görev Bildirimi",
+      "Operatör görev bildirim alanından çıktı.",
+    );
+  }
 
-  void _operatorAdd(Map<String, dynamic> data) {}
+  void _taskAddNotification() {
+    createNotification(
+      "Görev Bildirimi",
+      "Yöneticiniz size bir görev atadı.",
+    );
+  }
 
-  void _operatorRemove(Map<String, dynamic> data) {}
+  void _invoiceAddNotification() {
+    createNotification(
+      "Fatura Bildirimi",
+      "Operatörünüz yeni fatura yükledi.",
+    );
+  }
 
-  void _invoideAdd(Map<String, dynamic> data) {}
+  void _invoiceUpdateNotification() {
+    createNotification(
+      "Fatura Bildirimi",
+      "Faturanıza cevap geldi.",
+    );
+  }
 
-  void _invoiceUpdate(Map<String, dynamic> data) {}
+  void _operatorAdd(Map<String, dynamic> data) {
+    try {
+      MyProvider.user.getOperators();
+    } catch (error) {
+      print("Error _operatorAdd : $error");
+    }
+  }
+
+  void _operatorRemove(Map<String, dynamic> data) {
+    try {
+      MyProvider.user.getOperators();
+    } catch (error) {
+      print("Error _operatorRemove : $error");
+    }
+  }
+
+  Future<void> _adminAdd(Map<String, dynamic> data) async {
+    try {
+      await MyProvider.user.getMe(id: MyProvider.user.user.id);
+      await MyProvider.user.getAdmin();
+    } catch (error) {
+      print("Error _adminAdd : $error");
+    }
+  }
+
+  void _adminRemove(Map<String, dynamic> data) async {
+    try {
+      await MyProvider.user.getMe(id: MyProvider.user.user.id);
+      await MyProvider.user.getAdmin();
+    } catch (error) {
+      print("Error _adminRemove : $error");
+    }
+  }
+
+  void _invoideAdd(Map<String, dynamic> data) {
+    MyProvider.invoice.fetchAndSetInvoices(
+      token: MyProvider.user.token,
+      adminId: MyProvider.user.user.id,
+    );
+  }
+
+  void _invoiceUpdate(Map<String, dynamic> data) {
+    MyProvider.invoice.fetchAndSetInvoices(
+      token: MyProvider.user.token,
+      operatorId: MyProvider.user.user.id,
+    );
+  }
 }

@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:business_travel/models/user.dart';
 import 'package:business_travel/utilities/photo_service.dart';
 import 'package:business_travel/utilities/url_creator.dart';
+import 'package:business_travel/utilities/ws_connection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class UserProvider with ChangeNotifier {
   final storage = new FlutterSecureStorage();
+  WebSocket _ws;
   String token;
   User user;
   User admin;
@@ -335,6 +337,8 @@ class UserProvider with ChangeNotifier {
         storage.write(key: "id", value: user.id.toString());
         if (user.role == "admin") getOperators();
         if (user.role == "operator") getAdmin();
+        _ws = WebSocket();
+        _ws.open();
         notifyListeners();
         return;
       }
@@ -363,9 +367,11 @@ class UserProvider with ChangeNotifier {
         headers: URL.jsonHeader(token: token),
       );
       if (response.statusCode == 200) {
+        operators = [];
         json.decode(response.body)["data"].forEach((e) {
           operators.add(User.fromJson(e));
         });
+        notifyListeners();
         return;
       }
     } catch (error) {
@@ -412,6 +418,7 @@ class UserProvider with ChangeNotifier {
       operators = [];
       storage.delete(key: "token");
       storage.delete(key: "id");
+      _ws.close();
       notifyListeners();
       await http.post(
         URL.logout(id: argId),
@@ -481,6 +488,9 @@ class UserProvider with ChangeNotifier {
           token = storedToken;
           if (user.role == "admin") await getOperators();
           if (user.role == "operator") await getAdmin();
+          _ws = WebSocket();
+          _ws.open();
+          notifyListeners();
         }
       }
     } catch (error) {

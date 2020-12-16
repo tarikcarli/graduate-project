@@ -145,7 +145,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
                       Container(
                         width: MediaQuery.of(context).size.width * 0.75,
                         child: TextFormField(
-                          keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: 'Email',
                           ),

@@ -1,4 +1,5 @@
 import 'package:business_travel/providers/user.dart';
+import 'package:business_travel/screens/auth_screen.dart';
 import 'package:business_travel/screens/invoices_screens.dart';
 import 'package:business_travel/screens/location_before_current_map.dart';
 import 'package:business_travel/screens/location_before_history_map.dart';
@@ -43,7 +44,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               radius: MediaQuery.of(context).size.width * 0.2,
             ),
           ),
-          if (_userProvider.user.role == "admin")
+          if (_userProvider?.user?.role == "admin")
             ListTile(
               leading: Icon(
                 Icons.person,
@@ -105,7 +106,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               style: style,
             ),
             onTap: () {
-              if (_userProvider.user.role == "admin") {
+              if (_userProvider?.user?.role == "admin") {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (ctx) => BeforeLocationCurrentMap(
@@ -135,7 +136,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               style: style,
             ),
             onTap: () {
-              if (_userProvider.user.role == "admin") {
+              if (_userProvider?.user?.role == "admin") {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (ctx) => BeforeLocationHistoryMap(
@@ -208,6 +209,11 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   success: true,
                 );
                 await _userProvider.logout();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (ctx) => AuthScreen(),
+                  ),
+                );
               } catch (error) {
                 print("Error DrawerWidget.exit: " + error.toString());
               }

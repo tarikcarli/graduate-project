@@ -131,6 +131,7 @@ class TaskProvider with ChangeNotifier {
     @required String description,
     @required String name,
     @required String token,
+    bool isOperatorOnTask = false,
   }) async {
     http.Response response;
     try {
@@ -150,7 +151,7 @@ class TaskProvider with ChangeNotifier {
               "radius": radius,
               "name": name,
               "description": description,
-              "isOperatorOnTask": false,
+              "isOperatorOnTask": isOperatorOnTask,
               "startedAt": startedAt.toUtc().toIso8601String(),
               "finishedAt": finishedAt.toUtc().toIso8601String(),
             },

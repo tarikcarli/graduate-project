@@ -2,7 +2,7 @@ const { promisify } = require("util");
 const redis = require("redis");
 const configs = require("../constants/configs");
 const wsClients = require("../constants/ws_clients");
-const wsTypes = require("../constants/ws_types");
+// const wsTypes = require("../constants/ws_types");
 
 const CHANNEL = "COMMUNICATION";
 
@@ -31,7 +31,7 @@ subscriber.on("subscribe", function subscribe(channel, count) {
 subscriber.on("message", function getMessage(channel, message) {
   console.log(`${message} receive from ${channel} channel.`);
   const { id, type, data } = JSON.parse(message);
-  if (!wsClients[id.toString()]) return;
+  if (!wsClients[`${id}`]) return;
   del(`${CHANNEL}-${id}`);
   wsClients[id.toString()].send(JSON.stringify({ type, data }));
 });
@@ -46,7 +46,7 @@ subscriber.subscribe(CHANNEL);
  */
 function publish(id, type, data) {
   const message = JSON.stringify({ type, id, data });
-  if (type !== wsTypes.OPERATOR_LOCATION_ADD) set(`${CHANNEL}-${id}`, message);
+  if (type.includes("NOTIFICATION")) set(`${CHANNEL}-${id}`, message);
   client.publish(CHANNEL, message);
 }
 module.exports = {

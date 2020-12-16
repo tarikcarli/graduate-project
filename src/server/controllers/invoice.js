@@ -78,7 +78,9 @@ const postInvoice = async (req, res, next) => {
       data: invoice,
       status: 200,
     };
-    publish(data.operatorId, wsTypes.INVOICE_ADD, options.data);
+    publish(data.adminId, wsTypes.INVOICE_ADD, options.data);
+    publish(data.adminId, wsTypes.INVOICE_ADD_NOTIFICATION, {});
+
     return response(options, req, res, next);
   } catch (err) {
     console.log(`Error postInvoice: ${err}`);
@@ -96,18 +98,23 @@ const putInvoice = async (req, res, next) => {
   try {
     const { id } = req.query;
     const { data } = req.body;
-    await db.Invoice.update(data, {
-      where: { id },
-    });
     const invoice = await db.Invoice.findByPk(id, {
       include: ["beginLocation", "endLocation", db.City, db.Photo],
     });
+    await db.Invoice.update(data, {
+      where: { id },
+    });
+    console.log(invoice.dataValues);
+    console.log(data);
+    if (invoice.getDataValue("isAccepted") !== data.isAccepted) {
+      publish(data.operatorId, wsTypes.INVOICE_UPDATE, invoice);
+      publish(data.operatorId, wsTypes.INVOICE_UPDATE_NOTIFICATION, {});
+    } else publish(data.adminId, wsTypes.INVOICE_UPDATE, invoice);
 
     const options = {
       data: invoice,
       status: 200,
     };
-    publish(data.adminId, wsTypes.INVOICE_UPDATE, options.data);
     return response(options, req, res, next);
   } catch (err) {
     console.log(`company.putInvoice Error ${err}`);

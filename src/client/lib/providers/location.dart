@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:background_locator/background_locator.dart';
 import 'package:business_travel/models/location.dart';
+import 'package:business_travel/utilities/global_provider.dart';
 import 'package:business_travel/utilities/location_functions.dart';
 import 'package:business_travel/utilities/location_service_repository.dart';
 import 'package:business_travel/utilities/offline_location_storage.dart';
@@ -355,6 +356,47 @@ Future<void> sendLocationWithCheck({
 }) async {
   http.Response response;
   Future<void> sendLocation() async {
+    if (MyProvider.task.activeTask != null) {
+      final distance = await Geolocator().distanceBetween(
+        MyProvider.task.activeTask.location.latitude,
+        MyProvider.task.activeTask.location.longitude,
+        latitude,
+        longitude,
+      );
+      if (!MyProvider.task.activeTask.isOperatorOnTask) {
+        if (MyProvider.task.activeTask.radius * 1000 > distance) {
+          MyProvider.task.updateTask(
+            id: MyProvider.task.activeTask.id,
+            operatorId: MyProvider.task.activeTask.operatorId,
+            latitude: MyProvider.task.activeTask.location.latitude,
+            longitude: MyProvider.task.activeTask.location.longitude,
+            radius: MyProvider.task.activeTask.radius,
+            startedAt: MyProvider.task.activeTask.startedAt,
+            finishedAt: MyProvider.task.activeTask.finishedAt,
+            description: MyProvider.task.activeTask.description,
+            name: MyProvider.task.activeTask.name,
+            isOperatorOnTask: !MyProvider.task.activeTask.isOperatorOnTask,
+            token: MyProvider.user.token,
+          );
+        }
+      } else {
+        if (MyProvider.task.activeTask.radius * 1000 < distance) {
+          MyProvider.task.updateTask(
+            id: MyProvider.task.activeTask.id,
+            operatorId: MyProvider.task.activeTask.operatorId,
+            latitude: MyProvider.task.activeTask.location.latitude,
+            longitude: MyProvider.task.activeTask.location.longitude,
+            radius: MyProvider.task.activeTask.radius,
+            startedAt: MyProvider.task.activeTask.startedAt,
+            finishedAt: MyProvider.task.activeTask.finishedAt,
+            description: MyProvider.task.activeTask.description,
+            name: MyProvider.task.activeTask.name,
+            isOperatorOnTask: !MyProvider.task.activeTask.isOperatorOnTask,
+            token: MyProvider.user.token,
+          );
+        }
+      }
+    }
     response = await http.post(
       URL.postUserLocation(),
       body: json.encode(

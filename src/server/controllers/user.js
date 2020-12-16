@@ -2,6 +2,7 @@ const { Op } = require("sequelize");
 const response = require("../utilities/response");
 const { sign } = require("../utilities/jwt");
 const redis = require("../connections/redis");
+const wsTypes = require("../constants/ws_types");
 const { db } = require("../connections/postgres");
 
 /**
@@ -242,6 +243,8 @@ async function assignOperator(req, res, next) {
       data: userUser,
       status: 200,
     };
+    redis.publish(data.adminId, wsTypes.OPERATOR_ADD, data);
+    redis.publish(data.operatorId, wsTypes.ADMIN_ADD, data);
     return response(options, req, res, next);
   } catch (error) {
     console.log(`User.assignOperator Error ${error}`);
@@ -266,6 +269,8 @@ async function unassignOperator(req, res, next) {
       data: userUser,
       status: 200,
     };
+    redis.publish(adminId, wsTypes.OPERATOR_REMOVE, { adminId, operatorId });
+    redis.publish(operatorId, wsTypes.ADMIN_REMOVE, { adminId, operatorId });
     return response(options, req, res, next);
   } catch (error) {
     console.log(`User.unassignOperator Error ${error}`);
