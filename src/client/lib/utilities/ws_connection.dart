@@ -262,9 +262,15 @@ class WebSocket {
   }
 
   void _invoiceUpdate(Map<String, dynamic> data) {
-    MyProvider.invoice.fetchAndSetInvoices(
-      token: MyProvider.user.token,
-      operatorId: MyProvider.user.user.id,
-    );
+    if (MyProvider.user.user.role == "admin")
+      MyProvider.invoice.fetchAndSetInvoices(
+        token: MyProvider.user.token,
+        adminId: MyProvider.user.user.id,
+      );
+    else
+      MyProvider.invoice.fetchAndSetInvoices(
+        token: MyProvider.user.token,
+        operatorId: MyProvider.user.user.id,
+      );
   }
 }

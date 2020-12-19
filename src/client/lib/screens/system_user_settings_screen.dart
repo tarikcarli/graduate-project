@@ -59,8 +59,6 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
         content: "Durum: Tercihleriniz kaydedildi.",
         success: true,
       );
-
-      Navigator.of(context).pop();
     } catch (error) {
       await CustomDialog.show(
         ctx: context,

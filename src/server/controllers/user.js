@@ -248,6 +248,13 @@ async function assignOperator(req, res, next) {
     return response(options, req, res, next);
   } catch (error) {
     console.log(`User.assignOperator Error ${error}`);
+    if (error && error.errors && error.errors[0].type === "unique violation") {
+      const options = {
+        message: "The operator has already admin.",
+        status: 409,
+      };
+      return response(options, req, res, next);
+    }
     return next(error);
   }
 }
@@ -302,6 +309,13 @@ async function update(req, res, next) {
     return response(options, req, res, next);
   } catch (error) {
     console.log(`User.update Error ${error}`);
+    if (error && error.errors && error.errors[0].type === "unique violation") {
+      const options = {
+        message: "The user have this email have already registered.",
+        status: 409,
+      };
+      return response(options, req, res, next);
+    }
     return next(error);
   }
 }
@@ -347,12 +361,14 @@ async function updateRole(req, res, next) {
  * @return {Promise<undefined>}
  */
 async function updatePassword(req, res, next) {
+  console.log(req.body);
   const { id, password } = req.body.data;
   try {
     const user = await db.User.findByPk(id);
 
-    const hash = db.User.hashPassword(password);
-    user.password = hash;
+    const hash = await db.User.hashPassword(password);
+    console.log(hash);
+    user.setDataValue("password", hash);
 
     const updatedUser = await user.save();
     const options = {

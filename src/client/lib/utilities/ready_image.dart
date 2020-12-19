@@ -46,7 +46,7 @@ Future<String> selectImage({
     List<int> jpgPhoto = encodeJpg(photoImage);
     photoBytes = Uint8List.fromList(jpgPhoto);
     photoString = ImageConvert.base64String(photoBytes);
-    callback(File(pickedFile.path));
+    if (callback != null) callback(File(pickedFile.path));
     return photoString;
   } else {
     return null;

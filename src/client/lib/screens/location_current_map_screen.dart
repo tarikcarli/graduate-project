@@ -1,6 +1,7 @@
 import 'package:business_travel/models/location.dart';
 import 'package:business_travel/providers/location.dart';
 import 'package:business_travel/providers/user.dart';
+import 'package:business_travel/screens/tasks_screen.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
 import 'package:business_travel/utilities/url_creator.dart';
 import 'package:business_travel/utilities/zoom_level_timer.dart';
@@ -71,14 +72,7 @@ class _LocationCurrentMapState extends State<LocationCurrentMap> {
         token: _userProvider.token,
       );
       if (_locationProvider.currentLocation == null) {
-        await CustomDialog.show(
-          ctx: context,
-          withCancel: false,
-          title: "Konum Verisi",
-          content:
-              "${_userProvider.operatorIdToName(widget.operatorId)} kullanıcısının konum verisi bulunamadı",
-        );
-        Navigator.of(context).pop();
+        throw Exception("");
       }
 
       _mapController = MapController();
@@ -114,7 +108,15 @@ class _LocationCurrentMapState extends State<LocationCurrentMap> {
         content:
             "${_userProvider.operatorIdToName(widget.operatorId)} kullanıcısının konum verisi bulunamadı",
       );
-      Navigator.of(context).pop();
+      if (_userProvider.user.role == "operator")
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (ctx) => TasksScreen(),
+          ),
+        );
+      else
+        Navigator.pop(context);
     }
   }
 

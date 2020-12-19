@@ -185,9 +185,8 @@ class _LocationHistoryMapState extends State<LocationHistoryMap> {
 
   Future<void> removeMarkers() async {
     List<String> markers;
-    markers = _locationProvider.historyLocationBig
-        .map((e) => e.id.toString())
-        .toList();
+    markers =
+        _locationProvider.historyLocation.map((e) => e.id.toString()).toList();
     await _statefulMapController.removeMarkers(names: markers);
   }
 

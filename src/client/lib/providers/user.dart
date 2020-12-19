@@ -114,7 +114,7 @@ class UserProvider with ChangeNotifier {
   }) async {
     http.Response response;
     try {
-      await PhotoService.putPhoto(id: photoId, photo: photo);
+      if (photo != null) await PhotoService.putPhoto(id: photoId, photo: photo);
       response = await http.put(
         URL.updateRole(),
         headers: URL.jsonHeader(token: token),
@@ -149,7 +149,7 @@ class UserProvider with ChangeNotifier {
     }
     if (response.statusCode == 409)
       throw Exception(
-        "Bu telefon numarası ile kayıtlı kullanıcı bulunmaktadır.",
+        "Bu email ile kayıtlı kullanıcı bulunmaktadır.",
       );
     throw Exception('Bilinmeyen bir hata oluştu.\n' +
         'Http hata kodu: ${response.statusCode}');
@@ -253,6 +253,10 @@ class UserProvider with ChangeNotifier {
       print("Error assignOperator" + error.toString());
       throw error;
     }
+    if (response.statusCode == 409)
+      throw Exception(
+        "Bu operatorün admini mevcuttur.",
+      );
     throw Exception('Bilinmeyen bir hata oluştu.\n' +
         'Http hata kodu: ${response.statusCode}');
   }
@@ -289,8 +293,9 @@ class UserProvider with ChangeNotifier {
     @required String password,
     @required int photoId,
   }) async {
+    http.Response response;
     try {
-      await http.post(
+      response = await http.post(
         URL.register(),
         headers: URL.jsonHeader(),
         body: json.encode(
@@ -304,11 +309,16 @@ class UserProvider with ChangeNotifier {
           },
         ),
       );
-      return;
     } catch (err) {
       print("Error UserProvider.register: $err");
       throw err;
     }
+    if (response.statusCode == 409)
+      throw Exception(
+        "Bu email ile kayıtlı kullanıcı bulunmaktadır.",
+      );
+    throw Exception('Bilinmeyen bir hata oluştu.\n' +
+        'Http hata kodu: ${response.statusCode}');
   }
 
   Future<void> login({
@@ -412,8 +422,8 @@ class UserProvider with ChangeNotifier {
       int argId = user?.id;
       String argToken = token;
       token = null;
-      user = null;
-      admin = null;
+      // user = null;
+      // admin = null;
       users = [];
       operators = [];
       storage.delete(key: "token");

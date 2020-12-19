@@ -240,7 +240,7 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
                         child: ButtonWidget(
                           onPressed: () async {
                             try {
-                              _invoiceProvider.putInvoice(
+                              await _invoiceProvider.putInvoice(
                                 id: widget.invoice.id,
                                 adminId: widget.invoice.adminId,
                                 operatorId: widget.invoice.operatorId,

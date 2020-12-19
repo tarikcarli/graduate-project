@@ -1,5 +1,6 @@
 import 'package:business_travel/models/user.dart';
 import 'package:business_travel/providers/user.dart';
+import 'package:business_travel/utilities/show_dialog.dart';
 import 'package:business_travel/utilities/url_creator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -90,6 +91,12 @@ class _SystemAssignScreenState extends State<SystemAssignScreen> {
       });
     } catch (error) {
       print("Error iconOnTab: $error");
+      CustomDialog.show(
+        ctx: context,
+        withCancel: false,
+        title: "Çakışma Oluştu",
+        content: "Durum: ${error.toString()}",
+      );
     }
     setState(() {
       loading = false;

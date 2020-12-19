@@ -1,6 +1,7 @@
 import 'package:business_travel/models/user.dart';
 import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/screens/system_password_change_screen.dart';
+import 'package:business_travel/utilities/image_convert.dart';
 import 'package:business_travel/utilities/ready_image.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
 import 'package:business_travel/utilities/url_creator.dart';
@@ -29,7 +30,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
   void initState() {
     super.initState();
     _userProvider = Provider.of<UserProvider>(context, listen: false);
-    _photo = widget.user.photo.path;
     _name = widget.user.name;
     _email = widget.user.email;
     _role = widget.user.role;
@@ -90,7 +90,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
       appBar: AppBar(
         title: Text("Edit User"),
       ),
-      drawer: widget.user.role == "system" ? null : DrawerWidget(),
+      drawer: _userProvider.user.role == "system" ? null : DrawerWidget(),
       body: loading
           ? Center(
               child: CircularProgressIndicator(
@@ -108,8 +108,14 @@ class _UserEditScreenState extends State<UserEditScreen> {
                       ),
                       GestureDetector(
                         child: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              URL.getBinaryPhoto(path: widget.user.photo.path)),
+                          backgroundImage: _photo != null
+                              ? MemoryImage(
+                                  ImageConvert.dataFromBase64String(_photo),
+                                )
+                              : NetworkImage(
+                                  URL.getBinaryPhoto(
+                                      path: widget.user.photo.path),
+                                ),
                           radius: MediaQuery.of(context).size.width * 0.25,
                         ),
                         onTap: () async {

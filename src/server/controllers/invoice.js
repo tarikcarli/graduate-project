@@ -101,18 +101,19 @@ const putInvoice = async (req, res, next) => {
     const invoice = await db.Invoice.findByPk(id, {
       include: ["beginLocation", "endLocation", db.City, db.Photo],
     });
-    await db.Invoice.update(data, {
-      where: { id },
-    });
-    console.log(invoice.dataValues);
-    console.log(data);
     if (invoice.getDataValue("isAccepted") !== data.isAccepted) {
       publish(data.operatorId, wsTypes.INVOICE_UPDATE, invoice);
       publish(data.operatorId, wsTypes.INVOICE_UPDATE_NOTIFICATION, {});
     } else publish(data.adminId, wsTypes.INVOICE_UPDATE, invoice);
 
+    await db.Invoice.update(data, {
+      where: { id },
+    });
+    console.log(invoice.dataValues);
+    console.log(data);
+    const invoice2 = await invoice.reload();
     const options = {
-      data: invoice,
+      data: invoice2,
       status: 200,
     };
     return response(options, req, res, next);

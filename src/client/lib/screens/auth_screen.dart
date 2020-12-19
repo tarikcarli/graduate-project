@@ -288,7 +288,7 @@ class _AuthCardState extends State<AuthCard> {
                       flex: 6,
                       child: TextFormField(
                         decoration: InputDecoration(labelText: 'Password'),
-                        initialValue: "12345678", //_password,
+                        // initialValue: "12345678", //_password,
                         obscureText: _obscurePasswordText,
                         validator: (value) {
                           if (value.isEmpty || value.length < 4) {

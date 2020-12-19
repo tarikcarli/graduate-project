@@ -48,7 +48,7 @@ class PhotoService {
       {@required int id, @required String photo}) async {
     http.Response response;
     try {
-      response = await http.post(
+      response = await http.put(
         URL.putPhoto(),
         headers: URL.jsonHeader(),
         body: json.encode({
