@@ -113,7 +113,7 @@ class _SystemHomeScreenState extends State<SystemHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Admin Panel"),
+        title: Text("Sistem Paneli"),
         actions: [
           PopupMenuButton<Options>(
             onSelected: selectProcess,
@@ -156,7 +156,7 @@ class _SystemHomeScreenState extends State<SystemHomeScreen> {
                     ),
                     Expanded(
                       child: ButtonWidget(
-                        buttonName: "Filter",
+                        buttonName: "Filtrele",
                         onPressed: () {
                           setState(() {
                             users = filterUsers(_userProvider.users);

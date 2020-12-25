@@ -88,7 +88,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Edit User"),
+        title: Text("Profil"),
       ),
       drawer: _userProvider.user.role == "system" ? null : DrawerWidget(),
       body: loading
@@ -169,7 +169,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
                         Container(
                           width: MediaQuery.of(context).size.width * 0.75,
                           child: DropDownFormField(
-                            titleText: 'Role',
+                            titleText: 'Rol',
                             contentPadding: null,
                             value: roleToInt(_role),
                             filled: false,

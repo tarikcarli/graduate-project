@@ -44,7 +44,7 @@ class _OperatorsScreenState extends State<OperatorsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Operatörler',
+          'Çalışanlar',
           style: style.copyWith(
             color: Theme.of(context).accentColor,
           ),

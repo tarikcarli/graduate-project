@@ -14,7 +14,7 @@ class BeforeLocationCurrentMap extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Operatörler',
+          'Çalışanlar',
           style: style.copyWith(color: Theme.of(context).accentColor),
         ),
       ),
@@ -22,7 +22,7 @@ class BeforeLocationCurrentMap extends StatelessWidget {
       body: allOperator.length == 0
           ? Center(
               child: Text(
-                "Hiç Operatörünüz yok!",
+                "Hiç Çalışanınız yok!",
                 style: style,
               ),
             )

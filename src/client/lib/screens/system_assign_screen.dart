@@ -107,7 +107,7 @@ class _SystemAssignScreenState extends State<SystemAssignScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Assign/Unassign Operator"),
+        title: Text("Çalışan Ekle/Çıkar"),
       ),
       body: loading
           ? Center(
@@ -139,7 +139,7 @@ class _SystemAssignScreenState extends State<SystemAssignScreen> {
                     ),
                     Expanded(
                       child: RaisedButton(
-                        child: Text("Filter", style: style),
+                        child: Text("Filtrele", style: style),
                         onPressed: () {
                           setState(() {
                             users = filterUsers(_userProvider.users);

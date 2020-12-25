@@ -309,6 +309,9 @@ class UserProvider with ChangeNotifier {
           },
         ),
       );
+      if (response.statusCode == 200) {
+        return;
+      }
     } catch (err) {
       print("Error UserProvider.register: $err");
       throw err;

@@ -23,7 +23,7 @@ class _BeforeLocationHistoryMapState extends State<BeforeLocationHistoryMap> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Operatörler',
+          'Çalışanlar',
           style: style.copyWith(
             color: Theme.of(context).accentColor,
           ),
@@ -33,7 +33,7 @@ class _BeforeLocationHistoryMapState extends State<BeforeLocationHistoryMap> {
       body: widget.allOperator.length == 0
           ? Center(
               child: Text(
-                "Hiç Operatörünüz yok!",
+                "Hiç Çalışanınız yok!",
                 style: style,
               ),
             )

@@ -108,6 +108,7 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
       ),
       body: SafeArea(
         child: Container(
+          padding: EdgeInsets.all(8),
           child: SingleChildScrollView(
             child: Column(
               children: [

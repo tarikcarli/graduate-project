@@ -42,6 +42,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 "assets/images/blue_map.jpg",
               ),
               radius: MediaQuery.of(context).size.width * 0.2,
+              backgroundColor: Colors.transparent,
             ),
           ),
           if (_userProvider?.user?.role == "admin")
@@ -51,7 +52,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 color: Theme.of(context).primaryColor,
               ),
               title: Text(
-                "Operatorler",
+                "Çalışanlar",
                 style: style,
               ),
               onTap: () {
@@ -68,7 +69,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               color: Theme.of(context).primaryColor,
             ),
             title: Text(
-              "Tasks",
+              "Görevler",
               style: style,
             ),
             onTap: () {
@@ -85,7 +86,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               color: Theme.of(context).primaryColor,
             ),
             title: Text(
-              "Invoices",
+              "Faturalar",
               style: style,
             ),
             onTap: () {
@@ -102,7 +103,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               color: Theme.of(context).primaryColor,
             ),
             title: Text(
-              "Live Location",
+              "Canlı Konum",
               style: style,
             ),
             onTap: () {
@@ -132,7 +133,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               color: Theme.of(context).primaryColor,
             ),
             title: Text(
-              "History Location",
+              "Konum Geçmişi",
               style: style,
             ),
             onTap: () {
@@ -162,7 +163,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               color: Theme.of(context).primaryColor,
             ),
             title: Text(
-              "Settings",
+              "Ayarlar",
               style: style,
             ),
             onTap: () {
@@ -179,7 +180,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               color: Theme.of(context).primaryColor,
             ),
             title: Text(
-              "Profile",
+              "Profil",
               style: style,
             ),
             onTap: () {
@@ -196,7 +197,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               color: Theme.of(context).primaryColor,
             ),
             title: Text(
-              "Exit",
+              "Çıkış",
               style: style,
             ),
             onTap: () async {

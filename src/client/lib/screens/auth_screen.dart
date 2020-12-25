@@ -150,6 +150,9 @@ class _AuthCardState extends State<AuthCard> {
         final photo = await PhotoService.postPhoto(photo: _photo);
         await _userProvider.register(
             name: _name, email: _email, password: _password, photoId: photo.id);
+        _password = "";
+        _formKey.currentState.reset();
+        setState(() {});
         _switchAuthMode();
       }
     } catch (err) {
@@ -250,7 +253,7 @@ class _AuthCardState extends State<AuthCard> {
                   height: 8,
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'E-Mail'),
+                  decoration: InputDecoration(labelText: 'Email'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value.isEmpty || !value.contains('@')) {
@@ -267,7 +270,7 @@ class _AuthCardState extends State<AuthCard> {
                 ),
                 if (_authMode == AuthMode.Register)
                   TextFormField(
-                    decoration: InputDecoration(labelText: 'Name'),
+                    decoration: InputDecoration(labelText: 'İsim'),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value.isEmpty) {
@@ -287,7 +290,7 @@ class _AuthCardState extends State<AuthCard> {
                     Expanded(
                       flex: 6,
                       child: TextFormField(
-                        decoration: InputDecoration(labelText: 'Password'),
+                        decoration: InputDecoration(labelText: 'Şifre'),
                         // initialValue: "12345678", //_password,
                         obscureText: _obscurePasswordText,
                         validator: (value) {
@@ -323,7 +326,7 @@ class _AuthCardState extends State<AuthCard> {
                         flex: 6,
                         child: TextFormField(
                           decoration:
-                              InputDecoration(labelText: 'Confirm Password'),
+                              InputDecoration(labelText: 'Şifre Doğrulama'),
                           initialValue: _password,
                           obscureText: _obscurePasswordValText,
                           validator: (value) {
@@ -353,7 +356,7 @@ class _AuthCardState extends State<AuthCard> {
                     Expanded(
                       child: RaisedButton(
                         child: Text(
-                            _authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
+                            _authMode == AuthMode.Login ? 'GİRİŞ' : 'KAYIT'),
                         onPressed: _submit,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -368,7 +371,7 @@ class _AuthCardState extends State<AuthCard> {
                     Expanded(
                       child: FlatButton(
                         child: Text(
-                            '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'}'),
+                            '${_authMode == AuthMode.Login ? 'KAYIT' : 'GİRİŞ'}'),
                         onPressed: _switchAuthMode,
                         padding:
                             EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
