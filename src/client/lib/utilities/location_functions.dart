@@ -29,10 +29,10 @@ class LocationFunctions {
         distanceFilter: distanceFilter,
         androidNotificationSettings: AndroidNotificationSettings(
           notificationChannelName: 'Location tracking',
-          notificationTitle: 'Start Location Tracking',
+          notificationTitle: 'Konum Verisi Alınıyor',
           notificationMsg: 'Track location in background',
           notificationBigMsg:
-              'Background location is on to keep the app up-tp-date with your location. This is required for main features to work properly when the app is not running.',
+              'Aktif görevde olduğunuz için şu anda konum veriniz alınmaktadır.',
           notificationIcon: '',
           notificationIconColor: Colors.greenAccent,
           notificationTapCallback: LocationCallbackHandler.notificationCallback,

@@ -160,13 +160,13 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
                 Divider(),
                 InformationLine(
                   'Mesafe:',
-                  (widget.invoice.distance / 1000).toStringAsFixed(2) +
+                  (widget.invoice.distance / 1000).toStringAsFixed(0) +
                       " Kilometre",
                 ),
                 Divider(),
                 InformationLine(
                   'Süre:',
-                  (widget.invoice.duration / 60000).toStringAsFixed(2) +
+                  (widget.invoice.duration / 60000).toStringAsFixed(0) +
                       " Dakika",
                 ),
                 Divider(),

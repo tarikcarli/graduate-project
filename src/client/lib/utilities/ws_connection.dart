@@ -188,14 +188,14 @@ class WebSocket {
   void _operatorEnterNotification() {
     createNotification(
       "Görev Bildirimi",
-      "Operatör görev bildirim alanına girdi.",
+      "Çalışan görev bildirim alanına girdi.",
     );
   }
 
   void _operatorLeaveNotification() {
     createNotification(
       "Görev Bildirimi",
-      "Operatör görev bildirim alanından çıktı.",
+      "Çalışan görev bildirim alanından çıktı.",
     );
   }
 
@@ -209,7 +209,7 @@ class WebSocket {
   void _invoiceAddNotification() {
     createNotification(
       "Fatura Bildirimi",
-      "Operatörünüz yeni fatura yükledi.",
+      "Çalışanınız yeni fatura yükledi.",
     );
   }
 

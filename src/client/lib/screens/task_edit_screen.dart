@@ -249,8 +249,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       ),
                       DropDownFormField(
                         contentPadding: null,
-                        titleText: 'Operatörler',
-                        hintText: 'Lütfen bir operatör seçiniz.',
+                        titleText: 'Çalışanlar',
+                        hintText: 'Lütfen bir çalışan seçiniz.',
                         value: _operatorId,
                         filled: false,
                         onSaved: (value) {
@@ -263,7 +263,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                         },
                         validator: (value) {
                           if (_operatorId == null)
-                            return "Görev oluşturmak için operatör belirlemelisiniz.";
+                            return "Görev oluşturmak için çalışan belirlemelisiniz.";
                           return null;
                         },
                         required: true,

@@ -15,7 +15,7 @@ class SingleOperatorScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Operatör',
+          'Çalışan',
           style: style.copyWith(color: Theme.of(context).accentColor),
         ),
       ),

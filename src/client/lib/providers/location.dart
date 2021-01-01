@@ -356,7 +356,7 @@ Future<void> sendLocationWithCheck({
 }) async {
   http.Response response;
   Future<void> sendLocation() async {
-    if (MyProvider.task.activeTask != null) {
+    if (MyProvider.task.existActiveTask() != null) {
       final distance = await Geolocator().distanceBetween(
         MyProvider.task.activeTask.location.latitude,
         MyProvider.task.activeTask.location.longitude,

@@ -65,8 +65,6 @@ flutter:
   assets:
     - assets/images/blue_map.jpg
     - assets/images/no_image.jpg
-    - assets/images/ytu.png
-
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

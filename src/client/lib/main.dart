@@ -49,7 +49,7 @@ class _MyAppState extends State<MyApp> {
       child: Consumer<UserProvider>(
         builder: (ctx, userProvider, _) {
           return MaterialApp(
-            title: 'business travel',
+            title: 'İş Gezileri',
             theme: ThemeData(
                 primarySwatch: Colors.blue,
                 visualDensity: VisualDensity.adaptivePlatformDensity,

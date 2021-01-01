@@ -38,7 +38,7 @@ class _BeforeTwoLocationHistoryMapState
       body: tasks.length == 0
           ? Center(
               child: Text(
-                "Seçilen operatörün görevi yok!",
+                "Seçilen çalışanın görevi yok!",
                 style: style,
               ),
             )

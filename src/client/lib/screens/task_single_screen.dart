@@ -58,6 +58,7 @@ class _SingleTaskScreenState extends State<SingleTaskScreen> {
       ),
       body: SafeArea(
         child: Container(
+          padding: EdgeInsets.all(8),
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -70,7 +71,7 @@ class _SingleTaskScreenState extends State<SingleTaskScreen> {
                         widget.task.location.latitude,
                         widget.task.location.longitude,
                       ),
-                      zoom: 5.0,
+                      zoom: 7.0,
                       interactive: false,
                     ),
                     layers: [

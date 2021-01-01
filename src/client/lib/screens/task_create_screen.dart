@@ -217,8 +217,8 @@ class _CreateTaskState extends State<CreateTask> {
                       ),
                       DropDownFormField(
                         contentPadding: null,
-                        titleText: 'Operatörler',
-                        hintText: 'Lütfen bir operatör seçiniz.',
+                        titleText: 'Çalışanlar',
+                        hintText: 'Lütfen bir çalışan seçiniz.',
                         value: _operatorId,
                         filled: false,
                         onSaved: (value) {
@@ -231,7 +231,7 @@ class _CreateTaskState extends State<CreateTask> {
                         },
                         validator: (value) {
                           if (_operatorId == null)
-                            return "Görev oluşturmak için operatör belirlemelisiniz.";
+                            return "Görev oluşturmak için çalışan belirlemelisiniz.";
                           return null;
                         },
                         required: true,

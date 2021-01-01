@@ -145,7 +145,9 @@ class TaskProvider with ChangeNotifier {
         body: json.encode(
           {
             "data": {
-              "adminId": MyProvider.user.user.id,
+              "adminId": MyProvider.user.user.role == "admin"
+                  ? MyProvider.user.user.id
+                  : MyProvider.user.admin.id,
               "operatorId": operatorId,
               "locationId": locationId,
               "radius": radius,

@@ -107,6 +107,7 @@ const putTask = async (req, res, next) => {
       data: task[1],
       status: 200,
     };
+    console.log(data);
     if (dbTask.dataValues.isOperatorOnTask !== data.isOperatorOnTask) {
       if (dbTask.dataValues.isOperatorOnTask)
         publish(data.adminId, wsTypes.OPERATOR_ENTER_NOTIFICATION, {});

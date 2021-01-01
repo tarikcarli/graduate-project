@@ -51,46 +51,49 @@ class _OperatorsScreenState extends State<OperatorsScreen> {
         ),
       ),
       drawer: DrawerWidget(),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            operators.length > 0
-                ? Expanded(
-                    child: ListView.builder(
-                      itemCount: operators.length,
-                      itemBuilder: (ctx, i) => Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return SingleOperatorScreen(
-                                        user: operators[i]);
-                                  },
-                                ),
-                              );
-                            },
-                            child: UserListItem(
-                              user: operators[i],
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              operators.length > 0
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: operators.length,
+                        itemBuilder: (ctx, i) => Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return SingleOperatorScreen(
+                                          user: operators[i]);
+                                    },
+                                  ),
+                                );
+                              },
+                              child: UserListItem(
+                                user: operators[i],
+                              ),
                             ),
-                          ),
-                          Divider(),
-                        ],
+                            Divider(),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Expanded(
+                      child: Center(
+                        child: Text(
+                          'Hiç Çalışanınız Yok!',
+                          style: TextStyle(fontSize: 20.0),
+                        ),
                       ),
                     ),
-                  )
-                : Expanded(
-                    child: Center(
-                      child: Text(
-                        'Hiç Operatörünüz Yok!',
-                        style: TextStyle(fontSize: 20.0),
-                      ),
-                    ),
-                  ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -211,7 +211,7 @@ class _TasksScreenState extends State<TasksScreen> {
                     withCancel: false,
                     title: "Görev Oluşturamazsınız",
                     content:
-                        "Görev oluşturmak için operatörünüzün olması gerekir.",
+                        "Görev oluşturmak için çalışanlarınızın olması gerekir.",
                   );
                 } else {
                   await Navigator.of(context).push(

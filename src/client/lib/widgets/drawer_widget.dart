@@ -9,6 +9,7 @@ import 'package:business_travel/screens/operators_screen.dart';
 import 'package:business_travel/screens/system_user_edit_screen.dart';
 import 'package:business_travel/screens/system_user_settings_screen.dart';
 import 'package:business_travel/screens/tasks_screen.dart';
+import 'package:business_travel/utilities/global_provider.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -209,6 +210,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   content: "Güvenli bir şekilde çıkış yaptınız.",
                   success: true,
                 );
+                if (_userProvider.user.role == "operator") {
+                  MyProvider.location.deniedBackgroundTracking();
+                }
                 await _userProvider.logout();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(

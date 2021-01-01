@@ -41,7 +41,7 @@ class BeforeCurrentListItem extends StatelessWidget {
               withCancel: false,
               title: "Hata",
               content:
-                  "Aktif görevi olmayan operatörün canlı konum verisini görüntüleyemezsiniz.",
+                  "Aktif görevi olmayan çalışanların canlı konum verisini görüntüleyemezsiniz.",
             );
           } else {
             Navigator.of(context).push(
