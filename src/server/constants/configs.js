@@ -8,6 +8,7 @@ const config = {
   BYPASS_MIDDLEWARE: process.env.BYPASS_MIDDLEWARE === "true",
   JWT_SECRET: process.env.JWT_SECRET,
   PORT: process.env.PORT,
+  APP_DOMAIN: process.env.APP_DOMAIN, 
 };
 console.log(config);
 

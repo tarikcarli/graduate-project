@@ -4,8 +4,10 @@ import 'package:business_travel/providers/location.dart';
 import 'package:business_travel/providers/task.dart';
 import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/utilities/show_dialog.dart';
+import 'package:business_travel/utilities/url_creator.dart';
 import 'package:business_travel/widgets/button_widget.dart';
 import 'package:business_travel/widgets/info_line.dart';
+import 'package:business_travel/widgets/progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
@@ -30,6 +32,8 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
 
   MapController mapController;
   StatefulMapController _statefulMapController;
+
+  bool _loading = false;
   @override
   void initState() {
     _userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -97,6 +101,62 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
     super.initState();
   }
 
+  onInvoiceTab() async {
+    print(widget.invoice.photo.path);
+    await showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(32.0))),
+        child: Container(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(32),
+              child: Image.network(
+                URL.getBinaryPhoto(
+                  path: widget.invoice.photo.path,
+                ),
+                fit: BoxFit.cover,
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height * 0.5,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  onEmailTab() async {
+    final result = await CustomDialog.show(
+      ctx: context,
+      withCancel: true,
+      title: "Email Gönderme",
+      content: "Faturayı emailinize göndermek istiyor musunuz?",
+    );
+    if (result) {
+      setState(() {
+        _loading = true;
+      });
+      await _invoiceProvider.sendInvoiceMail(
+          token: _userProvider.token, id: widget.invoice.id);
+      setState(() {
+        _loading = false;
+      });
+      await CustomDialog.show(
+        ctx: context,
+        withCancel: false,
+        title: "Email Gönderildi",
+        content:
+            "Fatura bilgileri sisteme kayıtlı emailinize gönderildi. Lütfen kontrol ediniz.",
+        success: true,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,181 +167,212 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
         ),
       ),
       body: SafeArea(
-        child: Container(
-          padding: EdgeInsets.all(8),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.4,
-                  child: FlutterMap(
-                    mapController: mapController,
-                    options: MapOptions(
-                      interactive: false,
-                    ),
-                    layers: [
-                      new TileLayerOptions(
-                          urlTemplate:
-                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c']),
-                      MarkerLayerOptions(
-                        markers: _statefulMapController.markers,
-                      ),
-                      PolylineLayerOptions(
-                        polylines: _statefulMapController.lines,
-                      ),
-                    ],
-                  ),
-                ),
-                if (_userProvider.user.role == "admin") Divider(),
-                if (_userProvider.user.role == "admin")
-                  InformationLine(
-                    'Operator:',
-                    '${_userProvider.operatorIdToName(widget.invoice.operatorId)}',
-                  ),
-                Divider(),
-                InformationLine('Görev:',
-                    _taskProvider.taskIdToName(widget.invoice.taskId)),
-                Divider(),
-                InformationLine(
-                  'Görev Açıklaması:',
-                  _taskProvider.findById(widget.invoice.taskId).description,
-                ),
-                Divider(),
-                InformationLine(
-                  'Fatura Tutarı:',
-                  widget.invoice.price.toString() + " TL",
-                ),
-                Divider(),
-                InformationLine(
-                  'Tahmini Tutarı:',
-                  widget.invoice.estimatePrice.toString() + " TL",
-                ),
-                Divider(),
-                InformationLine(
-                  'Mesafe:',
-                  (widget.invoice.distance / 1000).toStringAsFixed(0) +
-                      " Kilometre",
-                ),
-                Divider(),
-                InformationLine(
-                  'Süre:',
-                  (widget.invoice.duration / 60000).toStringAsFixed(0) +
-                      " Dakika",
-                ),
-                Divider(),
-                InformationLine(
-                  'Geçerlilik Durumu:',
-                  widget.invoice.isValid ? "Geçerli" : "Geçerli değil",
-                ),
-                Divider(),
-                InformationLine(
-                  'Kabul Durumu:',
-                  widget.invoice.isAccepted == null
-                      ? "Bilinmiyor"
-                      : widget.invoice.isAccepted
-                          ? "Kabul edildi"
-                          : "Reddedildi",
-                ),
-                Divider(),
-                InformationLine(
-                  'Fatura Tarihi:',
-                  DateFormat.yMd().format(widget.invoice.invoicedAt),
-                ),
-                if (_userProvider.user.role == "admin" &&
-                    widget.invoice.isAccepted == null)
-                  Divider(),
-                if (_userProvider.user.role == "admin" &&
-                    widget.invoice.isAccepted == null)
-                  Row(
+        child: _loading
+            ? ProgressWidget()
+            : Container(
+                padding: EdgeInsets.all(8),
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Expanded(
-                        child: ButtonWidget(
-                          onPressed: () async {
-                            try {
-                              _invoiceProvider.putInvoice(
-                                id: widget.invoice.id,
-                                adminId: widget.invoice.adminId,
-                                operatorId: widget.invoice.operatorId,
-                                taskId: widget.invoice.taskId,
-                                photo: null,
-                                beginLocationId:
-                                    widget.invoice.beginLocation.id,
-                                endLocationId: widget.invoice.endLocation.id,
-                                cityId: widget.invoice.city.id,
-                                price: widget.invoice.price,
-                                estimatePrice: widget.invoice.estimatePrice,
-                                distance: widget.invoice.distance,
-                                duration: widget.invoice.duration,
-                                isValid: widget.invoice.isValid,
-                                isAccepted: true,
-                                invoicedAt: widget.invoice.invoicedAt,
-                                token: _userProvider.token,
-                              );
-                              Navigator.of(context).pop();
-                            } catch (error) {
-                              await CustomDialog.show(
-                                ctx: context,
-                                withCancel: false,
-                                title: "Fatura Güncellenemedi",
-                                content: "Durum: " + error.toString(),
-                              );
-                            }
-                          },
-                          buttonName: "Kabul",
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.4,
+                        child: FlutterMap(
+                          mapController: mapController,
+                          options: MapOptions(
+                            interactive: false,
+                          ),
+                          layers: [
+                            new TileLayerOptions(
+                                urlTemplate:
+                                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                                subdomains: ['a', 'b', 'c']),
+                            MarkerLayerOptions(
+                              markers: _statefulMapController.markers,
+                            ),
+                            PolylineLayerOptions(
+                              polylines: _statefulMapController.lines,
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(
-                        width: 8,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.3,
+                            child: ButtonWidget(
+                              onPressed: onInvoiceTab,
+                              buttonName: "Fatura",
+                            ),
+                          ),
+                          if (_userProvider.user.role == "admin")
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.2,
+                            ),
+                          if (_userProvider.user.role == "admin")
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              child: ButtonWidget(
+                                onPressed: onEmailTab,
+                                buttonName: "Email",
+                              ),
+                            ),
+                        ],
                       ),
-                      Expanded(
-                        child: ButtonWidget(
-                          onPressed: () async {
-                            try {
-                              await _invoiceProvider.putInvoice(
-                                id: widget.invoice.id,
-                                adminId: widget.invoice.adminId,
-                                operatorId: widget.invoice.operatorId,
-                                taskId: widget.invoice.taskId,
-                                photo: null,
-                                beginLocationId:
-                                    widget.invoice.beginLocation.id,
-                                endLocationId: widget.invoice.endLocation.id,
-                                cityId: widget.invoice.city.id,
-                                price: widget.invoice.price,
-                                estimatePrice: widget.invoice.estimatePrice,
-                                distance: widget.invoice.distance,
-                                duration: widget.invoice.duration,
-                                isValid: widget.invoice.isValid,
-                                isAccepted: false,
-                                invoicedAt: widget.invoice.invoicedAt,
-                                token: _userProvider.token,
-                              );
-                              Navigator.of(context).pop();
-                            } catch (error) {
-                              await CustomDialog.show(
-                                ctx: context,
-                                withCancel: false,
-                                title: "Fatura Güncellenemedi",
-                                content: "Durum: " + error.toString(),
-                              );
-                            }
-                          },
-                          buttonName: "Red",
+                      if (_userProvider.user.role == "admin")
+                        InformationLine(
+                          'Operator:',
+                          '${_userProvider.operatorIdToName(widget.invoice.operatorId)}',
                         ),
+                      Divider(),
+                      InformationLine('Görev:',
+                          _taskProvider.taskIdToName(widget.invoice.taskId)),
+                      Divider(),
+                      InformationLine(
+                        'Görev Açıklaması:',
+                        _taskProvider
+                            .findById(widget.invoice.taskId)
+                            .description,
                       ),
-                      SizedBox(
-                        width: 8,
+                      Divider(),
+                      InformationLine(
+                        'Fatura Tutarı:',
+                        widget.invoice.price.toString() + " TL",
                       ),
+                      Divider(),
+                      InformationLine(
+                        'Tahmini Tutarı:',
+                        widget.invoice.estimatePrice.toString() + " TL",
+                      ),
+                      Divider(),
+                      InformationLine(
+                        'Mesafe:',
+                        (widget.invoice.distance / 1000).toStringAsFixed(0) +
+                            " Kilometre",
+                      ),
+                      Divider(),
+                      InformationLine(
+                        'Süre:',
+                        (widget.invoice.duration / 60000).toStringAsFixed(0) +
+                            " Dakika",
+                      ),
+                      Divider(),
+                      InformationLine(
+                        'Geçerlilik Durumu:',
+                        widget.invoice.isValid ? "Geçerli" : "Geçerli değil",
+                      ),
+                      Divider(),
+                      InformationLine(
+                        'Kabul Durumu:',
+                        widget.invoice.isAccepted == null
+                            ? "Bilinmiyor"
+                            : widget.invoice.isAccepted
+                                ? "Kabul edildi"
+                                : "Reddedildi",
+                      ),
+                      Divider(),
+                      InformationLine(
+                        'Fatura Tarihi:',
+                        DateFormat.yMd().format(widget.invoice.invoicedAt),
+                      ),
+                      if (_userProvider.user.role == "admin" &&
+                          widget.invoice.isAccepted == null)
+                        Divider(),
+                      if (_userProvider.user.role == "admin" &&
+                          widget.invoice.isAccepted == null)
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: ButtonWidget(
+                                onPressed: () async {
+                                  try {
+                                    _invoiceProvider.putInvoice(
+                                      id: widget.invoice.id,
+                                      adminId: widget.invoice.adminId,
+                                      operatorId: widget.invoice.operatorId,
+                                      taskId: widget.invoice.taskId,
+                                      photo: null,
+                                      beginLocationId:
+                                          widget.invoice.beginLocation.id,
+                                      endLocationId:
+                                          widget.invoice.endLocation.id,
+                                      cityId: widget.invoice.city.id,
+                                      price: widget.invoice.price,
+                                      estimatePrice:
+                                          widget.invoice.estimatePrice,
+                                      distance: widget.invoice.distance,
+                                      duration: widget.invoice.duration,
+                                      isValid: widget.invoice.isValid,
+                                      isAccepted: true,
+                                      invoicedAt: widget.invoice.invoicedAt,
+                                      token: _userProvider.token,
+                                    );
+                                    Navigator.of(context).pop();
+                                  } catch (error) {
+                                    await CustomDialog.show(
+                                      ctx: context,
+                                      withCancel: false,
+                                      title: "Fatura Güncellenemedi",
+                                      content: "Durum: " + error.toString(),
+                                    );
+                                  }
+                                },
+                                buttonName: "Kabul",
+                              ),
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: ButtonWidget(
+                                onPressed: () async {
+                                  try {
+                                    await _invoiceProvider.putInvoice(
+                                      id: widget.invoice.id,
+                                      adminId: widget.invoice.adminId,
+                                      operatorId: widget.invoice.operatorId,
+                                      taskId: widget.invoice.taskId,
+                                      photo: null,
+                                      beginLocationId:
+                                          widget.invoice.beginLocation.id,
+                                      endLocationId:
+                                          widget.invoice.endLocation.id,
+                                      cityId: widget.invoice.city.id,
+                                      price: widget.invoice.price,
+                                      estimatePrice:
+                                          widget.invoice.estimatePrice,
+                                      distance: widget.invoice.distance,
+                                      duration: widget.invoice.duration,
+                                      isValid: widget.invoice.isValid,
+                                      isAccepted: false,
+                                      invoicedAt: widget.invoice.invoicedAt,
+                                      token: _userProvider.token,
+                                    );
+                                    Navigator.of(context).pop();
+                                  } catch (error) {
+                                    await CustomDialog.show(
+                                      ctx: context,
+                                      withCancel: false,
+                                      title: "Fatura Güncellenemedi",
+                                      content: "Durum: " + error.toString(),
+                                    );
+                                  }
+                                },
+                                buttonName: "Red",
+                              ),
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                          ],
+                        )
                     ],
-                  )
-              ],
-            ),
-          ),
-        ),
+                  ),
+                ),
+              ),
       ),
     );
   }

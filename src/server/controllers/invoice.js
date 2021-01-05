@@ -2,6 +2,7 @@ const response = require("../utilities/response");
 const { db } = require("../connections/postgres");
 const wsTypes = require("../constants/ws_types");
 const { publish } = require("../connections/redis");
+const EmailService = require("../utilities/mailService");
 /**
  *To get invoice
  *
@@ -87,6 +88,7 @@ const postInvoice = async (req, res, next) => {
     return next(err);
   }
 };
+
 /**
  *To put invoice
  *
@@ -123,8 +125,50 @@ const putInvoice = async (req, res, next) => {
   }
 };
 
+/**
+ *To send mail
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+const sendMail = async (req, res, next) => {
+  try {
+    const { id } = req.query;
+    const invoice = await db.Invoice.findByPk(id);
+    const admin = await db.User.findByPk(invoice.getDataValue("adminId"));
+    const task = await db.Task.findByPk(invoice.getDataValue("taskId"));
+    const photo = await db.Photo.findByPk(invoice.getDataValue("photoId"));
+    // console.log(invoice.dataValues);
+    // console.log(admin.dataValues);
+    // console.log(task.dataValues);
+    // console.log(photo.dataValues);
+    await EmailService.send({
+      to:admin.dataValues.email,
+      userName:admin.dataValues.name,
+      taskName:task.name,
+      duration:parseInt(invoice.dataValues.duration / (1000 * 60), 10),
+      distance:parseInt(invoice.dataValues.distance /  1000, 10),
+      isValid:invoice.dataValues.isValid,
+      isAccepted:invoice.dataValues.isAccepted,
+      date:invoice.dataValues.invoicedAt,
+      imageName:`${photo.dataValues.path}.jpg`
+    });
+    console.log(id);
+    const options = {
+      data: {status: "OK"},
+      status: 200,
+    };
+    return response(options, req, res, next);
+  } catch (err) {
+    console.log(`send mail Error ${err}`);
+    return next(err);
+  }
+};
+
 module.exports = {
   getInvoice,
   postInvoice,
   putInvoice,
+  sendMail
 };

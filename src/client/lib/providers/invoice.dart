@@ -193,6 +193,26 @@ class InvoiceProvider with ChangeNotifier {
         'Http hata kodu: ${response.statusCode}');
   }
 
+  Future<void> sendInvoiceMail({String token, int id}) async {
+    http.Response response;
+    try {
+      response = await http.post(
+        URL.sendInvoiceMail(id: id),
+        headers: URL.jsonHeader(
+          token: token,
+        ),
+      );
+      if (response.statusCode == 200) {
+        return;
+      }
+    } catch (error) {
+      print("Error sendInvoiceMail: $error");
+      throw error;
+    }
+    throw Exception('Bilinmeyen bir hata oluştu.\n' +
+        'Http hata kodu: ${response.statusCode}');
+  }
+
   List<Invoice> filterInvoice(int taskId) {
     if (taskId == 0) return invoices;
     return invoices.where((element) => element.taskId == taskId).toList();

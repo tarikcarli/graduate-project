@@ -150,9 +150,6 @@ class _AuthCardState extends State<AuthCard> {
         final photo = await PhotoService.postPhoto(photo: _photo);
         await _userProvider.register(
             name: _name, email: _email, password: _password, photoId: photo.id);
-        _password = "";
-        _formKey.currentState.reset();
-        setState(() {});
         _switchAuthMode();
       }
     } catch (err) {

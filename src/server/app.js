@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 require("./connections/redis");
 require("./connections/postgres");
+require("./utilities/mailService").create();
 const response = require("./utilities/response");
 
 const app = express();

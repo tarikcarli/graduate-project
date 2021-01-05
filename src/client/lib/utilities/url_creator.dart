@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 class URL {
-  static const httpUrl = 'http://192.168.1.39:4000/'; //  HOME
-  static const wsUrl = 'ws://192.168.1.39:4000/'; //  HOME
+  static const httpUrl = 'http://192.168.1.46:4000/'; //  HOME
+  static const wsUrl = 'ws://192.168.1.46:4000/'; //  HOME
   static Map<String, String> jsonHeader({String token}) {
     final headers = {"Content-type": "application/json"};
     if (token != null) headers['authorization'] = 'Bearer $token';
@@ -159,6 +159,10 @@ class URL {
 
   static String putInvoice({@required id}) {
     return '${httpUrl}api/invoice?id=$id';
+  }
+
+  static String sendInvoiceMail({@required id}) {
+    return '${httpUrl}api/invoice/sendmail?id=$id';
   }
 
   static getCity() {
