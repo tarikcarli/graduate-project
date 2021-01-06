@@ -5,11 +5,12 @@ const configs = require("../constants/configs");
 
 const sequelize = new Sequelize(configs.POSTGRES_URL, {
   dialect:"postgres",
-  ssl: {
-    ca: fs.readFileSync(`${process.cwd()}/ca-certificate.crt`),
-  },
+  ssl: true,
   dialectOptions: {
     useUTC: true,
+    ssl: {
+      ca: fs.readFileSync(`${process.cwd()}/ca-certificate.crt`),
+    },
   },
 });
 exports.sequelize = sequelize;
