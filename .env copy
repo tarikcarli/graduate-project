@@ -1,0 +1,10 @@
+POSTGRES_URL= postgres://postgres:123qwe@localhost:5432/graduate-project
+REDIS_URL= redis://localhost:6379
+PRODUCTION= false
+DEVELOPMENT= true
+TEST= true
+LOG_ONLY_ERROR= true
+BYPASS_MIDDLEWARE= true
+JWT_SECRET= graduate_project_taxi_app
+PORT= 4000
+APP_DOMAIN= http://localhost:4000/

@@ -6,8 +6,8 @@ const wsClients = require("../constants/ws_clients");
 
 const CHANNEL = "COMMUNICATION";
 
-const client = redis.createClient({ url: configs.REDIS_URL, db: 2 });
-const subscriber = redis.createClient({ url: configs.REDIS_URL, db: 2 });
+const client = redis.createClient({ url: configs.REDIS_URL});
+const subscriber = redis.createClient({ url: configs.REDIS_URL});
 
 const get = promisify(client.get).bind(client);
 const set = promisify(client.set).bind(client);
@@ -18,7 +18,7 @@ client.on("error", (err) => {
 });
 
 (() => {
-  if (configs.TEST)
+  if (configs.DEVELOPMENT)
     client.flushdb((err, success) => {
       if (err) console.log(`client.flushdb Error ${err}`);
       if (success) console.log(`client.flushdb Success ${success}`);

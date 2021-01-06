@@ -147,6 +147,9 @@ class _AuthCardState extends State<AuthCard> {
         await _userProvider.login(email: _email, password: _password);
       }
       if (_authMode == AuthMode.Register) {
+        if (_photo == null) {
+          throw Exception("Fotoğraf yükleyiniz.");
+        }
         final photo = await PhotoService.postPhoto(photo: _photo);
         await _userProvider.register(
             name: _name, email: _email, password: _password, photoId: photo.id);
@@ -155,8 +158,8 @@ class _AuthCardState extends State<AuthCard> {
     } catch (err) {
       await CustomDialog.show(
         ctx: context,
-        title: _authMode == AuthMode.Login ? "Login Error" : "Register Error",
-        content: err.toString(),
+        title: _authMode == AuthMode.Login ? "Giriş Hatası" : "Kayıt Hatası",
+        content: err.toString().split(":")[1],
         withCancel: false,
       );
     }
@@ -183,10 +186,7 @@ class _AuthCardState extends State<AuthCard> {
   }
 
   void _switchAuthMode() {
-    if (_authMode == AuthMode.Login)
-      _authMode = AuthMode.Register;
-    else
-      _authMode = AuthMode.Login;
+    _formKey.currentState.reset();
     setState(() {
       _obscurePasswordText = true;
       _obscurePasswordValText = true;
@@ -195,11 +195,16 @@ class _AuthCardState extends State<AuthCard> {
       _name = "";
       _photo = null;
     });
-    _formKey.currentState.reset();
+    if (_authMode == AuthMode.Login) {
+      _authMode = AuthMode.Register;
+    } else {
+      _authMode = AuthMode.Login;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    print(_password);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -288,7 +293,6 @@ class _AuthCardState extends State<AuthCard> {
                       flex: 6,
                       child: TextFormField(
                         decoration: InputDecoration(labelText: 'Şifre'),
-                        // initialValue: "12345678", //_password,
                         obscureText: _obscurePasswordText,
                         validator: (value) {
                           if (value.isEmpty || value.length < 4) {
@@ -324,7 +328,6 @@ class _AuthCardState extends State<AuthCard> {
                         child: TextFormField(
                           decoration:
                               InputDecoration(labelText: 'Şifre Doğrulama'),
-                          initialValue: _password,
                           obscureText: _obscurePasswordValText,
                           validator: (value) {
                             if (value != _password)

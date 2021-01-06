@@ -1,8 +1,13 @@
 /* eslint-disable global-require */
+const fs = require("fs");
 const { Sequelize } = require("sequelize");
 const configs = require("../constants/configs");
 
 const sequelize = new Sequelize(configs.POSTGRES_URL, {
+  dialect:"postgres",
+  ssl: {
+    ca: fs.readFileSync(`${process.cwd()}/ca-certificate.crt`),
+  },
   dialectOptions: {
     useUTC: true,
   },
@@ -156,10 +161,22 @@ db.Invoice.belongsTo(db.Task, {
 (async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ force: configs.TEST });
+    await sequelize.sync({ force: configs.RECREATE_DB });
     console.log("Connection has been established successfully.");
-    if (configs.TEST) {
-      require("../utilities/populateDb")();
+    if(configs.RECREATE_DB){
+      if (configs.LOAD_DUMMY_DATA) {
+        require("../utilities/populateDb")();
+      } else {
+        await db.User.create({
+          "photoId": null,
+          "role": "system",
+          "name": "Aykut Akdeniz",
+          "email": "aykutakdeniz@gmail.com",
+          "password": await db.User.hashPassword("12345678"),
+        });
+        const cities = require('../constants/db_data.json').cities;
+        await db.City.bulkCreate(cities);
+      }
     }
   } catch (err) {
     console.error(`In db.js anonymous function  Error ${err}`);

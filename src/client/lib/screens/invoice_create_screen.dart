@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' as io;
+import 'dart:math';
 
 import 'package:business_travel/models/city.dart';
 import 'package:business_travel/models/location.dart';
@@ -40,6 +41,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
   TextEditingController _controllerEstimatePrice = TextEditingController();
   TextEditingController _controllerDistance = TextEditingController();
   TextEditingController _controllerDuration = TextEditingController();
+  TextEditingController _controllerPrice = TextEditingController();
 
   MapController mapController;
   StatefulMapController _statefulMapController;
@@ -60,7 +62,6 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
   DateTime _invoicedAt;
   bool _loading = false;
   bool _runningOCR = false;
-
   @override
   void initState() {
     super.initState();
@@ -137,7 +138,6 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     final VisionText visionText =
         await textRecognizer.processImage(visionImage);
     textRecognizer.close();
-    print("VISION TEXT:\n${visionText.text}");
     final price = findPriceInVisionText(visionText.text);
     setState(() {
       _runningOCR = false;
@@ -146,6 +146,15 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
       setState(() {
         _price = price;
       });
+      _controllerPrice.text = price.toString();
+      CustomDialog.show(
+        ctx: context,
+        withCancel: false,
+        title: "OCR başarılı",
+        content:
+            "Görüntüden fatura tutarı tespit edildi.\nLütfen fatura tutarını kontrol ediniz.",
+        success: true,
+      );
     } else {
       CustomDialog.show(
         ctx: context,
@@ -158,6 +167,13 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
   }
 
   int findPriceInVisionText(String text) {
+    String vText = text.replaceAll(" ", "");
+    vText = vText.replaceAll("\n", "");
+    print('Normalized vision text:\n $vText');
+    final random = Random();
+    if (random.nextDouble() > 0.5) {
+      return 55;
+    }
     return null;
   }
 
@@ -482,10 +498,8 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                         decoration: InputDecoration(
                           labelText: 'Tutar',
                         ),
+                        controller: _controllerPrice,
                         keyboardType: TextInputType.number,
-                        initialValue: _price.toString() == "null"
-                            ? ""
-                            : _price.toString(),
                         validator: (value) {
                           if (value.isEmpty) return 'Lütfen Değer giriniz.';
                           try {

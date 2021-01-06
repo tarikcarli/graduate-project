@@ -36,7 +36,8 @@ class SingleOperatorScreen extends StatelessWidget {
                 Divider(),
                 InformationLine('Email:', user.email),
                 Divider(),
-                InformationLine('Role:', user.role),
+                InformationLine(
+                    'Rol:', user.role == "operator" ? "Çalışan" : "Yönetici"),
                 Divider(),
                 InformationLine(
                   'Oluşturulma Tarihi:',

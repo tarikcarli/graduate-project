@@ -185,9 +185,9 @@ class _UserEditScreenState extends State<UserEditScreen> {
                             },
                             required: true,
                             dataSource: [
-                              {"value": 1, "display": "admin"},
-                              {"value": 2, "display": "operator"},
-                              {"value": 3, "display": "other"}
+                              {"value": 1, "display": "Yönetici"},
+                              {"value": 2, "display": "Çalışan"},
+                              {"value": 3, "display": "Diğer"}
                             ],
                             textField: 'display',
                             valueField: 'value',
