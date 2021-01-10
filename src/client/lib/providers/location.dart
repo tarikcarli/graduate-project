@@ -37,15 +37,16 @@ class LocationProvider with ChangeNotifier {
     port.listen(
       (dynamic data) async {
         try {
-          print("**********************************");
-          print(
-              "locationListenerCalback Location: latitude: ${data.latitude} longitude: ${data.longitude}");
+          // print("**********************************");
+          // print(
+          //     "locationListenerCalback Location: latitude: ${data.latitude} longitude: ${data.longitude}");
           currentLocation = Location(
             latitude: data.latitude,
             longitude: data.longitude,
             createdAt: DateTime.now(),
             operatorId: operatorId,
           );
+          notifyListeners();
         } catch (error) {
           print("**********************************");
           print("Error locationListenerCalback: $error");

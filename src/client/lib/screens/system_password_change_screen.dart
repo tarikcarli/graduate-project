@@ -72,7 +72,7 @@ class _PasswordChangeScreenState extends State<PasswordChangeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Change Password",
+          "Şifre Yenileme",
           style: style.copyWith(
             color: Theme.of(context).accentColor,
           ),

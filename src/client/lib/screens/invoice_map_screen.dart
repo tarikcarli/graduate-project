@@ -73,13 +73,9 @@ class _InvoiceMapScreenState extends State<InvoiceMapScreen> {
         finishDate: widget.taskEndDate,
         token: _userProvider.token,
       );
-      await _locationProvider.prepareLocationHistoriesPoints(
-          _locationProvider.filterLocationByDate(
-        taskStartDate: widget.taskStartDate,
-        historyDay: _historyDay,
-      ));
 
       _statefulMapController.onReady.then((_) async {
+        _select(_historyDay.toString());
         _zoomLevelTimer = ZoomLevelTimer(
           statefulMapController: _statefulMapController,
           callback: (int value) async {

@@ -223,9 +223,9 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
   }
 
   void calculateDuration() {
-    _duration = _beginLocation.createdAt
-        .difference(_endLocation.createdAt)
-        .inMicroseconds;
+    _duration = _endLocation.createdAt
+        .difference(_beginLocation.createdAt)
+        .inMilliseconds;
   }
 
   void calculateIsValid() {
