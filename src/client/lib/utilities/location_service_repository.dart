@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:background_locator/location_dto.dart';
+import 'package:business_travel/providers/location.dart';
 
 class LocationServiceRepository {
   static LocationServiceRepository _instance = LocationServiceRepository._();
@@ -17,7 +18,9 @@ class LocationServiceRepository {
   static const String isolateName = 'LocatorIsolate';
 
   int _count = -1;
-
+  String token;
+  int adminId;
+  int operatorId;
   Future<void> init(Map<dynamic, dynamic> params) async {
     if (params.containsKey('countInit')) {
       dynamic tmpCount = params['countInit'];
@@ -33,6 +36,15 @@ class LocationServiceRepository {
     } else {
       _count = 0;
     }
+    if (params.containsKey('token')) {
+      token = params['token'];
+    }
+    if (params.containsKey('adminId')) {
+      adminId = int.parse(params['adminId']);
+    }
+    if (params.containsKey('operatorId')) {
+      operatorId = int.parse(params['operatorId']);
+    }
     final SendPort send = IsolateNameServer.lookupPortByName(isolateName);
     send?.send(null);
   }
@@ -43,15 +55,40 @@ class LocationServiceRepository {
   }
 
   Future<void> callback(LocationDto locationDto) async {
-    //print('$_count location in dart: ${locationDto.toString()}');
-    await getPosition(_count, locationDto);
+    // print('$_count location in dart: ${locationDto.toString()}');
+
+    await getPosition(
+        count: _count,
+        data: locationDto,
+        token: token,
+        adminId: adminId,
+        operatorId: operatorId);
     final SendPort send = IsolateNameServer.lookupPortByName(isolateName);
     send?.send(locationDto);
     _count++;
   }
 
-  static Future<void> getPosition(int count, LocationDto data) async {
-    // print("getPosition Location: ${data.toJson()}");
+  static Future<void> getPosition({
+    int count,
+    String token,
+    int adminId,
+    int operatorId,
+    LocationDto data,
+  }) async {
+    print("****************************");
+    print("getPosition Location: ${data.toJson()}");
+    try {
+      await sendLocationWithCheck(
+        adminId: adminId,
+        operatorId: operatorId,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        token: token,
+      );
+    } catch (error) {
+      print("************************");
+      print("Error in getPosition sendLocationWithCheck: $error");
+    }
   }
 
   static double dp(double val, int places) {

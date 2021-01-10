@@ -27,7 +27,6 @@ class _TasksScreenState extends State<TasksScreen> {
   void initState() {
     super.initState();
     _userProvider = Provider.of<UserProvider>(context, listen: false);
-    // if (_userProvider.user.role != "system") {}
   }
 
   @override

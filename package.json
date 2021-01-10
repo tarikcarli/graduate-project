@@ -7,7 +7,7 @@
     "lint": "eslint .",
     "start": "node ./src/server/bin/www",
     "dev": "nodemon --watch src/server -r dotenv/config ./src/server/bin/www",
-    "prod": "node --watch src/server -r dotenv/config ./src/server/bin/www dotenv_config_path=./env.ocean",
+    "prod": "node -r dotenv/config ./src/server/bin/www dotenv_config_path=/home/carli/projects/school_projects/bitirme-calismasi/graduate-project/.env.ocean",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

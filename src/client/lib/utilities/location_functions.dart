@@ -7,9 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:location_permissions/location_permissions.dart';
 
 class LocationFunctions {
-  static void startLocator() {
+  static void startLocator(
+      {@required String token,
+      @required int adminId,
+      @required int operatorId}) {
     double distanceFilter = 0;
-    Map<String, dynamic> data = {'countInit': 1};
+    Map<String, dynamic> data = {
+      'countInit': 1,
+      "token": token,
+      "adminId": adminId.toString(),
+      "operatorId": operatorId.toString(),
+    };
     BackgroundLocator.registerLocationUpdate(
       LocationCallbackHandler.callback,
       initCallback: LocationCallbackHandler.initCallback,

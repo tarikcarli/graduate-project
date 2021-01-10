@@ -24,6 +24,7 @@ class LocationProvider with ChangeNotifier {
 
   void settingsBackgroundTracking(
       {String token, int operatorId, int adminId}) async {
+    print("settingsBackgroundTracking Info: $token $operatorId $adminId");
     ReceivePort port = ReceivePort();
     if (IsolateNameServer.lookupPortByName(
             LocationServiceRepository.isolateName) !=
@@ -36,16 +37,9 @@ class LocationProvider with ChangeNotifier {
     port.listen(
       (dynamic data) async {
         try {
-          // print("**********************************");
-          // print(
-          //     "locationListenerCalback Location: latitude: ${data.latitude} longitude: ${data.longitude}");
-          sendLocationWithCheck(
-            adminId: adminId,
-            operatorId: operatorId,
-            latitude: data.latitude,
-            longitude: data.longitude,
-            token: token,
-          );
+          print("**********************************");
+          print(
+              "locationListenerCalback Location: latitude: ${data.latitude} longitude: ${data.longitude}");
           currentLocation = Location(
             latitude: data.latitude,
             longitude: data.longitude,
@@ -72,7 +66,8 @@ class LocationProvider with ChangeNotifier {
         token: token, operatorId: operatorId, adminId: adminId);
     isAllowedBackgroundTracking = true;
     if (await LocationFunctions.checkLocationPermission()) {
-      LocationFunctions.startLocator();
+      LocationFunctions.startLocator(
+          token: token, operatorId: operatorId, adminId: adminId);
     } else {
       print("**************************************");
       print("Error allowBackgroundTracking permission denied");
@@ -369,6 +364,9 @@ Future<void> sendLocationWithCheck({
   @required String token,
 }) async {
   http.Response response;
+  print("***************************");
+  print(
+      "send LocationWithCheck Info: $adminId $operatorId $latitude $longitude $token");
   try {
     final result = await OfflineLocationStorage.getLocation();
     if (result.length == 0) {
@@ -421,7 +419,7 @@ Future<void> safeSendLocation({
   @required double longitude,
   @required String token,
 }) async {
-  if (MyProvider.task.existActiveTask() != null) {
+  if (MyProvider?.task?.existActiveTask() != null) {
     final distance = await Geolocator().distanceBetween(
       MyProvider.task.activeTask.location.latitude,
       MyProvider.task.activeTask.location.longitude,
