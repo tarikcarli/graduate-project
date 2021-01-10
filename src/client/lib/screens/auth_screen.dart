@@ -131,6 +131,7 @@ class _AuthCardState extends State<AuthCard> {
   String _password = "";
   String _name = "";
   String _photo;
+  bool _loading = false;
 
   initState() {
     _userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -143,6 +144,9 @@ class _AuthCardState extends State<AuthCard> {
         return;
       }
       _formKey.currentState.save();
+      setState(() {
+        _loading = true;
+      });
       if (_authMode == AuthMode.Login) {
         await _userProvider.login(email: _email, password: _password);
       }
@@ -156,6 +160,9 @@ class _AuthCardState extends State<AuthCard> {
         _switchAuthMode();
       }
     } catch (err) {
+      setState(() {
+        _loading = false;
+      });
       await CustomDialog.show(
         ctx: context,
         title: _authMode == AuthMode.Login ? "Giriş Hatası" : "Kayıt Hatası",
@@ -163,6 +170,9 @@ class _AuthCardState extends State<AuthCard> {
         withCancel: false,
       );
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   void _iconOnTab(bool isCamera) async {
@@ -354,19 +364,24 @@ class _AuthCardState extends State<AuthCard> {
                 Row(
                   children: [
                     Expanded(
-                      child: RaisedButton(
-                        child: Text(
-                            _authMode == AuthMode.Login ? 'GİRİŞ' : 'KAYIT'),
-                        onPressed: _submit,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 8.0),
-                        color: Theme.of(context).primaryColor,
-                        textColor:
-                            Theme.of(context).primaryTextTheme.button.color,
-                      ),
+                      child: _loading
+                          ? ProgressWidget()
+                          : RaisedButton(
+                              child: Text(_authMode == AuthMode.Login
+                                  ? 'GİRİŞ'
+                                  : 'KAYIT'),
+                              onPressed: _submit,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 30.0, vertical: 8.0),
+                              color: Theme.of(context).primaryColor,
+                              textColor: Theme.of(context)
+                                  .primaryTextTheme
+                                  .button
+                                  .color,
+                            ),
                     ),
                     Expanded(
                       child: FlatButton(
