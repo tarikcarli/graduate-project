@@ -203,10 +203,15 @@ class _LocationHistoryMapState extends State<LocationHistoryMap> {
       taskStartDate: widget.task.startedAt,
       historyDay: _historyDay,
     ));
-    _locationProvider.historyLocationBig.forEach((element) {
-      print('element location id: ${element.id}');
-    });
-    print('==============================');
+    // print("*******************************");
+    // print(
+    //     "For _HistoryDay $_historyDay: historyLocation length: ${_locationProvider.historyLocation.length}");
+    // print(
+    //     "For _HistoryDay $_historyDay: historyLocationBorder length: ${_locationProvider.historyLocationBorder.length}");
+    // print(
+    //     "For _HistoryDay $_historyDay: historyLocationMedium length: ${_locationProvider.historyLocationMedium.length}");
+    // print(
+    //     "For _HistoryDay $_historyDay: historyLocationBig length: ${_locationProvider.historyLocationBig.length}");
     await addHistoryPoint();
     await addHistoryLine();
     setState(() {});

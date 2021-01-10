@@ -1,6 +1,6 @@
 import 'package:business_travel/providers/user.dart';
 import 'package:business_travel/screens/auth_screen.dart';
-import 'package:business_travel/screens/invoices_screens.dart';
+import 'package:business_travel/screens/invoices_screen.dart';
 import 'package:business_travel/screens/location_before_current_map.dart';
 import 'package:business_travel/screens/location_before_history_map.dart';
 import 'package:business_travel/screens/location_before_two_history_map.dart';

@@ -36,15 +36,25 @@ class LocationProvider with ChangeNotifier {
     port.listen(
       (dynamic data) async {
         try {
-          sendLocationUser(
+          // print("**********************************");
+          // print(
+          //     "locationListenerCalback Location: latitude: ${data.latitude} longitude: ${data.longitude}");
+          sendLocationWithCheck(
             adminId: adminId,
             operatorId: operatorId,
             latitude: data.latitude,
             longitude: data.longitude,
             token: token,
           );
+          currentLocation = Location(
+            latitude: data.latitude,
+            longitude: data.longitude,
+            createdAt: DateTime.now(),
+            operatorId: operatorId,
+          );
         } catch (error) {
-          print("Error locationCallback: $error");
+          print("**********************************");
+          print("Error locationListenerCalback: $error");
         }
       },
     );
@@ -63,12 +73,10 @@ class LocationProvider with ChangeNotifier {
     isAllowedBackgroundTracking = true;
     if (await LocationFunctions.checkLocationPermission()) {
       LocationFunctions.startLocator();
-      print("yes");
     } else {
-      print(
-          "---> In Location Provider allowBackgroundTracking => Occurred Error !!");
+      print("**************************************");
+      print("Error allowBackgroundTracking permission denied");
     }
-    LocationFunctions.startLocator();
   }
 
   void deniedBackgroundTracking() {
@@ -105,6 +113,8 @@ class LocationProvider with ChangeNotifier {
         json.decode(response.body)["data"]["locations"].forEach((e) {
           historyLocation.add(Location.fromJson(e));
         });
+        print("************************************");
+        print("History Location Length: ${historyLocation.length}");
         historyLocation.forEach((location) {
           location.createdAt = location.createdAt.toLocal();
         });
@@ -125,12 +135,16 @@ class LocationProvider with ChangeNotifier {
   }) {
     DateTime startDate = taskStartDate.add(Duration(days: historyDay - 1));
     DateTime finishDate = taskStartDate.add(Duration(days: historyDay));
-
+    // print("***********************************");
+    // print("startDate: ${startDate.toIso8601String()}");
+    // print("finishDate: ${finishDate.toIso8601String()}");
     final array = historyLocation
         .where((element) =>
             element.createdAt.isAfter(startDate) &&
             element.createdAt.isBefore(finishDate))
         .toList();
+    // print("***********************************");
+    // print("filterLocationByDate: filteredLocations length: ${array.length}");
     return array;
   }
 
@@ -355,72 +369,17 @@ Future<void> sendLocationWithCheck({
   @required String token,
 }) async {
   http.Response response;
-  Future<void> sendLocation() async {
-    if (MyProvider.task.existActiveTask() != null) {
-      final distance = await Geolocator().distanceBetween(
-        MyProvider.task.activeTask.location.latitude,
-        MyProvider.task.activeTask.location.longitude,
-        latitude,
-        longitude,
-      );
-      if (!MyProvider.task.activeTask.isOperatorOnTask) {
-        if (MyProvider.task.activeTask.radius * 1000 > distance) {
-          MyProvider.task.updateTask(
-            id: MyProvider.task.activeTask.id,
-            operatorId: MyProvider.task.activeTask.operatorId,
-            latitude: MyProvider.task.activeTask.location.latitude,
-            longitude: MyProvider.task.activeTask.location.longitude,
-            radius: MyProvider.task.activeTask.radius,
-            startedAt: MyProvider.task.activeTask.startedAt,
-            finishedAt: MyProvider.task.activeTask.finishedAt,
-            description: MyProvider.task.activeTask.description,
-            name: MyProvider.task.activeTask.name,
-            isOperatorOnTask: !MyProvider.task.activeTask.isOperatorOnTask,
-            token: MyProvider.user.token,
-          );
-        }
-      } else {
-        if (MyProvider.task.activeTask.radius * 1000 < distance) {
-          MyProvider.task.updateTask(
-            id: MyProvider.task.activeTask.id,
-            operatorId: MyProvider.task.activeTask.operatorId,
-            latitude: MyProvider.task.activeTask.location.latitude,
-            longitude: MyProvider.task.activeTask.location.longitude,
-            radius: MyProvider.task.activeTask.radius,
-            startedAt: MyProvider.task.activeTask.startedAt,
-            finishedAt: MyProvider.task.activeTask.finishedAt,
-            description: MyProvider.task.activeTask.description,
-            name: MyProvider.task.activeTask.name,
-            isOperatorOnTask: !MyProvider.task.activeTask.isOperatorOnTask,
-            token: MyProvider.user.token,
-          );
-        }
-      }
-    }
-    response = await http.post(
-      URL.postUserLocation(),
-      body: json.encode(
-        {
-          "data": {
-            "adminIds": adminId,
-            "operatorId": operatorId,
-            "location": {
-              "latitude": latitude,
-              "longitude": longitude,
-            }
-          },
-        },
-      ),
-      headers: URL.jsonHeader(token: token),
-    );
-  }
-
   try {
     final result = await OfflineLocationStorage.getLocation();
-    print("db stored location data length: ${result.length}");
     if (result.length == 0) {
-      await sendLocation();
-      if (response.statusCode == 200) return;
+      await safeSendLocation(
+        adminId: adminId,
+        operatorId: operatorId,
+        latitude: latitude,
+        longitude: longitude,
+        token: token,
+      );
+      return;
     } else {
       response = await http.post(
         URL.postUserLocations(),
@@ -437,7 +396,13 @@ Future<void> sendLocationWithCheck({
       );
       if (response.statusCode == 200) {
         OfflineLocationStorage.deleteLocation();
-        await sendLocation();
+        await safeSendLocation(
+          adminId: adminId,
+          operatorId: operatorId,
+          latitude: latitude,
+          longitude: longitude,
+          token: token,
+        );
       }
     }
   } catch (error) {
@@ -447,4 +412,70 @@ Future<void> sendLocationWithCheck({
       longitude: longitude,
     );
   }
+}
+
+Future<void> safeSendLocation({
+  @required int adminId,
+  @required int operatorId,
+  @required double latitude,
+  @required double longitude,
+  @required String token,
+}) async {
+  if (MyProvider.task.existActiveTask() != null) {
+    final distance = await Geolocator().distanceBetween(
+      MyProvider.task.activeTask.location.latitude,
+      MyProvider.task.activeTask.location.longitude,
+      latitude,
+      longitude,
+    );
+    if (!MyProvider.task.activeTask.isOperatorOnTask) {
+      if (MyProvider.task.activeTask.radius * 1000 > distance) {
+        MyProvider.task.updateTask(
+          id: MyProvider.task.activeTask.id,
+          operatorId: MyProvider.task.activeTask.operatorId,
+          latitude: MyProvider.task.activeTask.location.latitude,
+          longitude: MyProvider.task.activeTask.location.longitude,
+          radius: MyProvider.task.activeTask.radius,
+          startedAt: MyProvider.task.activeTask.startedAt,
+          finishedAt: MyProvider.task.activeTask.finishedAt,
+          description: MyProvider.task.activeTask.description,
+          name: MyProvider.task.activeTask.name,
+          isOperatorOnTask: !MyProvider.task.activeTask.isOperatorOnTask,
+          token: MyProvider.user.token,
+        );
+      }
+    } else {
+      if (MyProvider.task.activeTask.radius * 1000 < distance) {
+        MyProvider.task.updateTask(
+          id: MyProvider.task.activeTask.id,
+          operatorId: MyProvider.task.activeTask.operatorId,
+          latitude: MyProvider.task.activeTask.location.latitude,
+          longitude: MyProvider.task.activeTask.location.longitude,
+          radius: MyProvider.task.activeTask.radius,
+          startedAt: MyProvider.task.activeTask.startedAt,
+          finishedAt: MyProvider.task.activeTask.finishedAt,
+          description: MyProvider.task.activeTask.description,
+          name: MyProvider.task.activeTask.name,
+          isOperatorOnTask: !MyProvider.task.activeTask.isOperatorOnTask,
+          token: MyProvider.user.token,
+        );
+      }
+    }
+  }
+  await http.post(
+    URL.postUserLocation(),
+    body: json.encode(
+      {
+        "data": {
+          "adminIds": adminId,
+          "operatorId": operatorId,
+          "location": {
+            "latitude": latitude,
+            "longitude": longitude,
+          }
+        },
+      },
+    ),
+    headers: URL.jsonHeader(token: token),
+  );
 }

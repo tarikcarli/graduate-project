@@ -101,7 +101,7 @@ class _SingleTaskScreenState extends State<SingleTaskScreen> {
                 if (_userProvider.user.role == "admin") Divider(),
                 if (_userProvider.user.role == "admin")
                   InformationLine(
-                    'Operator:',
+                    'Çalışan:',
                     '${_userProvider.operatorIdToName(widget.task.operatorId)}',
                   ),
                 Divider(),

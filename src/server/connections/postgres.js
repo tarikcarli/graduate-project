@@ -2,17 +2,28 @@
 const fs = require("fs");
 const { Sequelize } = require("sequelize");
 const configs = require("../constants/configs");
+let sequelize;
 
-const sequelize = new Sequelize(configs.POSTGRES_URL, {
-  dialect:"postgres",
-  ssl: true,
-  dialectOptions: {
-    useUTC: true,
-    ssl: {
-      ca: fs.readFileSync(`${process.cwd()}/ca-certificate.crt`),
+if(configs.PRODUCTION){
+  sequelize = new Sequelize(configs.POSTGRES_URL, {
+    dialect:"postgres",
+    ssl: true,
+    dialectOptions: {
+      useUTC: true,
+      ssl: {
+        ca: fs.readFileSync(`${process.cwd()}/ca-certificate.crt`),
+      },
     },
-  },
-});
+  });
+} else {
+  sequelize = new Sequelize(configs.POSTGRES_URL, {
+    dialect:"postgres",
+    dialectOptions: {
+      useUTC: true,
+    },
+  });
+}
+
 exports.sequelize = sequelize;
 exports.db = sequelize.models;
 

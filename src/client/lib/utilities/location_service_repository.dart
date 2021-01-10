@@ -7,8 +7,7 @@ import 'package:background_locator/location_dto.dart';
 
 class LocationServiceRepository {
   static LocationServiceRepository _instance = LocationServiceRepository._();
-  
-  
+
   LocationServiceRepository._();
 
   factory LocationServiceRepository() {
@@ -52,8 +51,7 @@ class LocationServiceRepository {
   }
 
   static Future<void> getPosition(int count, LocationDto data) async {
-    final date = DateTime.now();
-    print("POSITION:${data.latitude}, ${data.longitude}, $date");
+    // print("getPosition Location: ${data.toJson()}");
   }
 
   static double dp(double val, int places) {
@@ -74,5 +72,4 @@ class LocationServiceRepository {
         " " +
         dp(locationDto.longitude, 4).toString();
   }
-
 }

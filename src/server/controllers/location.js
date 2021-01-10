@@ -145,7 +145,6 @@ const getCurrentLocation = async (req, res, next) => {
  */
 const postUserLocation = async (req, res, next) => {
   try {
-    console.log(req.body);
     const { adminId, operatorId, location: data } = req.body.data;
     const location = await db.Location.create(data);
     await db.UserLocation.create({

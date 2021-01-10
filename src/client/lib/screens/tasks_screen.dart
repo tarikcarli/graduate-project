@@ -27,7 +27,7 @@ class _TasksScreenState extends State<TasksScreen> {
   void initState() {
     super.initState();
     _userProvider = Provider.of<UserProvider>(context, listen: false);
-    if (_userProvider.user.role != "system") {}
+    // if (_userProvider.user.role != "system") {}
   }
 
   @override
@@ -36,35 +36,14 @@ class _TasksScreenState extends State<TasksScreen> {
     _tasksProvider.removeListener(render);
   }
 
-  void shouldLocationServiceActivate() {
-    final locationProvider =
-        Provider.of<LocationProvider>(context, listen: false);
-    if (_userProvider.user.role == "operator") {
-      try {
-        if (_tasksProvider.existActiveTask() != null) {
-          locationProvider.allowBackgroundTracking(
-            token: _userProvider.token,
-            adminId: _userProvider?.admin?.id,
-            operatorId: _userProvider.user.id,
-          );
-        } else {
-          locationProvider.deniedBackgroundTracking();
-        }
-        print(_tasksProvider.activeTask);
-      } catch (error) {
-        print("Error TaskScreens: $error");
-      }
-    }
-  }
-
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
     if (_firstLoading) {
       _firstLoading = false;
       _tasksProvider = Provider.of<TaskProvider>(context, listen: true);
-      getTasks();
       _tasksProvider.addListener(render);
+      getTasks();
     }
   }
 
@@ -100,6 +79,27 @@ class _TasksScreenState extends State<TasksScreen> {
       setState(() {
         _loading = false;
       });
+    }
+  }
+
+  void shouldLocationServiceActivate() {
+    final locationProvider =
+        Provider.of<LocationProvider>(context, listen: false);
+    if (_userProvider.user.role == "operator") {
+      try {
+        if (_tasksProvider.existActiveTask() != null) {
+          locationProvider.allowBackgroundTracking(
+            token: _userProvider.token,
+            adminId: _userProvider?.admin?.id,
+            operatorId: _userProvider.user.id,
+          );
+        } else {
+          locationProvider.deniedBackgroundTracking();
+        }
+        print(_tasksProvider.activeTask);
+      } catch (error) {
+        print("Error TaskScreens: $error");
+      }
     }
   }
 

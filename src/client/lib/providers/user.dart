@@ -359,6 +359,11 @@ class UserProvider with ChangeNotifier {
       print("Error UserProvider.login: $err");
       throw err;
     }
+    if (response.statusCode == 400)
+      throw new Exception(
+        "Email veya şifre bilgisi hatalıdır. Lütfen tekrar deneyiniz.\n Şifrenizi unuttuysanız, şifrenizi yenileyebilirsiniz.",
+      );
+
     if (response.statusCode == 401)
       throw new Exception(
         "Email veya şifre bilgisi hatalıdır. Lütfen tekrar deneyiniz.\n Şifrenizi unuttuysanız, şifrenizi yenileyebilirsiniz.",

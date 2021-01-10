@@ -30,66 +30,62 @@ async function populateDb() {
 
     const { userusers } = data;
     await db.UserUser.bulkCreate(userusers);
-    const date = new Date();
-    date.setDate(1);
-    date.setHours(5, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(12,0,0,0);
+    const yesterday = new Date(today.getTime() - 1000*60*60*24);
+    const twoDaysAgo = new Date(today.getTime() - 1000*60*60*24*2);
+    const threeDaysAgo = new Date(today.getTime() - 1000*60*60*24*3);
+    const fourDaysAgo = new Date(today.getTime() - 1000*60*60*24*4);
+    // eslint-disable-next-line no-unused-vars
+    const lastWeek = new Date(today.getTime() - 1000*60*60*24*7);
+    const nextWeek = new Date(today.getTime() + 1000*60*60*24*7);
     const { locations } = data;
     let j = 0;
     locations.forEach((element) => {
       if (j < 70) {
-        element.createdAt = date.toISOString();
+        element.createdAt = fourDaysAgo.toISOString();
       } else if (j < 475) {
-        date.setDate(2);
-        element.createdAt = date.toISOString();
+        element.createdAt = threeDaysAgo.toISOString();
       } else if (j < 701) {
-        date.setDate(3);
-        element.createdAt = date.toISOString();
+        element.createdAt = twoDaysAgo.toISOString();
       } else if (j < 1398) {
-        date.setDate(4);
-        element.createdAt = date.toISOString();
+        element.createdAt = yesterday.toISOString();
       }
       j++;
     });
     await db.Location.bulkCreate(locations);
-    date.setDate(1);
     const { userLocations } = data; // 4 to 69, 70 to 474, 475 to 700, 701 to 1398
     userLocations.forEach((element) => {
       if (element.locationId < 70) {
-        element.createdAt = date.toISOString();
+        element.createdAt = fourDaysAgo.toISOString();
       } else if (element.locationId < 475) {
-        date.setDate(2);
-        element.createdAt = date.toISOString();
+        element.createdAt = threeDaysAgo.toISOString();
       } else if (element.locationId < 701) {
-        date.setDate(3);
-        element.createdAt = date.toISOString();
+        element.createdAt = twoDaysAgo.toISOString();
       } else if (element.locationId < 1398) {
-        date.setDate(4);
-        element.createdAt = date.toISOString();
+        element.createdAt = yesterday.toISOString();
       }
     });
     await db.UserLocation.bulkCreate(userLocations);
 
     const { tasks } = data;
-    let i = 1;
-    date.setHours(0, 0, 0, 0);
 
-    tasks.forEach((element) => {
-      date.setDate(i);
-      element.startedAt = date.toISOString();
-      i += 5;
-      date.setDate(i);
-      element.finishedAt = date.toISOString();
-      i += 5;
-    });
+    today.setHours(0,0,0,0);
+    nextWeek.setHours(0,0,0,0);
+    tasks[0].startedAt = (new Date(today.getTime() - 1000*60*60*24*4)).toISOString();
+    tasks[0].finishedAt = today.toISOString();
+    tasks[1].startedAt = today.toISOString();
+    tasks[1].finishedAt = nextWeek.toISOString();
+    tasks[2].startedAt = nextWeek.toISOString();
+    tasks[2].finishedAt = (new Date(nextWeek.getTime() + 1000*60*60*24*3)).toISOString()
+
     await db.Task.bulkCreate(tasks);
 
     const { invoices } = data;
-    i = 1;
-    date.setHours(5, 0, 0, 0);
-    invoices.forEach((element) => {
-      date.setDate(i++);
-      element.invoicedAt = date.toISOString();
-    });
+    invoices[0].invoicedAt = fourDaysAgo.toISOString();
+    invoices[1].invoicedAt = threeDaysAgo.toISOString();
+    invoices[2].invoicedAt = twoDaysAgo.toISOString();
     await db.Invoice.bulkCreate(invoices);
   } catch (err) {
     console.log(`Error populateDb: ${err}`);

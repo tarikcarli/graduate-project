@@ -18,26 +18,32 @@ class OfflineLocationStorage {
         ' longitude REAL,' +
         ' createdAt TEXT)');
     await db.delete('location');
-
     isReady = true;
   }
 
   static Future<List<Location>> getLocation() async {
-    if (isReady) {
-      List<Location> result = [];
-      List<dynamic> list = await db.rawQuery('SELECT * FROM location');
-      list.forEach((e) {
-        result.add(
-          Location(
-            latitude: e["latitude"] as double,
-            longitude: e["longitude"] as double,
-            createdAt: DateTime.tryParse(e["createdAt"]),
-          ),
-        );
-      });
-
-      if (result.length != 0) return result;
+    if (!isReady) {
+      await OfflineLocationStorage.init();
     }
+    List<Location> result = [];
+    List<dynamic> list = await db.rawQuery('SELECT * FROM location');
+    // print("****************************");
+    // print("Db Locations data:");
+    // list.forEach((e) {
+    //   print(
+    //       "createdAt: ${e["createdAt"]} latitude: ${e["latitude"]} longitude: ${e["longitude"]}");
+    // });
+    list.forEach((e) {
+      result.add(
+        Location(
+          latitude: e["latitude"] as double,
+          longitude: e["longitude"] as double,
+          createdAt: DateTime.tryParse(e["createdAt"]),
+        ),
+      );
+    });
+    // print("getLocation: locations length: ${result.length}");
+    if (result.length != 0) return result;
     return [];
   }
 
@@ -45,20 +51,23 @@ class OfflineLocationStorage {
     double latitude,
     double longitude,
   }) async {
-    if (isReady) {
-      await db.transaction((txn) async {
-        int id = await txn.rawInsert(
-            'INSERT INTO location(latitude, longitude, createdAt) ' +
-                'VALUES($latitude,' +
-                ' $longitude,' +
-                ' "${DateTime.now().toUtc().toIso8601String()}")');
-        print('addLocation: $id');
-      });
+    if (!isReady) {
+      await OfflineLocationStorage.init();
     }
+    await db.transaction((txn) async {
+      // ignore: unused_local_variable
+      int id = await txn.rawInsert(
+          'INSERT INTO location(latitude, longitude, createdAt) ' +
+              'VALUES($latitude,' +
+              ' $longitude,' +
+              ' "${DateTime.now().toUtc().toIso8601String()}")');
+      // print('addLocation: $id');
+    });
   }
 
   static Future<void> deleteLocation() async {
+    // ignore: unused_local_variable
     int count = await db.delete('location', where: null);
-    print('deleteLocation: $count');
+    // print('deleteLocation: $count');
   }
 }

@@ -29,7 +29,7 @@ subscriber.on("subscribe", function subscribe(channel, count) {
 });
 
 subscriber.on("message", function getMessage(channel, message) {
-  console.log(`${message} receive from ${channel} channel.`);
+  // console.log(`${message} receive from ${channel} channel.`);
   const { id, type, data } = JSON.parse(message);
   if (!wsClients[`${id}`]) return;
   del(`${CHANNEL}-${id}`);

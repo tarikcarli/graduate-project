@@ -8,7 +8,7 @@ import 'package:location_permissions/location_permissions.dart';
 
 class LocationFunctions {
   static void startLocator() {
-    double distanceFilter = 100;
+    double distanceFilter = 0;
     Map<String, dynamic> data = {'countInit': 1};
     BackgroundLocator.registerLocationUpdate(
       LocationCallbackHandler.callback,
@@ -25,16 +25,15 @@ class LocationFunctions {
       autoStop: false,
       androidSettings: AndroidSettings(
         accuracy: LocationAccuracy.NAVIGATION,
-        interval: 5,
         distanceFilter: distanceFilter,
         androidNotificationSettings: AndroidNotificationSettings(
           notificationChannelName: 'Location tracking',
           notificationTitle: 'Konum Verisi Alınıyor',
-          notificationMsg: 'Track location in background',
+          notificationMsg: 'Lokasyon veriniz alınıyor.',
           notificationBigMsg:
               'Aktif görevde olduğunuz için şu anda konum veriniz alınmaktadır.',
           notificationIcon: '',
-          notificationIconColor: Colors.greenAccent,
+          notificationIconColor: Colors.blueAccent,
           notificationTapCallback: LocationCallbackHandler.notificationCallback,
         ),
       ),
