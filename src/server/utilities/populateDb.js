@@ -41,30 +41,30 @@ async function populateDb() {
     const lastWeek = new Date(today.getTime() - 1000*60*60*24*7);
     const nextWeek = new Date(today.getTime() + 1000*60*60*24*7);
     const { locations } = data;
-    let j = 0;
-    locations.forEach((element) => {
+    let j = 1;
+    locations.forEach((element,index) => {
       if (j < 70) {
-        element.createdAt = fourDaysAgo.toISOString();
+        element.createdAt = (new Date(fourDaysAgo.getTime() + index * 50000)).toISOString();
       } else if (j < 475) {
-        element.createdAt = threeDaysAgo.toISOString();
+        element.createdAt = (new Date(threeDaysAgo.getTime() + (index - 70) * 50000)).toISOString();
       } else if (j < 701) {
-        element.createdAt = twoDaysAgo.toISOString();
+        element.createdAt = (new Date(twoDaysAgo.getTime() + (index - 475) * 50000)).toISOString();
       } else if (j < 1398) {
-        element.createdAt = yesterday.toISOString();
+        element.createdAt = (new Date(yesterday.getTime() + (index - 701) * 50000)).toISOString();
       }
       j++;
     });
     await db.Location.bulkCreate(locations);
     const { userLocations } = data; // 4 to 69, 70 to 474, 475 to 700, 701 to 1398
-    userLocations.forEach((element) => {
+    userLocations.forEach((element,index) => {
       if (element.locationId < 70) {
-        element.createdAt = fourDaysAgo.toISOString();
+        element.createdAt = (new Date(fourDaysAgo.getTime() + index * 50000)).toISOString();
       } else if (element.locationId < 475) {
-        element.createdAt = threeDaysAgo.toISOString();
+        element.createdAt = (new Date(threeDaysAgo.getTime() + (index - 70) * 50000)).toISOString();
       } else if (element.locationId < 701) {
-        element.createdAt = twoDaysAgo.toISOString();
+        element.createdAt = (new Date(twoDaysAgo.getTime() + (index - 475) * 50000)).toISOString();
       } else if (element.locationId < 1398) {
-        element.createdAt = yesterday.toISOString();
+        element.createdAt = (new Date(yesterday.getTime() + (index - 701) * 50000)).toISOString();
       }
     });
     await db.UserLocation.bulkCreate(userLocations);

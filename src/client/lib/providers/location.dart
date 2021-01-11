@@ -114,6 +114,11 @@ class LocationProvider with ChangeNotifier {
         historyLocation.forEach((location) {
           location.createdAt = location.createdAt.toLocal();
         });
+        print("************************************");
+        historyLocation.forEach((location) {
+          print(location.toJson());
+        });
+        historyLocation.sort((a, b) => a.createdAt.compareTo(b.createdAt));
         notifyListeners();
         return;
       }
@@ -365,9 +370,9 @@ Future<void> sendLocationWithCheck({
   @required String token,
 }) async {
   http.Response response;
-  print("***************************");
-  print(
-      "send LocationWithCheck Info: $adminId $operatorId $latitude $longitude $token");
+  // print("***************************");
+  // print(
+  //     "send LocationWithCheck Info: $adminId $operatorId $latitude $longitude $token");
   try {
     final result = await OfflineLocationStorage.getLocation();
     if (result.length == 0) {
