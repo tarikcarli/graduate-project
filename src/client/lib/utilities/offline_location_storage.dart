@@ -26,7 +26,8 @@ class OfflineLocationStorage {
       await OfflineLocationStorage.init();
     }
     List<Location> result = [];
-    List<dynamic> list = await db.rawQuery('SELECT * FROM location');
+    List<dynamic> list =
+        await db.rawQuery('SELECT * FROM location ORDER BY id');
     // print("****************************");
     // print("Db Locations data:");
     // list.forEach((e) {

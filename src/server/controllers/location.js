@@ -176,7 +176,7 @@ const postUserLocations = async (req, res, next) => {
     const { operatorId, locations } = req.body.data;
     const results = await db.Location.bulkCreate(locations);
     const userLocationsInput = results.map((e) => {
-      return { operatorId, locationId: e.dataValues.id };
+      return { operatorId, locationId: e.dataValues.id, createdAt:e.dataValues.createdAt };
     });
     await db.UserLocation.bulkCreate(userLocationsInput);
     const options = {

@@ -110,6 +110,10 @@ class _LocationHistoryMapState extends State<LocationHistoryMap> {
   }
 
   Future<void> addHistoryLine() async {
+    // print("************************************");
+    // _locationProvider.historyLocationBig.forEach((location) {
+    //   print(location.toJson());
+    // });
     await _statefulMapController.addLine(
       name: 'locationHistory',
       points: _locationProvider.historyLocationBig
