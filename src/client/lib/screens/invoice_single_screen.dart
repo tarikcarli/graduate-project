@@ -32,7 +32,7 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
 
   MapController mapController;
   StatefulMapController _statefulMapController;
-
+  bool _mapReady = false;
   bool _loading = false;
   @override
   void initState() {
@@ -45,40 +45,7 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
     _statefulMapController =
         StatefulMapController(mapController: mapController);
     _statefulMapController.onReady.then((_) async {
-      await _statefulMapController.centerOnPoint(
-        LatLng(
-          widget.invoice.beginLocation.latitude,
-          widget.invoice.beginLocation.longitude,
-        ),
-      );
-      await _statefulMapController.addMarker(
-        marker: Marker(
-          point: LatLng(
-            widget.invoice.beginLocation.latitude,
-            widget.invoice.beginLocation.longitude,
-          ),
-          builder: (context) => Icon(
-            Icons.location_on,
-            color: Colors.deepOrange,
-            size: 25,
-          ),
-        ),
-        name: 'beginLocation',
-      );
-      await _statefulMapController.addMarker(
-        marker: Marker(
-          point: LatLng(
-            widget.invoice.endLocation.latitude,
-            widget.invoice.endLocation.longitude,
-          ),
-          builder: (context) => Icon(
-            Icons.location_on,
-            color: Colors.deepOrange,
-            size: 25,
-          ),
-        ),
-        name: 'endLocation',
-      );
+      _mapReady = true;
       final task = _taskProvider.findById(widget.invoice.taskId);
       await _locationProvider.fetchAndSetLocationHistory(
         operatorId: widget.invoice.operatorId,
@@ -95,10 +62,45 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
         points: lines.map((e) => LatLng(e.latitude, e.longitude)).toList(),
         color: Colors.black,
       );
-      await _statefulMapController.fitLine("taxiRoute");
+      await addPointToMap();
       setState(() {});
     });
     super.initState();
+  }
+
+  addPointToMap() async {
+    if (!_mapReady) {
+      return;
+    }
+    await _statefulMapController.addMarker(
+      marker: Marker(
+        point: LatLng(
+          widget.invoice.beginLocation.latitude,
+          widget.invoice.beginLocation.longitude,
+        ),
+        builder: (context) => Icon(
+          Icons.location_on,
+          color: Colors.deepOrange,
+          size: 25,
+        ),
+      ),
+      name: 'beginLocation',
+    );
+    await _statefulMapController.addMarker(
+      marker: Marker(
+        point: LatLng(
+          widget.invoice.endLocation.latitude,
+          widget.invoice.endLocation.longitude,
+        ),
+        builder: (context) => Icon(
+          Icons.location_on,
+          color: Colors.deepOrange,
+          size: 25,
+        ),
+      ),
+      name: 'endLocation',
+    );
+    await _statefulMapController.fitLine("taxiRoute");
   }
 
   onInvoiceTab() async {
@@ -141,24 +143,36 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
       setState(() {
         _loading = true;
       });
-      await _invoiceProvider.sendInvoiceMail(
-          token: _userProvider.token, id: widget.invoice.id);
+      try {
+        await _invoiceProvider.sendInvoiceMail(
+          token: _userProvider.token,
+          id: widget.invoice.id,
+        );
+        await CustomDialog.show(
+          ctx: context,
+          withCancel: false,
+          title: "Email Gönderildi",
+          content:
+              "Fatura bilgileri sisteme kayıtlı emailinize gönderildi. Lütfen kontrol ediniz.",
+          success: true,
+        );
+      } catch (error) {
+        await CustomDialog.show(
+          ctx: context,
+          withCancel: false,
+          title: "Email Gönderilemedi",
+          content: "Fatura bilgileri sisteme kayıtlı emailinize gönderilemedi.",
+        );
+      }
       setState(() {
         _loading = false;
       });
-      await CustomDialog.show(
-        ctx: context,
-        withCancel: false,
-        title: "Email Gönderildi",
-        content:
-            "Fatura bilgileri sisteme kayıtlı emailinize gönderildi. Lütfen kontrol ediniz.",
-        success: true,
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    addPointToMap();
     return Scaffold(
       appBar: AppBar(
         title: Text(

@@ -37,9 +37,9 @@ class LocationProvider with ChangeNotifier {
     port.listen(
       (dynamic data) async {
         try {
-          // print("**********************************");
-          // print(
-          //     "locationListenerCalback Location: latitude: ${data.latitude} longitude: ${data.longitude}");
+          print("**********************************");
+          print(
+              "locationListenerCalback Location Data: ${json.encode(data)} Location: latitude: ${data.latitude} longitude: ${data.longitude}");
           currentLocation = Location(
             latitude: data.latitude,
             longitude: data.longitude,

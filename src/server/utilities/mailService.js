@@ -1,12 +1,11 @@
 const fs = require('fs');
 const nodemailer = require("nodemailer");
-const configs = require('../constants/configs');
 
 class EmailService {
   static transporter;
 
   static create({
-    service = "gmail",
+    service = "FastMail",
     user = "starikcarli@gmail.com",
     pass = "rrptbeud2d"
   } = {}

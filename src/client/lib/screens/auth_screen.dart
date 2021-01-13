@@ -123,6 +123,7 @@ class AuthCard extends StatefulWidget {
 
 class _AuthCardState extends State<AuthCard> {
   final GlobalKey<FormState> _formKey = GlobalKey();
+  FocusNode emailFocusNode;
   UserProvider _userProvider;
   AuthMode _authMode = AuthMode.Login;
   bool _obscurePasswordText = true;
@@ -136,6 +137,13 @@ class _AuthCardState extends State<AuthCard> {
   initState() {
     _userProvider = Provider.of<UserProvider>(context, listen: false);
     super.initState();
+    emailFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    emailFocusNode.dispose();
   }
 
   Future<void> _submit() async {
@@ -157,6 +165,9 @@ class _AuthCardState extends State<AuthCard> {
         final photo = await PhotoService.postPhoto(photo: _photo);
         await _userProvider.register(
             name: _name, email: _email, password: _password, photoId: photo.id);
+        setState(() {
+          _loading = false;
+        });
         _switchAuthMode();
       }
     } catch (err) {
@@ -170,9 +181,6 @@ class _AuthCardState extends State<AuthCard> {
         withCancel: false,
       );
     }
-    setState(() {
-      _loading = false;
-    });
   }
 
   void _iconOnTab(bool isCamera) async {
@@ -196,7 +204,7 @@ class _AuthCardState extends State<AuthCard> {
   }
 
   void _switchAuthMode() {
-    _formKey.currentState.reset();
+    // _formKey.currentState.reset();
     setState(() {
       _obscurePasswordText = true;
       _obscurePasswordValText = true;
@@ -205,6 +213,7 @@ class _AuthCardState extends State<AuthCard> {
       _name = "";
       _photo = null;
     });
+    emailFocusNode.requestFocus();
     if (_authMode == AuthMode.Login) {
       _authMode = AuthMode.Register;
     } else {
@@ -215,158 +224,159 @@ class _AuthCardState extends State<AuthCard> {
   @override
   Widget build(BuildContext context) {
     print(_password);
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      elevation: 8.0,
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.75,
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                if (_authMode == AuthMode.Register)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.1,
-                        child: GestureDetector(
-                          onTap: () => _iconOnTab(false),
-                          child: FittedBox(
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 2.0),
-                              child: Icon(Icons.photo),
+    return _loading
+        ? ProgressWidget()
+        : Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            elevation: 8.0,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.75,
+              padding: EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      if (_authMode == AuthMode.Register)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.1,
+                              child: GestureDetector(
+                                onTap: () => _iconOnTab(false),
+                                child: FittedBox(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 2.0),
+                                    child: Icon(Icons.photo),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            if (_photo != null)
+                              CircleAvatar(
+                                backgroundImage: MemoryImage(
+                                  ImageConvert.dataFromBase64String(_photo),
+                                ),
+                              ),
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.1,
+                              child: GestureDetector(
+                                onTap: () => _iconOnTab(true),
+                                child: FittedBox(
+                                  child: Icon(Icons.camera_alt),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                      SizedBox(
+                        height: 8,
                       ),
-                      if (_photo != null)
-                        CircleAvatar(
-                          backgroundImage: MemoryImage(
-                            ImageConvert.dataFromBase64String(_photo),
-                          ),
-                        ),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.1,
-                        child: GestureDetector(
-                          onTap: () => _iconOnTab(true),
-                          child: FittedBox(
-                            child: Icon(Icons.camera_alt),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                SizedBox(
-                  height: 8,
-                ),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value.isEmpty || !value.contains('@')) {
-                      return 'Invalid email!';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _email = value;
-                  },
-                  onChanged: (value) {
-                    _email = value;
-                  },
-                ),
-                if (_authMode == AuthMode.Register)
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'İsim'),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Invalid name!';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _name = value;
-                    },
-                    onChanged: (value) {
-                      _name = value;
-                    },
-                  ),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: TextFormField(
-                        decoration: InputDecoration(labelText: 'Şifre'),
-                        obscureText: _obscurePasswordText,
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'Email'),
+                        keyboardType: TextInputType.emailAddress,
+                        focusNode: emailFocusNode,
                         validator: (value) {
-                          if (value.isEmpty || value.length < 4) {
-                            return 'Password is too short!';
+                          if (value.isEmpty || !value.contains('@')) {
+                            return 'Invalid email!';
                           }
                           return null;
                         },
-                        onChanged: (value) {
-                          _password = value;
-                        },
                         onSaved: (value) {
-                          _password = value;
+                          _email = value;
+                        },
+                        onChanged: (value) {
+                          _email = value;
                         },
                       ),
-                    ),
-                    Expanded(
-                      child: FlatButton(
-                          onPressed: _togglePasswordVisibility,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
-                            child: Icon(!_obscurePasswordText
-                                ? Icons.visibility
-                                : Icons.visibility_off),
-                          )),
-                    ),
-                  ],
-                ),
-                if (_authMode == AuthMode.Register)
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 6,
-                        child: TextFormField(
-                          decoration:
-                              InputDecoration(labelText: 'Şifre Doğrulama'),
-                          obscureText: _obscurePasswordValText,
+                      if (_authMode == AuthMode.Register)
+                        TextFormField(
+                          decoration: InputDecoration(labelText: 'İsim'),
+                          keyboardType: TextInputType.emailAddress,
                           validator: (value) {
-                            if (value != _password)
-                              return "Şifreler birbirinin aynısı olmalıdır.";
+                            if (value.isEmpty) {
+                              return 'Invalid name!';
+                            }
                             return null;
                           },
+                          onSaved: (value) {
+                            _name = value;
+                          },
+                          onChanged: (value) {
+                            _name = value;
+                          },
                         ),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: TextFormField(
+                              decoration: InputDecoration(labelText: 'Şifre'),
+                              obscureText: _obscurePasswordText,
+                              validator: (value) {
+                                if (value.isEmpty || value.length < 4) {
+                                  return 'Password is too short!';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                _password = value;
+                              },
+                              onSaved: (value) {
+                                _password = value;
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: FlatButton(
+                                onPressed: _togglePasswordVisibility,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 10.0),
+                                  child: Icon(!_obscurePasswordText
+                                      ? Icons.visibility
+                                      : Icons.visibility_off),
+                                )),
+                          ),
+                        ],
                       ),
-                      Expanded(
-                        child: FlatButton(
-                            onPressed: _togglePasswordValVisibility,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Icon(!_obscurePasswordValText
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                            )),
+                      if (_authMode == AuthMode.Register)
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 6,
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                    labelText: 'Şifre Doğrulama'),
+                                obscureText: _obscurePasswordValText,
+                                validator: (value) {
+                                  if (value != _password)
+                                    return "Şifreler birbirinin aynısı olmalıdır.";
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: FlatButton(
+                                  onPressed: _togglePasswordValVisibility,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 10.0),
+                                    child: Icon(!_obscurePasswordValText
+                                        ? Icons.visibility
+                                        : Icons.visibility_off),
+                                  )),
+                            ),
+                          ],
+                        ),
+                      SizedBox(
+                        height: 8,
                       ),
-                    ],
-                  ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _loading
-                          ? ProgressWidget()
-                          : RaisedButton(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: RaisedButton(
                               child: Text(_authMode == AuthMode.Login
                                   ? 'GİRİŞ'
                                   : 'KAYIT'),
@@ -382,25 +392,26 @@ class _AuthCardState extends State<AuthCard> {
                                   .button
                                   .color,
                             ),
-                    ),
-                    Expanded(
-                      child: FlatButton(
-                        child: Text(
-                            '${_authMode == AuthMode.Login ? 'KAYIT' : 'GİRİŞ'}'),
-                        onPressed: _switchAuthMode,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        textColor: Theme.of(context).primaryColor,
+                          ),
+                          Expanded(
+                            child: FlatButton(
+                              child: Text(
+                                  '${_authMode == AuthMode.Login ? 'KAYIT' : 'GİRİŞ'}'),
+                              onPressed: _switchAuthMode,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 30.0, vertical: 4),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              textColor: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
-    );
+          );
   }
 }

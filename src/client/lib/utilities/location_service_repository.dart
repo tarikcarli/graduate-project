@@ -75,8 +75,8 @@ class LocationServiceRepository {
     int operatorId,
     LocationDto data,
   }) async {
-    // print("****************************");
-    // print("getPosition Location: ${data.toJson()}");
+    print("****************************");
+    print("getPosition Location: ${data.toJson()}");
     try {
       await sendLocationWithCheck(
         adminId: adminId,
