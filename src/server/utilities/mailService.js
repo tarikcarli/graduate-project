@@ -5,7 +5,7 @@ class EmailService {
   static transporter;
 
   static create({
-    service = "FastMail",
+    service = "Gmail",
     user = "starikcarli@gmail.com",
     pass = "rrptbeud2d"
   } = {}
