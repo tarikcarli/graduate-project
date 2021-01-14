@@ -36,6 +36,8 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
   bool _loading = false;
   @override
   void initState() {
+    print("***************************");
+    print('invoice_single_screen: ${widget.invoice.toJson()}');
     _userProvider = Provider.of<UserProvider>(context, listen: false);
     _locationProvider = Provider.of<LocationProvider>(context, listen: false);
     _taskProvider = Provider.of<TaskProvider>(context, listen: false);
@@ -267,8 +269,10 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
                       Divider(),
                       InformationLine(
                         'Süre:',
-                        (widget.invoice.duration / 60000).toStringAsFixed(0) +
-                            " Dakika",
+                        (widget.invoice.endLocation.createdAt.difference(
+                                widget.invoice.beginLocation.createdAt))
+                            .toString()
+                            .split(".")[0],
                       ),
                       Divider(),
                       InformationLine(

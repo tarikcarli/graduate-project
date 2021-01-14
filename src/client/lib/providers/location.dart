@@ -114,12 +114,12 @@ class LocationProvider with ChangeNotifier {
         historyLocation.forEach((location) {
           location.createdAt = location.createdAt.toLocal();
         });
-        historyLocation.sort((a, b) => a.id.compareTo(b.id));
+        historyLocation.sort((a, b) => a.createdAt.compareTo(b.createdAt));
         notifyListeners();
-        // print("************************************");
-        // historyLocation.forEach((location) {
-        //   print(location.toJson());
-        // });
+        print("************************************");
+        historyLocation.forEach((location) {
+          print(location.toJson());
+        });
         return;
       }
     } catch (error) {

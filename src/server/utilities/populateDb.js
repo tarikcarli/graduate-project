@@ -49,7 +49,7 @@ async function populateDb() {
         element.createdAt = (new Date(threeDaysAgo.getTime() + (index - 70) * 50000)).toISOString();
       } else if (j < 701) {
         element.createdAt = (new Date(twoDaysAgo.getTime() + (index - 475) * 50000)).toISOString();
-      } else if (j < 1398) {
+      } else if (j <= 1398) {
         element.createdAt = (new Date(yesterday.getTime() + (index - 701) * 50000)).toISOString();
       }
       j++;
@@ -63,7 +63,7 @@ async function populateDb() {
         element.createdAt = (new Date(threeDaysAgo.getTime() + (index - 70) * 50000)).toISOString();
       } else if (element.locationId < 701) {
         element.createdAt = (new Date(twoDaysAgo.getTime() + (index - 475) * 50000)).toISOString();
-      } else if (element.locationId < 1398) {
+      } else if (element.locationId <= 1398) {
         element.createdAt = (new Date(yesterday.getTime() + (index - 701) * 50000)).toISOString();
       }
     });

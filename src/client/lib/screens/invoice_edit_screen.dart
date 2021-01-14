@@ -59,7 +59,7 @@ class _EditInvoiceScreenState extends State<EditInvoiceScreen> {
   int _price;
   int _estimatePrice;
   int _distance;
-  int _duration;
+  Duration _duration;
   bool _isValid;
   bool _isAccepted;
   DateTime _invoicedAt;
@@ -69,6 +69,8 @@ class _EditInvoiceScreenState extends State<EditInvoiceScreen> {
   @override
   void initState() {
     super.initState();
+    print("***************************");
+    print('invoice_edit_screen: ${widget.invoice.toJson()}');
     _taskProvider = Provider.of<TaskProvider>(context, listen: false);
     _userProvider = Provider.of<UserProvider>(context, listen: false);
     _locationProvider = Provider.of<LocationProvider>(context, listen: false);
@@ -89,7 +91,7 @@ class _EditInvoiceScreenState extends State<EditInvoiceScreen> {
     _price = widget.invoice.price;
     _estimatePrice = widget.invoice.estimatePrice;
     _distance = widget.invoice.distance;
-    _duration = widget.invoice.duration;
+    _duration = Duration(milliseconds: widget.invoice.duration);
     _isValid = widget.invoice.isValid;
     _isAccepted = widget.invoice.isAccepted;
     _invoicedAt = widget.invoice.invoicedAt;
@@ -160,7 +162,7 @@ class _EditInvoiceScreenState extends State<EditInvoiceScreen> {
           price: _price,
           estimatePrice: _estimatePrice,
           distance: _distance,
-          duration: _duration,
+          duration: _duration.inMilliseconds,
           isValid: _isValid,
           isAccepted: _isAccepted,
           invoicedAt: _invoicedAt,
@@ -227,8 +229,7 @@ class _EditInvoiceScreenState extends State<EditInvoiceScreen> {
     _controllerEstimatePrice.text = _estimatePrice.toString() + " TL";
     _controllerDistance.text =
         (_distance / 1000).toStringAsFixed(2) + " Kilometre";
-    _controllerDuration.text =
-        (_duration / 60000).toStringAsFixed(2) + " Dakika";
+    _controllerDuration.text = _duration.toString().split(".")[0];
     _invoicedAt = _endLocation.createdAt;
     _controllerInvoicedAt.text = _invoicedAt.toString().split(" ")[0];
   }
@@ -266,9 +267,7 @@ class _EditInvoiceScreenState extends State<EditInvoiceScreen> {
   }
 
   void calculateDuration() {
-    _duration = _beginLocation.createdAt
-        .difference(_endLocation.createdAt)
-        .inMicroseconds;
+    _duration = _endLocation.createdAt.difference(_beginLocation.createdAt);
   }
 
   void calculateIsValid() {
