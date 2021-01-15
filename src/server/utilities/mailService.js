@@ -10,8 +10,11 @@ class EmailService {
     pass = "rrptbeud2d"
   } = {}
   ){
+    console.log(service);
     this.transporter = nodemailer.createTransport({
-      service,
+      host:"smtp.gmail.com",
+      port: 465,
+      secure:true,
       auth: {
         user,
         pass,
