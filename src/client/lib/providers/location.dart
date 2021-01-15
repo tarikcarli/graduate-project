@@ -24,7 +24,6 @@ class LocationProvider with ChangeNotifier {
 
   void settingsBackgroundTracking(
       {String token, int operatorId, int adminId}) async {
-    print("settingsBackgroundTracking Info: $token $operatorId $adminId");
     ReceivePort port = ReceivePort();
     if (IsolateNameServer.lookupPortByName(
             LocationServiceRepository.isolateName) !=
@@ -37,15 +36,14 @@ class LocationProvider with ChangeNotifier {
     port.listen(
       (dynamic data) async {
         try {
-          print("**********************************");
-          print(
-              "locationListenerCalback Location Data: ${json.encode(data)} Location: latitude: ${data.latitude} longitude: ${data.longitude}");
-          currentLocation = Location(
-            latitude: data.latitude,
-            longitude: data.longitude,
-            createdAt: DateTime.now(),
-            operatorId: operatorId,
-          );
+          if (data?.latitude != null && data?.longitude != null) {
+            currentLocation = Location(
+              latitude: data.latitude,
+              longitude: data.longitude,
+              createdAt: DateTime.now(),
+              operatorId: operatorId,
+            );
+          }
           notifyListeners();
         } catch (error) {
           print("**********************************");

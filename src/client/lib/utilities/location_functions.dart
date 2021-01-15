@@ -13,7 +13,7 @@ class LocationFunctions {
       @required int operatorId}) {
     double distanceFilter = 25;
     Map<String, dynamic> data = {
-      'countInit': 1,
+      'countInit': 1.toString(),
       "token": token,
       "adminId": adminId.toString(),
       "operatorId": operatorId.toString(),

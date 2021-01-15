@@ -22,31 +22,29 @@ class LocationServiceRepository {
   int adminId;
   int operatorId;
   Future<void> init(Map<dynamic, dynamic> params) async {
-    if (params.containsKey('countInit')) {
-      dynamic tmpCount = params['countInit'];
-      if (tmpCount is double) {
-        _count = tmpCount.toInt();
-      } else if (tmpCount is String) {
-        _count = int.parse(tmpCount);
-      } else if (tmpCount is int) {
-        _count = tmpCount;
-      } else {
-        _count = -2;
+    try {
+      if (params.containsKey('countInit')) {
+        if (params.containsKey('countInit')) {
+          _count = int.parse(params['countInit']);
+        }
+        if (params.containsKey('token')) {
+          token = params['token'];
+        }
+        if (params.containsKey('adminId')) {
+          adminId = int.parse(params['adminId']);
+        }
+        if (params.containsKey('operatorId')) {
+          operatorId = int.parse(params['operatorId']);
+        }
+        final SendPort send = IsolateNameServer.lookupPortByName(isolateName);
+        send?.send(null);
       }
-    } else {
-      _count = 0;
+    } catch (error) {
+      print("Error isolate init: $error");
+    } finally {
+      print(
+          "Isolates is running with count: $_count token: $token adminId: $adminId operatorId: $operatorId");
     }
-    if (params.containsKey('token')) {
-      token = params['token'];
-    }
-    if (params.containsKey('adminId')) {
-      adminId = int.parse(params['adminId']);
-    }
-    if (params.containsKey('operatorId')) {
-      operatorId = int.parse(params['operatorId']);
-    }
-    final SendPort send = IsolateNameServer.lookupPortByName(isolateName);
-    send?.send(null);
   }
 
   Future<void> dispose() async {
@@ -55,17 +53,23 @@ class LocationServiceRepository {
   }
 
   Future<void> callback(LocationDto locationDto) async {
-    // print('$_count location in dart: ${locationDto.toString()}');
-
-    await getPosition(
-        count: _count,
-        data: locationDto,
-        token: token,
+    print("*****************************************************");
+    print("getPosition $_count Location: ${locationDto.toJson()}");
+    try {
+      await sendLocationWithCheck(
         adminId: adminId,
-        operatorId: operatorId);
-    final SendPort send = IsolateNameServer.lookupPortByName(isolateName);
-    send?.send(locationDto);
-    _count++;
+        operatorId: operatorId,
+        latitude: locationDto.latitude,
+        longitude: locationDto.longitude,
+        token: token,
+      );
+      final SendPort send = IsolateNameServer.lookupPortByName(isolateName);
+      send?.send(locationDto);
+      _count++;
+    } catch (error) {
+      print("************************");
+      print("Error in callback, sendLocationWithCheck: $error");
+    }
   }
 
   static Future<void> getPosition({
@@ -74,22 +78,7 @@ class LocationServiceRepository {
     int adminId,
     int operatorId,
     LocationDto data,
-  }) async {
-    print("****************************");
-    print("getPosition Location: ${data.toJson()}");
-    try {
-      await sendLocationWithCheck(
-        adminId: adminId,
-        operatorId: operatorId,
-        latitude: data.latitude,
-        longitude: data.longitude,
-        token: token,
-      );
-    } catch (error) {
-      print("************************");
-      print("Error in getPosition sendLocationWithCheck: $error");
-    }
-  }
+  }) async {}
 
   static double dp(double val, int places) {
     double mod = pow(10.0, places);
