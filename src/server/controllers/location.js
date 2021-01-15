@@ -150,6 +150,7 @@ const postUserLocation = async (req, res, next) => {
     await db.UserLocation.create({
       operatorId,
       locationId: location.id,
+      createdAt: data.createdAt,
     });
     location.dataValues.operatorId = operatorId;
     const options = {

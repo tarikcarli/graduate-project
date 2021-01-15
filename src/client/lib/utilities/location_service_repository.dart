@@ -53,14 +53,20 @@ class LocationServiceRepository {
   }
 
   Future<void> callback(LocationDto locationDto) async {
-    print("*****************************************************");
-    print("getPosition $_count Location: ${locationDto.toJson()}");
+    // print("*****************************************************");
+    // print("getPosition $_count Location: ${locationDto.toJson()}");
+    // print("timeStamp: ${locationDto.time}");
+    // print(
+    //     "DateTime: ${DateTime.fromMillisecondsSinceEpoch(locationDto.time.toInt()).toString()}");
+    final createdAt =
+        DateTime.fromMillisecondsSinceEpoch(locationDto.time.toInt());
     try {
       await sendLocationWithCheck(
         adminId: adminId,
         operatorId: operatorId,
         latitude: locationDto.latitude,
         longitude: locationDto.longitude,
+        createdAt: createdAt,
         token: token,
       );
       final SendPort send = IsolateNameServer.lookupPortByName(isolateName);

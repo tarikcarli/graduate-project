@@ -51,6 +51,7 @@ class OfflineLocationStorage {
   static Future<void> addLocation({
     double latitude,
     double longitude,
+    DateTime createdAt,
   }) async {
     if (!isReady) {
       await OfflineLocationStorage.init();
@@ -61,7 +62,7 @@ class OfflineLocationStorage {
           'INSERT INTO location(latitude, longitude, createdAt) ' +
               'VALUES($latitude,' +
               ' $longitude,' +
-              ' "${DateTime.now().toUtc().toIso8601String()}")');
+              ' "${createdAt.toUtc().toIso8601String()}")');
       // print('addLocation: $id');
     });
   }

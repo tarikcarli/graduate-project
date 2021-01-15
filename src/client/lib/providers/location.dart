@@ -51,11 +51,11 @@ class LocationProvider with ChangeNotifier {
         }
       },
     );
-    print('Initializing...');
+    // print('Initializing...');
     await BackgroundLocator.initialize();
-    print('Initialization done');
-    final _isRunning = await BackgroundLocator.isServiceRunning();
-    print('Running $_isRunning');
+    // print('Initialization done');
+    // final _isRunning = await BackgroundLocator.isServiceRunning();
+    // print('Running $_isRunning');
   }
 
   void allowBackgroundTracking(
@@ -107,17 +107,17 @@ class LocationProvider with ChangeNotifier {
         json.decode(response.body)["data"]["locations"].forEach((e) {
           historyLocation.add(Location.fromJson(e));
         });
-        print("************************************");
-        print("History Location Length: ${historyLocation.length}");
+        // print("************************************");
+        // print("History Location Length: ${historyLocation.length}");
         historyLocation.forEach((location) {
           location.createdAt = location.createdAt.toLocal();
         });
         historyLocation.sort((a, b) => a.createdAt.compareTo(b.createdAt));
         notifyListeners();
-        print("************************************");
-        historyLocation.forEach((location) {
-          print(location.toJson());
-        });
+        // print("************************************");
+        // historyLocation.forEach((location) {
+        //   print(location.toJson());
+        // });
         return;
       }
     } catch (error) {
@@ -156,22 +156,6 @@ class LocationProvider with ChangeNotifier {
       latitude,
       longitude,
       token,
-    );
-  }
-
-  Future<void> sendLocationUser({
-    @required int adminId,
-    @required int operatorId,
-    @required double latitude,
-    @required double longitude,
-    @required String token,
-  }) async {
-    sendLocationWithCheck(
-      adminId: adminId,
-      operatorId: operatorId,
-      latitude: latitude,
-      longitude: longitude,
-      token: token,
     );
   }
 
@@ -365,12 +349,13 @@ Future<void> sendLocationWithCheck({
   @required int operatorId,
   @required double latitude,
   @required double longitude,
+  @required DateTime createdAt,
   @required String token,
 }) async {
   http.Response response;
   // print("***************************");
   // print(
-  //     "send LocationWithCheck Info: $adminId $operatorId $latitude $longitude $token");
+  //     "send LocationWithCheck Info: $adminId $operatorId $latitude $longitude ${createdAt.toIso8601String()} $token");
   try {
     final result = await OfflineLocationStorage.getLocation();
     if (result.length == 0) {
@@ -379,6 +364,7 @@ Future<void> sendLocationWithCheck({
         operatorId: operatorId,
         latitude: latitude,
         longitude: longitude,
+        createdAt: createdAt,
         token: token,
       );
       return;
@@ -403,15 +389,18 @@ Future<void> sendLocationWithCheck({
           operatorId: operatorId,
           latitude: latitude,
           longitude: longitude,
+          createdAt: createdAt,
           token: token,
         );
       }
     }
   } catch (error) {
-    print(error);
+    print("**********************************");
+    print("Error sendLocationWithCheck: $error");
     OfflineLocationStorage.addLocation(
       latitude: latitude,
       longitude: longitude,
+      createdAt: createdAt,
     );
   }
 }
@@ -421,6 +410,7 @@ Future<void> safeSendLocation({
   @required int operatorId,
   @required double latitude,
   @required double longitude,
+  @required DateTime createdAt,
   @required String token,
 }) async {
   if (MyProvider?.task?.existActiveTask() != null) {
@@ -474,6 +464,7 @@ Future<void> safeSendLocation({
           "location": {
             "latitude": latitude,
             "longitude": longitude,
+            "createdAt": createdAt.toUtc().toIso8601String(),
           }
         },
       },

@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 
 class URL {
-  // static const httpUrl = 'http://207.154.227.232:4000/'; //  OCEAN
-  // static const wsUrl = 'ws://207.154.227.232:4000/'; //  OCEAN
-  static const httpUrl = 'http://192.168.43.233:4000/'; //  HOME
-  static const wsUrl = 'ws://192.168.43.233:4000/'; //  HOME
+  static const httpUrl = 'http://207.154.227.232:4000/'; //  OCEAN
+  static const wsUrl = 'ws://207.154.227.232:4000/'; //  OCEAN
+  // static const httpUrl = 'http://192.168.1.43:4000/'; //  HOME
+  // static const wsUrl = 'ws://192.168.1.43:4000/'; //  HOME
   static Map<String, String> jsonHeader({String token}) {
     final headers = {"Content-type": "application/json"};
     if (token != null) headers['authorization'] = 'Bearer $token';
